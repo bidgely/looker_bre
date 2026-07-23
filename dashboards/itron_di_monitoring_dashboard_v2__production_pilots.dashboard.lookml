@@ -4,9 +4,6 @@
   preferred_viewer: dashboards-next
   description: ''
   layout: newspaper
-  tabs:
-  - name: ''
-    label: ''
   elements:
   - title: "% of active meters with no messages ingested [Primary Time Filter & Granularity]"
     name: "% of active meters with no messages ingested [Primary Time Filter & Granularity]"
