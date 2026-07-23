@@ -10,7 +10,7 @@
   elements:
   - title: "% of active meters with no messages ingested [Primary Time Filter & Granularity]"
     name: "% of active meters with no messages ingested [Primary Time Filter & Granularity]"
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_line
     fields: [date_series.dynamic_date, itron_di_monitoring.count_meter_with_data,
@@ -107,7 +107,7 @@
     tab_name: ''
   - title: Breakup of data points received per meter [Secondary Time Filter]
     name: Breakup of data points received per meter [Secondary Time Filter]
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_di_monitoring.total_entries_percentile_category,
@@ -218,7 +218,7 @@
     tab_name: ''
   - title: Breakup of data points processed per meter [Secondary Time Filter]
     name: Breakup of data points processed per meter [Secondary Time Filter]
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
@@ -348,7 +348,7 @@
       & Granularity]
     name: Number of meters with EV-related messages received [Primary Time Filter
       & Granularity]
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
@@ -452,7 +452,7 @@
       & Granularity]
     name: EV Charge Events without its corresponding counterpart [Primary Time Filter
       & Granularity]
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
@@ -556,7 +556,7 @@
     tab_name: ''
   - title: "% of active meters - Processed Data 15 Min [Primary Time Filter & Granularity] "
     name: "% of active meters - Processed Data 15 Min [Primary Time Filter & Granularity] "
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
@@ -689,7 +689,7 @@
     tab_name: ''
   - title: Meter Enrollment Status
     name: Meter Enrollment Status
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_enrollment_files.count_enrolled_meters,
@@ -805,7 +805,7 @@
     tab_name: ''
   - title: Total Configuration Issued with Status
     name: Total Configuration Issued with Status
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_config_issued.count_users_config_issued,
@@ -922,7 +922,7 @@
     tab_name: ''
   - title: Total Configuration confirmations Received
     name: Total Configuration confirmations Received
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_column
     fields: [date_series.dynamic_date, itron_config_confirmation.count_meter_config_confirmation,
@@ -1032,7 +1032,7 @@
     tab_name: ''
   - title: Configuration Issued with >0 Retries
     name: Configuration Issued with >0 Retries
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_line
     fields: [date_series.dynamic_date, itron_config_issued.total_entries_sum, itron_config_issued.total_entries_with_retries_sum,
@@ -1156,7 +1156,7 @@
     tab_name: ''
   - title: Configuration Issued Failed on Daily Basis
     name: Configuration Issued Failed on Daily Basis
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_line
     fields: [date_series.dynamic_date, itron_config_issued.count_users_config_issued,
@@ -1280,7 +1280,7 @@
     tab_name: ''
   - title: Average time required for a successful configuration
     name: Average time required for a successful configuration
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_line
     fields: [date_series.dynamic_date, itron_config_issued.average_time_required_seconds,
@@ -1414,7 +1414,7 @@
     tab_name: ''
   - title: Solar Generation Data
     name: Solar Generation Data
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     type: looker_area
     fields: [itron_solar_uat_data.date_hour_time, itron_solar_uat_data.status, itron_solar_uat_data.distinct_uuid_count]
@@ -1553,7 +1553,7 @@
     ui_config:
       type: checkboxes
       display: popover
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     listens_to_filters: []
     field: itron_enrollment_files.pilot_id
@@ -1568,7 +1568,7 @@
       display: popover
       options:
       - past
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     listens_to_filters: []
     field: date_series.continous_date
@@ -1582,7 +1582,7 @@
       type: relative_timeframes
       display: inline
       options: []
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     listens_to_filters: []
     field: date_series.continous_date
@@ -1595,7 +1595,7 @@
     ui_config:
       type: button_toggles
       display: overflow
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     listens_to_filters: []
     field: itron_enrollment_files.active_meter
@@ -1608,7 +1608,7 @@
     ui_config:
       type: dropdown_menu
       display: overflow
-    model: itron
+    model: bre_itron
     explore: itron_enrollment_files
     listens_to_filters: []
     field: date_series.timestamp_parameter
