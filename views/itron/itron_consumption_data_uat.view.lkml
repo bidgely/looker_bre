@@ -7,11 +7,11 @@ view: itron_consumption_data_uat{
               data_date,
               COUNT(uuid) AS raw_count,
               CASE
-                  WHEN pilot_id = '10014' THEN COUNT(uuid)/3
+                  WHEN pilot_id = 10014 THEN COUNT(uuid)/3
                   ELSE COUNT(uuid)
               END AS adjusted_count
           FROM public.raw_consumption_data
-          WHERE pilot_id IN ('10112', '10014', '10117','10118','10126', '10223', '10224')
+          WHERE pilot_id IN (10112, 10014, 10117, 10118, 10126, 10223, 10224)
           GROUP BY uuid, pilot_id, data_date
       )
       SELECT

@@ -47,19 +47,19 @@ view: itron_enrollment_files {
   }
 
   dimension: pilot_id {
-    type: string
+    type: number
     sql: ${TABLE}.pilot_id ;;
   }
 
   dimension: pilot_name {
     type: string
-    sql: case when ${pilot_id} =  '10112' then 'TECO'
-              when ${pilot_id} =  '10014' then 'SMUD'
-              when ${pilot_id} =  '10224' then 'CNP' --updated from 10015 UAT
-              when ${pilot_id} =  '10117' then 'SCE'
-              when ${pilot_id} =  '10118' then 'Pecan ST'
-              when ${pilot_id} =  '10126' then 'Hydro One'
-              when ${pilot_id} =  '10223' then 'LUMA'
+    sql: case when ${pilot_id} =  10112 then 'TECO'
+              when ${pilot_id} =  10014 then 'SMUD'
+              when ${pilot_id} =  10224 then 'CNP' --updated from 10015 UAT
+              when ${pilot_id} =  10117 then 'SCE'
+              when ${pilot_id} =  10118 then 'Pecan ST'
+              when ${pilot_id} =  10126 then 'Hydro One'
+              when ${pilot_id} =  10223 then 'LUMA'
               else 'Others' end
         ;;
   }
