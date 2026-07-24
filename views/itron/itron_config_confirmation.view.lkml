@@ -32,7 +32,7 @@ view: itron_config_confirmation {
     primary_key: yes
     hidden: yes
     type: string
-    sql: ${meter_id} || '-' || ${lastdatatimestamp} ;;
+    sql: ${meter_id} || '-' || CAST(${lastdatatimestamp} AS varchar) ;;
   }
 
   dimension_group: update_time {

@@ -104,7 +104,7 @@ view: itron_appliance_data {
 
   dimension: meter_event_key {
     type: string
-    sql: ${meter_id}||${eventcapturetime};;
+    sql: ${meter_id}||CAST(${eventcapturetime} AS varchar);;
     #primary_key: yes
     hidden: yes  # Optional: hide it from Explore UI
   }
