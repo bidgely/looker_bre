@@ -39,7 +39,7 @@ view: date_series {
 
   dimension: dynamic_date {
     type: string
-    sql: case when {% parameter timestamp_parameter %} = 'date' then date_format(${continous_date}, '%Y-%m-%d')
+    sql: case when {% parameter timestamp_parameter %} = 'date' then CAST(CAST(${continous_date} AS date) AS varchar)
                when {% parameter timestamp_parameter %} = 'week' then ${continous_week}
                when {% parameter timestamp_parameter %} = 'month' then ${continous_month}
                END ;;
