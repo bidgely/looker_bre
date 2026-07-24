@@ -3,8 +3,8 @@ view: itron_enrollment_files {
     sql: with meter_events as (
           select event_id, uuid, gateway_ordinal, meter_ordinal, start_timestamp, end_timestamp, event_timestamp, token,
           SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) AS meter_id,
-          row_number() over (partition by uuid, meter_id order by event_timestamp) as rid_start,
-          row_number() over (partition by uuid, meter_id order by event_timestamp desc) as rid_end,
+          row_number() over (partition by uuid, SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) order by event_timestamp) as rid_start,
+          row_number() over (partition by uuid, SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) order by event_timestamp desc) as rid_end,
           case when end_timestamp > 0 then true else false end as closed_meter_event_available
           from public.enrollment_events
           where event_type like 'METER%' and meter_ordinal > 0
