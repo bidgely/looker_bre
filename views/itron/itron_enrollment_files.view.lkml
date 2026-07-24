@@ -20,15 +20,19 @@ view: itron_enrollment_files {
         meter_end_events as (
           select *
           from meter_events
-          where rid_end = 1 and closed_meter_event_available = true)
+          where rid_end = 1 and closed_meter_event_available = true),
 
-        select a.uuid, c.pilot_id, a.meter_id, a.start_timestamp, b.end_timestamp,
-        case when b.end_timestamp is null and a.start_timestamp <= to_unixtime(current_timestamp) then true
-             when b.end_timestamp > to_unixtime(current_timestamp) then true else false end as is_active_meter
-        from meter_start_events a
-        left join meter_end_events b
-        on a.meter_id = b.meter_id
-        left join public.user_meta_data c on a.uuid = c.uuid
+        meter_status as (
+          select a.uuid, c.pilot_id, a.meter_id, a.start_timestamp, b.end_timestamp,
+          case when b.end_timestamp is null and a.start_timestamp <= to_unixtime(current_timestamp) then true
+               when b.end_timestamp > to_unixtime(current_timestamp) then true else false end as is_active_meter
+          from meter_start_events a
+          left join meter_end_events b
+          on a.meter_id = b.meter_id
+          left join public.user_meta_data c on a.uuid = c.uuid
+        )
+
+        select * from meter_status
         where {%condition active_meter%} is_active_meter {%endcondition%}
       ;;
   }
