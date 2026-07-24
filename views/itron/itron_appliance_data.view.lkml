@@ -98,7 +98,7 @@ view: itron_appliance_data {
 
   dimension: corresponding_event_flag {
     type: string
-    sql: ${TABLE}.corresponding_event_flag ;;
+    sql: CASE WHEN ${TABLE}.corresponding_event_flag THEN 'TRUE' ELSE 'FALSE' END ;;
     hidden: yes
   }
 
