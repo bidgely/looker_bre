@@ -5,20 +5,25 @@ view: itron_appliance_data {
             eventcapturetime, amplitude_value, current, power_factor, power_value, voltage
             from (
                     SELECT *,
-                    json_extract_scalar(metadata, '$.Amplitude') AS amplitude_value,
-                    json_extract_scalar(metadata, '$.current') AS current,
-                    json_extract_scalar(metadata, '$.power_factor') AS power_factor,
-                    json_extract_scalar(metadata, '$.power') AS power_value,
-                    json_extract_scalar(metadata, '$.voltage') AS voltage,
+                    metadata.amplitude AS amplitude_value,
+                    metadata."current" AS current,
+                    metadata.power_factor AS power_factor,
+                    CAST(NULL AS varchar) AS power_value,
+                    metadata.voltage AS voltage,
                     row_number() over (partition by utilityid, meterid, applianceid, eventtype, eventtime, eventcapturetime order by lastdatatimestamp desc) as rid
                     FROM public.itron_appliance_data
                     --where meterid = '2.16.840.1.114416.15.80.1000332688'
                     )
-            where rid = 1 )
+            where rid = 1 ),
 
-      select *, LAG(eventtype, 1) OVER (PARTITION BY utilityid, meterid, applianceid ORDER BY eventtime) as lag_event_type,
+      lagged_events as (
+        select *, LAG(eventtype, 1) OVER (PARTITION BY utilityid, meterid, applianceid ORDER BY eventtime) as lag_event_type
+        from appliance_events
+      )
+
+      select *,
       case when lag_event_type is not null and lag_event_type = eventtype then TRUE else FALSE end as corresponding_event_flag
-      from appliance_events ;;
+      from lagged_events ;;
   }
 
   measure: count {
@@ -93,13 +98,13 @@ view: itron_appliance_data {
 
   dimension: corresponding_event_flag {
     type: string
-    sql: ${TABLE}.corresponding_event_flag ;;
+    sql: CASE WHEN ${TABLE}.corresponding_event_flag THEN 'TRUE' ELSE 'FALSE' END ;;
     hidden: yes
   }
 
   dimension: meter_event_key {
     type: string
-    sql: ${meter_id}||${eventcapturetime};;
+    sql: ${meter_id}||CAST(${eventcapturetime} AS varchar);;
     #primary_key: yes
     hidden: yes  # Optional: hide it from Explore UI
   }

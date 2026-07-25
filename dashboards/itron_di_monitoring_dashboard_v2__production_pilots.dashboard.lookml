@@ -101,7 +101,6 @@
     col: 0
     width: 15
     height: 9
-    tab_name: ''
   - title: Breakup of data points received per meter [Secondary Time Filter]
     name: Breakup of data points received per meter [Secondary Time Filter]
     model: bre_itron
@@ -203,7 +202,6 @@
     col: 15
     width: 9
     height: 9
-    tab_name: ''
   - name: EV Charge Events
     type: text
     title_text: EV Charge Events
@@ -212,7 +210,6 @@
     col: 0
     width: 24
     height: 2
-    tab_name: ''
   - title: Breakup of data points processed per meter [Secondary Time Filter]
     name: Breakup of data points processed per meter [Secondary Time Filter]
     model: bre_itron
@@ -320,7 +317,6 @@
     col: 15
     width: 9
     height: 9
-    tab_name: ''
   - name: Ingested Data Report
     type: text
     title_text: Ingested Data Report
@@ -330,7 +326,6 @@
     col: 0
     width: 24
     height: 2
-    tab_name: ''
   - name: Processes Data Report
     type: text
     title_text: Processes Data Report
@@ -340,7 +335,6 @@
     col: 0
     width: 24
     height: 2
-    tab_name: ''
   - title: Number of meters with EV-related messages received [Primary Time Filter
       & Granularity]
     name: Number of meters with EV-related messages received [Primary Time Filter
@@ -444,7 +438,6 @@
     col: 0
     width: 12
     height: 9
-    tab_name: ''
   - title: EV Charge Events without its corresponding counterpart [Primary Time Filter
       & Granularity]
     name: EV Charge Events without its corresponding counterpart [Primary Time Filter
@@ -550,7 +543,6 @@
     col: 12
     width: 12
     height: 9
-    tab_name: ''
   - title: "% of active meters - Processed Data 15 Min [Primary Time Filter & Granularity] "
     name: "% of active meters - Processed Data 15 Min [Primary Time Filter & Granularity] "
     model: bre_itron
@@ -674,7 +666,6 @@
     col: 0
     width: 15
     height: 9
-    tab_name: ''
   - name: Configuration Messages
     type: text
     title_text: Configuration Messages
@@ -683,7 +674,6 @@
     col: 0
     width: 24
     height: 2
-    tab_name: ''
   - title: Meter Enrollment Status
     name: Meter Enrollment Status
     model: bre_itron
@@ -799,7 +789,6 @@
     col: 0
     width: 24
     height: 8
-    tab_name: ''
   - title: Total Configuration Issued with Status
     name: Total Configuration Issued with Status
     model: bre_itron
@@ -916,7 +905,6 @@
     col: 0
     width: 24
     height: 8
-    tab_name: ''
   - title: Total Configuration confirmations Received
     name: Total Configuration confirmations Received
     model: bre_itron
@@ -1026,7 +1014,6 @@
     col: 0
     width: 24
     height: 8
-    tab_name: ''
   - title: Configuration Issued with >0 Retries
     name: Configuration Issued with >0 Retries
     model: bre_itron
@@ -1150,7 +1137,6 @@
     col: 8
     width: 8
     height: 8
-    tab_name: ''
   - title: Configuration Issued Failed on Daily Basis
     name: Configuration Issued Failed on Daily Basis
     model: bre_itron
@@ -1274,7 +1260,6 @@
     col: 0
     width: 8
     height: 8
-    tab_name: ''
   - title: Average time required for a successful configuration
     name: Average time required for a successful configuration
     model: bre_itron
@@ -1398,7 +1383,6 @@
     col: 16
     width: 8
     height: 8
-    tab_name: ''
   - name: Solar Generation
     type: text
     title_text: Solar Generation
@@ -1408,7 +1392,6 @@
     col: 0
     width: 24
     height: 2
-    tab_name: ''
   - title: Solar Generation Data
     name: Solar Generation Data
     model: bre_itron
@@ -1539,7 +1522,6 @@
     col: 0
     width: 24
     height: 11
-    tab_name: ''
   filters:
   - name: 'Pilot ID [10112 : TECO, 10118 : Pecan ST, 10223: LUMA, 10224: CNP]'
     title: 'Pilot ID [10112 : TECO, 10118 : Pecan ST, 10223: LUMA, 10224: CNP]'

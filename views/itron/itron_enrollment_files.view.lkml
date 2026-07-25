@@ -3,12 +3,12 @@ view: itron_enrollment_files {
     sql: with meter_events as (
           select event_id, uuid, gateway_ordinal, meter_ordinal, start_timestamp, end_timestamp, event_timestamp, token,
           SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) AS meter_id,
-          row_number() over (partition by uuid, meter_id order by event_timestamp) as rid_start,
-          row_number() over (partition by uuid, meter_id order by event_timestamp desc) as rid_end,
+          row_number() over (partition by uuid, SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) order by event_timestamp) as rid_start,
+          row_number() over (partition by uuid, SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) order by event_timestamp desc) as rid_end,
           case when end_timestamp > 0 then true else false end as closed_meter_event_available
-          from reporting.enrollment_events
+          from public.enrollment_events
           where event_type like 'METER%' and meter_ordinal > 0
-          and uuid in (select uuid from user_meta_data where pilot_id in ('10112', '10014', '10117', '10118', '10126', '10223', '10224'))
+          and uuid in (select uuid from user_meta_data where pilot_id in (10112, 10014, 10117, 10118, 10126, 10223, 10224))
           --and uuid = 'e0341b49-653c-4d44-b5e3-c19f4a816658'
           ),
 
@@ -20,15 +20,19 @@ view: itron_enrollment_files {
         meter_end_events as (
           select *
           from meter_events
-          where rid_end = 1 and closed_meter_event_available = true)
+          where rid_end = 1 and closed_meter_event_available = true),
 
-        select a.uuid, c.pilot_id, a.meter_id, a.start_timestamp, b.end_timestamp,
-        case when b.end_timestamp is null and a.start_timestamp <= to_unixtime(current_timestamp) then true
-             when b.end_timestamp > to_unixtime(current_timestamp) then true else false end as is_active_meter
-        from meter_start_events a
-        left join meter_end_events b
-        on a.meter_id = b.meter_id
-        left join public.user_meta_data c on a.uuid = c.uuid
+        meter_status as (
+          select a.uuid, c.pilot_id, a.meter_id, a.start_timestamp, b.end_timestamp,
+          case when b.end_timestamp is null and a.start_timestamp <= to_unixtime(current_timestamp) then true
+               when b.end_timestamp > to_unixtime(current_timestamp) then true else false end as is_active_meter
+          from meter_start_events a
+          left join meter_end_events b
+          on a.meter_id = b.meter_id
+          left join public.user_meta_data c on a.uuid = c.uuid
+        )
+
+        select * from meter_status
         where {%condition active_meter%} is_active_meter {%endcondition%}
       ;;
   }
@@ -43,19 +47,19 @@ view: itron_enrollment_files {
   }
 
   dimension: pilot_id {
-    type: string
+    type: number
     sql: ${TABLE}.pilot_id ;;
   }
 
   dimension: pilot_name {
     type: string
-    sql: case when ${pilot_id} =  '10112' then 'TECO'
-              when ${pilot_id} =  '10014' then 'SMUD'
-              when ${pilot_id} =  '10224' then 'CNP' --updated from 10015 UAT
-              when ${pilot_id} =  '10117' then 'SCE'
-              when ${pilot_id} =  '10118' then 'Pecan ST'
-              when ${pilot_id} =  '10126' then 'Hydro One'
-              when ${pilot_id} =  '10223' then 'LUMA'
+    sql: case when ${pilot_id} =  10112 then 'TECO'
+              when ${pilot_id} =  10014 then 'SMUD'
+              when ${pilot_id} =  10224 then 'CNP' --updated from 10015 UAT
+              when ${pilot_id} =  10117 then 'SCE'
+              when ${pilot_id} =  10118 then 'Pecan ST'
+              when ${pilot_id} =  10126 then 'Hydro One'
+              when ${pilot_id} =  10223 then 'LUMA'
               else 'Others' end
         ;;
   }

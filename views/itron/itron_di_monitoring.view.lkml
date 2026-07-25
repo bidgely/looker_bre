@@ -3,14 +3,18 @@ view: itron_di_monitoring {
     sql: select pilot_id, meter_id, start_date as event_date, sum(daily_entries)*48 as total_daily_entries
         --,sum(total_consumption_value) as total_daily_consumption_value
             from (
-                    select utilityid as pilot_id, meterid as meter_id, starttime, lastdatatimestamp,
-                    date(from_unixtime(CAST(starttime AS bigint), 'US/Eastern')) as start_date,
-                    date(from_unixtime(CAST(lastdatatimestamp AS bigint) / 1000, 'US/Eastern')) as end_date,
-                    count(starttime) as daily_entries
-                    from public.itron_feature_messages
+                    select pilot_id, meter_id, start_date, daily_entries
+                    from (
+                            select utilityid as pilot_id, meterid as meter_id, starttime, lastdatatimestamp,
+                            date(from_unixtime(CAST(starttime AS bigint), 'US/Eastern')) as start_date,
+                            date(from_unixtime(CAST(lastdatatimestamp AS bigint) / 1000, 'US/Eastern')) as end_date,
+                            count(starttime) as daily_entries
+                            from public.itron_feature_messages
+                            group by 1,2,3,4,5,6
+                         )
                     where {%condition itron_di_monitoring.pilot_id%} pilot_id {%endcondition%}
                             and {%condition date_series.continous_date%} start_date {%endcondition%}
-                    group by 1,2,3,4,5,6 )
+                 )
             group by 1,2,3 ;;
   }
 

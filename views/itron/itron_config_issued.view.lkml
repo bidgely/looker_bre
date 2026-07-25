@@ -57,13 +57,13 @@ view: itron_config_issued {
     primary_key: yes
     hidden: yes
     type: string
-    sql: ${uuid} || '-' || ${start_date_for_config_generation} || '-' || ${end_date_for_config_generation} || '-' || ${status} ;;
+    sql: ${uuid} || '-' || CAST(${start_date_for_config_generation} AS varchar) || '-' || CAST(${end_date_for_config_generation} AS varchar) || '-' || ${status} ;;
   }
 
   dimension: config_key {
     hidden: yes
     type: string
-    sql: to_hex(md5(to_utf8(${uuid} || '-' || ${start_date_for_config_generation} || '-' || ${end_date_for_config_generation}))) ;;
+    sql: to_hex(md5(to_utf8(${uuid} || '-' || CAST(${start_date_for_config_generation} AS varchar) || '-' || CAST(${end_date_for_config_generation} AS varchar)))) ;;
   }
 
 # Convert epoch (10-digit seconds) to readable date
@@ -126,7 +126,7 @@ view: itron_config_issued {
     #primary_key: yes
     hidden: yes
     type: string
-    sql: ${uuid} || '-' || ${latest_update_timestamp} ;;
+    sql: ${uuid} || '-' || CAST(${latest_update_timestamp} AS varchar) ;;
   }
 
 
