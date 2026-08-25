@@ -1,19 +1,18 @@
 view: date_series {
   derived_table: {
-    sql_trigger_value: select current_date ;;
     sql: WITH numbers AS (
-                    SELECT ROW_NUMBER() OVER () - 1 AS n
-                    FROM user_meta_data
-                    LIMIT 5000
-                  ),
-                  spine AS (
-                    SELECT date_add('day', -n, current_date) AS date_series
-                    FROM numbers
-                  )
-         SELECT date_series
-         FROM spine
-         WHERE date_series >= DATE '2023-06-01'
-         ORDER BY date_series ;;
+            SELECT ROW_NUMBER() OVER () - 1 AS n
+            FROM user_meta_data
+            LIMIT 5000
+          ),
+          spine AS (
+            SELECT date_add('day', -n, current_date) AS date_series
+            FROM numbers
+          )
+          SELECT date_series
+          FROM spine
+          WHERE date_series >= DATE '2023-06-01'
+          ORDER BY date_series;;
   }
 
   dimension_group: continous {

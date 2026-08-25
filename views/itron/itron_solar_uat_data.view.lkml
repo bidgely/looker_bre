@@ -15,7 +15,7 @@ view: itron_solar_uat_data {
             PARTITION BY pilot_id, uuid, "date", "hour"
             ORDER BY loaded_at DESC
           ) AS rn
-        FROM public.itron_uat_solar_data
+        FROM reporting.itron_uat_solar_data
       )
       SELECT
         uuid,
