@@ -8,7 +8,10 @@ view: itron_enrollment_files {
           case when end_timestamp > 0 then true else false end as closed_meter_event_available
           from public.enrollment_events
           where event_type like 'METER%' and meter_ordinal > 0
-          and uuid in (select uuid from user_meta_data where pilot_id in (10112, 10014, 10117, 10118, 10126, 10223, 10224))
+          and uuid in (select uuid from user_meta_data where pilot_id in (
+            10112, 10014, 10117, 10118, 10126, 10223,
+            {% if _model._name == 'bre_itron_uat' %} 10015 {% else %} 10224 {% endif %}
+          ))
           --and uuid = 'e0341b49-653c-4d44-b5e3-c19f4a816658'
           ),
 
@@ -55,7 +58,7 @@ view: itron_enrollment_files {
     type: string
     sql: case when ${pilot_id} =  10112 then 'TECO'
               when ${pilot_id} =  10014 then 'SMUD'
-              when ${pilot_id} =  10224 then 'CNP' --updated from 10015 UAT
+              when ${pilot_id} = {% if _model._name == 'bre_itron_uat' %} 10015 {% else %} 10224 {% endif %} then 'CNP'
               when ${pilot_id} =  10117 then 'SCE'
               when ${pilot_id} =  10118 then 'Pecan ST'
               when ${pilot_id} =  10126 then 'Hydro One'

@@ -11,7 +11,10 @@ view: itron_consumption_data{
               END AS data_category_15_min
       FROM (  SELECT *
               FROM public.raw_consumption_data
-              WHERE pilot_id in (10112, 10014, 10117, 10118, 10126, 10223, 10224)
+              WHERE pilot_id in (
+                10112, 10014, 10117, 10118, 10126, 10223,
+                {% if _model._name == 'bre_itron_uat' %} 10015 {% else %} 10224 {% endif %}
+              )
                -- AND uuid = 'b3a92fbc-6693-45ce-9995-9fce40759e8a' AND data_month = '2025-06-01'
             ) raw_data
       GROUP BY uuid, data_date
@@ -21,6 +24,14 @@ view: itron_consumption_data{
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  dimension: consumption_key {
+    primary_key: yes
+    hidden: yes
+    description: "Unique consumption summary for a user and data date."
+    type: string
+    sql: ${uuid} || '|' || CAST(${data_date} AS varchar) ;;
   }
 
   dimension: uuid {
