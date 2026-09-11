@@ -14,7 +14,7 @@ include: "/views/itron/itron_consumption_data.view.lkml"
 include: "/views/itron/itron_consumption_data_uat.view.lkml"
 include: "/views/itron/itron_solar_uat_data.view.lkml"
 include: "/views/itron/itron_meter_config_update_request.view.lkml"
-include: "/dashboards/*.dashboard.lookml"
+include: "/dashboards/itron_di_monitoring_dashboard_v2__production_pilots.dashboard.lookml"
 
 explore: itron_enrollment_files {
   view_name: itron_enrollment_files

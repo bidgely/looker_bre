@@ -11,7 +11,10 @@ view: itron_consumption_data_uat{
                   ELSE COUNT(uuid)
               END AS adjusted_count
           FROM public.raw_consumption_data
-          WHERE pilot_id IN (10112, 10014, 10117, 10118, 10126, 10223, 10224)
+          WHERE pilot_id IN (
+            10112, 10014, 10117, 10118, 10126, 10223,
+            {% if _model._name == 'bre_itron_uat' %} 10015 {% else %} 10224 {% endif %}
+          )
           GROUP BY uuid, pilot_id, data_date
       )
       SELECT
@@ -31,6 +34,14 @@ view: itron_consumption_data_uat{
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  dimension: consumption_key {
+    primary_key: yes
+    hidden: yes
+    description: "Unique UAT consumption summary for a user, pilot, and data date."
+    type: string
+    sql: ${uuid} || '|' || CAST(${TABLE}.pilot_id AS varchar) || '|' || CAST(${data_date} AS varchar) ;;
   }
 
   dimension: uuid {

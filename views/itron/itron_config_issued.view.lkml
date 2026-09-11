@@ -1,6 +1,17 @@
 view: itron_config_issued {
   derived_table: {
-    sql:  with base as (
+    sql:  with typed_requests as (
+            -- UAT can expose numeric values as varchar; cast before aggregation.
+            select
+              uuid,
+              CAST(start_date_for_config_generation AS bigint) as start_date_for_config_generation,
+              CAST(end_date_for_config_generation AS bigint) as end_date_for_config_generation,
+              status,
+              CAST(last_updated_timestamp AS bigint) as last_updated_timestamp,
+              CAST(retry_count AS bigint) as retry_count
+            from meter_config_update_request
+          ),
+          base as (
             select
               uuid,
               start_date_for_config_generation,
@@ -11,7 +22,7 @@ view: itron_config_issued {
               count(distinct last_updated_timestamp) as total_entries,
               count(distinct case when retry_count > 0 then last_updated_timestamp end) as total_entries_with_retries,
               sum(retry_count) as sum_of_retry_counts
-            from meter_config_update_request
+            from typed_requests
             --where uuid in ('01146133-d43b-4e7c-a949-5048a27ed363', 'bfad5e02-1e11-4be1-9d75-f273304300b9')
             group by 1, 2, 3, 4
           )
