@@ -1,0 +1,2880 @@
+--model uat from old model
+connection: "redshift-uat"
+
+include: "/datagroups.lkml"
+
+include: "/views/itron/*.view"
+include: "/views/ev/date_series.view"
+
+explore: itron_enrollment_files {
+  view_name: itron_enrollment_files
+  join: date_series {
+    view_label: "User Created Date Series"
+    type: full_outer
+    relationship: many_to_one
+    sql_on: ${itron_enrollment_files.start_time_date} <= ${date_series.continous_date} ;;
+  }
+  join: itron_di_monitoring {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${itron_enrollment_files.meter_id} = ${itron_di_monitoring.meter_id} and ${date_series.continous_date} = ${itron_di_monitoring.event_date};;
+  }
+  join: itron_appliance_data {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${itron_enrollment_files.meter_id} = ${itron_appliance_data.meter_id} and ${date_series.continous_date} = ${itron_appliance_data.event_date} and {%condition itron_appliance_data.corresponding_event_flag_filter%} ${itron_appliance_data.corresponding_event_flag} {%endcondition%};;
+  }
+  join: itron_consumption_data {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${itron_enrollment_files.uuid} = ${itron_consumption_data.uuid} and ${date_series.continous_date} = ${itron_consumption_data.data_date};;
+  }
+  join: itron_consumption_data_uat {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${itron_enrollment_files.uuid} = ${itron_consumption_data_uat.uuid} and ${date_series.continous_date} = ${itron_consumption_data_uat.data_date};;
+  }
+  join: itron_config_messages {
+    type: left_outer
+    relationship: one_to_one
+    sql_on: ${itron_enrollment_files.meter_id} = ${itron_config_messages.meter_id} and ${date_series.continous_date} = ${itron_config_messages.update_time_date};;
+  }
+  join: itron_config_confirmation {
+    view_label: "Config Confirmation"
+    type: left_outer
+    relationship: one_to_one
+    sql_on: ${itron_enrollment_files.meter_id} = ${itron_config_confirmation.meter_id} and ${date_series.continous_date} = ${itron_config_confirmation.update_time_date};;
+  }
+  join: itron_config_issued {
+    view_label: "Config Issued"
+    type: left_outer
+    relationship: one_to_one
+    sql_on: ${itron_enrollment_files.uuid} = ${itron_config_issued.uuid} and ${date_series.continous_date} = ${itron_config_issued.first_update_date};;
+  }
+  join: itron_solar_uat_data {
+    view_label: "Solar Data"
+    type: inner
+    relationship: one_to_one
+    sql_on: ${itron_enrollment_files.uuid} = ${itron_solar_uat_data.uuid} and ${date_series.continous_date} = ${itron_solar_uat_data.date_hour_date};;
+  }
+}
+
+
+
+--itron views from last model
+
+#views which works for both UAT and Prod
+
+view: itron_enrollment_files {
+  derived_table: {
+    sql: with meter_events as (
+          select event_id, uuid, gateway_ordinal, meter_ordinal, start_timestamp, end_timestamp, event_timestamp, token,
+          SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) AS meter_id,
+          row_number() over (partition by uuid, meter_id order by event_timestamp) as rid_start,
+          row_number() over (partition by uuid, meter_id order by event_timestamp desc) as rid_end,
+          case when end_timestamp > 0 then true else false end as closed_meter_event_available
+          from reporting.enrollment_events
+          where event_type like 'METER%' and meter_ordinal > 0
+          and uuid in (select uuid from user_meta_data where pilot_id in ('10112', '10014', '10117', '10118', '10126', '10223', '10224'))
+          --and uuid = 'e0341b49-653c-4d44-b5e3-c19f4a816658'
+          ),
+
+        meter_start_events as (
+          select *
+          from meter_events
+          where rid_start = 1),
+
+        meter_end_events as (
+          select *
+          from meter_events
+          where rid_end = 1 and closed_meter_event_available = true)
+
+        select a.uuid, c.pilot_id, a.meter_id, a.start_timestamp, b.end_timestamp,
+        case when b.end_timestamp is null and a.start_timestamp <= EXTRACT(EPOCH FROM GETDATE()) then true
+             when b.end_timestamp > EXTRACT(EPOCH FROM GETDATE()) then true else false end as is_active_meter
+        from meter_start_events a
+        left join meter_end_events b
+        on a.meter_id = b.meter_id
+        left join public.user_meta_data c on a.uuid = c.uuid
+        where {%condition active_meter%} is_active_meter {%endcondition%}
+      ;;
+  }
+
+  filter: active_meter {
+    type: yesno
+  }
+
+  dimension: uuid {
+    type: string
+    sql: ${TABLE}.uuid ;;
+  }
+
+  dimension: pilot_id {
+    type: string
+    sql: ${TABLE}.pilot_id ;;
+  }
+
+  dimension: pilot_name {
+    type: string
+    sql: case when ${pilot_id} =  '10112' then 'TECO'
+              when ${pilot_id} =  '10014' then 'SMUD'
+              when ${pilot_id} =  '10224' then 'CNP'. --updated from 10015 UAT
+              when ${pilot_id} =  '10117' then 'SCE'
+              when ${pilot_id} =  '10118' then 'Pecan ST'
+              when ${pilot_id} =  '10126' then 'Hydro One'
+              when ${pilot_id} =  '10223' then 'LUMA'
+              else 'Others' end
+        ;;
+  }
+
+  dimension: start_time_epoch {
+    description: "epoch of the start time of meter"
+    type: number
+    sql: ${TABLE}.start_timestamp ;;
+  }
+
+  dimension: end_time_epoch {
+    description: "epoch of the end timen of meter"
+    type: number
+    sql: ${TABLE}.end_timestamp ;;
+  }
+
+  #will update timezone values once itron gets updated in pilot table
+
+  dimension_group: start_time {
+    type: time
+    timeframes: [raw, time, date, week, month]
+    sql: CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, ${start_time_epoch}, '1970-01-01')) ;;
+    #sql: convert_timezone('UTC',${pilot_consolidated_product_types.time_zone}, dateadd( SECOND, ${start_time_epoch}, '1970-1-1' )) ;;
+  }
+
+  dimension_group: end_time {
+    type: time
+    timeframes: [raw, time, date, week, month]
+    sql: convert_timezone('UTC','US/Eastern', dateadd( SECOND, ${end_time_epoch}, '1970-1-1' )) ;;
+    #sql: convert_timezone('UTC',${pilot_consolidated_product_types.time_zone}, dateadd( SECOND, ${end_time_epoch}, '1970-1-1' )) ;;
+  }
+
+  dimension: meter_id {
+    description: "meter id for the user"
+    type: string
+    primary_key: yes
+    sql: ${TABLE}.meter_id ;;
+  }
+
+  dimension: is_active_meter {
+    description: "current status for the meter"
+    type: yesno
+    sql: ${TABLE}.is_active_meter ;;
+  }
+
+  measure: count_users {
+    type: count_distinct
+    sql:  ${uuid};;
+    drill_fields: [uuid]
+  }
+
+  measure: count_active_users {
+    type: count_distinct
+    sql:  ${uuid};;
+    drill_fields: [uuid]
+    filters: {
+      field: is_active_meter
+      value: "Yes"
+    }
+  }
+
+  measure: count_meters {
+    type: count_distinct
+    sql:  ${meter_id};;
+    drill_fields: [meter_id]
+  }
+
+  measure: count_active_meters {
+    type: count_distinct
+    sql:  ${meter_id};;
+    drill_fields: [meter_id]
+    filters: {
+      field: is_active_meter
+      value: "Yes"
+    }
+  }
+
+  measure: count_enrolled_meters {
+    type: count_distinct
+    sql: CASE
+          WHEN ${start_time_date} = ${date_series.continous_date}
+          THEN ${TABLE}.meter_id
+       END ;;
+  }
+
+  measure: count_unenrolled_meters {
+    type: count_distinct
+    sql: CASE
+          WHEN ${end_time_date} = ${date_series.continous_date}
+          THEN ${TABLE}.meter_id
+       END ;;
+  }
+
+}
+
+view: itron_di_monitoring {
+  derived_table: {
+    sql: select pilot_id, meter_id, start_date as event_date, sum(daily_entries)*48 as total_daily_entries
+        --,sum(total_consumption_value) as total_daily_consumption_value
+            from (
+                    select utilityid as pilot_id, meterid as meter_id, starttime, lastdatatimestamp,
+                    CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, starttime::bigint, '1970-01-01'))::date as start_date,
+                    CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, (lastdatatimestamp::bigint/1000), '1970-01-01'))::date as end_date,
+                    count(starttime) as daily_entries
+                    from public.itron_feature_messages
+                    where {%condition itron_di_monitoring.pilot_id%} pilot_id {%endcondition%}
+                            and {%condition date_series.continous_date%} start_date {%endcondition%}
+                    group by 1,2,3,4,5,6 )
+            group by 1,2,3 ;;
+  }
+
+  dimension: pilot_id {
+    type: string
+    sql: ${TABLE}.pilot_id ;;
+  }
+
+  dimension: meter_id {
+    type: string
+    sql: ${TABLE}.meter_id ;;
+  }
+
+  dimension: total_daily_entries {
+    type: number
+    sql: ${TABLE}.total_daily_entries ;;
+  }
+
+# dimension: total_daily_consumption_value {
+#    type: number
+#    sql: ${TABLE}.total_daily_consumption_value ;;
+#  }
+
+  dimension: total_entries_percentile_category {
+    type: string
+    sql:
+    CASE
+      WHEN ${total_daily_entries} = 0 THEN '00: 0'
+      WHEN ${total_daily_entries} <= 48 THEN '01: 1–48'
+      WHEN ${total_daily_entries} <= 96 THEN '02: 49–96'
+      WHEN ${total_daily_entries} <= 144 THEN '03: 97–144'
+      WHEN ${total_daily_entries} <= 192 THEN '04: 145–192'
+      WHEN ${total_daily_entries} <= 240 THEN '05: 193–240'
+      WHEN ${total_daily_entries} <= 288 THEN '06: 241–288'
+      WHEN ${total_daily_entries} <= 336 THEN '07: 289–336'
+      WHEN ${total_daily_entries} <= 384 THEN '08: 337–384'
+      WHEN ${total_daily_entries} <= 432 THEN '09: 385–432'
+      WHEN ${total_daily_entries} <= 480 THEN '10: 433–480'
+      WHEN ${total_daily_entries} >=480 THEN '11: Above 480'
+      ELSE '00: 0'
+    END ;;
+  }
+
+  dimension_group: event {
+    type: time
+    timeframes: [raw, date, week, month, quarter]
+    sql: ${TABLE}.event_date ;;
+  }
+
+  measure: count_unique_meter {
+    type: count_distinct
+    sql: ${meter_id} ;;
+    drill_fields: [meter_id]
+  }
+
+  measure: count_meter_with_data {
+    type: count_distinct
+    sql: ${meter_id} ;;
+    drill_fields: [meter_id]
+    filters: {
+      field: total_daily_entries
+      value: "> 0"
+    }
+  }
+
+  # set: detail {
+  #   fields: [
+  #       pilot_id,
+  #       year,
+  #       month,
+  #       date_value,
+  #       meter_id,
+  #       total_entries,
+  #       total_consumption_value
+  #         ]
+  # }
+
+}
+
+view: itron_feature_message {
+  derived_table: {
+    sql:  select pilot_id, meter_id, starttime, lastdatatimestamp, start_date, last_data_update_date
+          from (
+            select utilityid as pilot_id, meterid as meter_id, starttime, lastdatatimestamp,
+            CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, starttime::bigint, '1970-01-01'))::date as start_date,
+            CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, (lastdatatimestamp::bigint/1000), '1970-01-01'))::date as last_data_update_date,
+            timevaluelist, ROW_NUMBER() OVER (PARTITION BY meterid, starttime ORDER BY lastdatatimestamp DESC) as rid
+            from public.itron_feature_messages
+            where {%condition itron_di_monitoring.pilot_id%} pilot_id {%endcondition%}
+                            and {%condition date_series.continous_date%} start_date {%endcondition%}
+            )
+          where rid = 1 ;;
+  }
+
+  dimension: pilot_id {
+    type: string
+    sql: ${TABLE}.pilot_id ;;
+  }
+
+  dimension: meter_id {
+    type: string
+    sql: ${TABLE}.meter_id ;;
+  }
+
+  dimension_group: event {
+    type: time
+    timeframes: [raw, date, week, month, quarter]
+    sql: ${TABLE}.start_date ;;
+  }
+
+  dimension_group: data_update {
+    type: time
+    timeframes: [raw, date, week, month, quarter]
+    sql: ${TABLE}.last_data_update_date ;;
+  }
+
+}
+
+view: itron_appliance_data {
+  derived_table: {
+    sql: with appliance_events as (
+            select utilityid, meterid, applianceid, eventtype, eventtime, CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, eventtime::bigint, '1970-01-01'))::date as event_date,
+            eventcapturetime, amplitude_value, current, power_factor, power_value, voltage
+            from (
+                    SELECT *,
+                    json_extract_path_text(metadata, 'Amplitude') AS amplitude_value,
+                    json_extract_path_text(metadata, 'current') AS current,
+                    json_extract_path_text(metadata, 'power_factor') AS power_factor,
+                    json_extract_path_text(metadata, 'power') AS power_value,
+                    json_extract_path_text(metadata, 'voltage') AS voltage,
+                    row_number() over (partition by utilityid, meterid, applianceid, eventtype, eventtime, eventcapturetime order by lastdatatimestamp desc) as rid
+                    FROM public.itron_appliance_data
+                    --where meterid = '2.16.840.1.114416.15.80.1000332688'
+                    )
+            where rid = 1 )
+
+      select *, LAG(eventtype, 1) OVER (PARTITION BY utilityid, meterid, applianceid ORDER BY eventtime) as lag_event_type,
+      case when lag_event_type is not null and lag_event_type = eventtype then TRUE else FALSE end as corresponding_event_flag
+      from appliance_events ;;
+  }
+
+  measure: count {
+    type: count
+    #drill_fields: [detail*]
+  }
+
+  dimension: pilot_id {
+    type: string
+    sql: ${TABLE}.utilityid ;;
+  }
+
+  dimension: meter_id {
+    type: string
+    sql: ${TABLE}.meterid ;;
+  }
+
+  dimension: appliance_id {
+    type: number
+    sql: ${TABLE}.applianceid ;;
+  }
+
+  dimension: event_type {
+    type: string
+    sql: ${TABLE}.eventtype ;;
+  }
+
+  dimension: event_time {
+    type: number
+    sql: ${TABLE}.eventtime ;;
+  }
+
+  dimension: event_date {
+    type: date
+    sql: ${TABLE}.event_date ;;
+  }
+
+  dimension: eventcapturetime {
+    type: number
+    sql: ${TABLE}.eventcapturetime ;;
+  }
+
+  dimension: amplitude_value {
+    type: string
+    sql: ${TABLE}.amplitude_value ;;
+  }
+
+  dimension: current {
+    type: string
+    sql: ${TABLE}.current ;;
+  }
+
+  dimension: power_factor {
+    type: string
+    sql: ${TABLE}.power_factor ;;
+  }
+
+  dimension: power_value {
+    type: string
+    sql: ${TABLE}.power_value ;;
+  }
+
+  dimension: voltage {
+    type: string
+    sql: ${TABLE}.voltage ;;
+  }
+
+  dimension: lag_event_type {
+    type: string
+    sql: ${TABLE}.lag_event_type ;;
+  }
+
+  dimension: corresponding_event_flag {
+    type: string
+    sql: ${TABLE}.corresponding_event_flag ;;
+    hidden: yes
+  }
+
+  dimension: meter_event_key {
+    type: string
+    sql: ${meter_id}||${eventcapturetime};;
+    #primary_key: yes
+    hidden: yes  # Optional: hide it from Explore UI
+  }
+
+  filter: corresponding_event_flag_filter {
+    type: string
+  }
+
+  measure: count_unique_meter {
+    type: count_distinct
+    sql: ${meter_id} ;;
+    drill_fields: [meter_id]
+  }
+
+  measure: count_events {
+    type: count_distinct
+    sql: ${meter_event_key} ;;
+    drill_fields: [meter_id]
+  }
+
+  dimension: merge_key {
+    type: string
+    sql: 'dummy' ;;
+    hidden: no
+  }
+
+  set: detail {
+    fields: [
+      pilot_id,
+      meter_id,
+      appliance_id,
+      event_type,
+      event_time,
+      event_date,
+      eventcapturetime,
+      amplitude_value,
+      current,
+      power_factor,
+      power_value,
+      voltage,
+      lag_event_type,
+      corresponding_event_flag,
+      meter_event_key
+    ]
+  }
+}
+
+view: itron_config_issued {
+  derived_table: {
+    sql:  with base as (
+            select
+              uuid,
+              start_date_for_config_generation,
+              end_date_for_config_generation,
+              status,
+              min(last_updated_timestamp) as first_update_timestamp,
+              max(last_updated_timestamp) as latest_update_timestamp,
+              count(distinct last_updated_timestamp) as total_entries,
+              count(distinct case when retry_count > 0 then last_updated_timestamp end) as total_entries_with_retries,
+              sum(retry_count) as sum_of_retry_counts
+            from meter_config_update_request
+            --where uuid in ('01146133-d43b-4e7c-a949-5048a27ed363', 'bfad5e02-1e11-4be1-9d75-f273304300b9')
+            group by 1, 2, 3, 4
+          )
+          select
+            base.*,
+
+            -- column_a: REQUEST_SENT timestamp per config
+            min(case when status = 'REQUEST_SENT'
+                then first_update_timestamp end)
+                over(partition by uuid, start_date_for_config_generation, end_date_for_config_generation) as request_sent_ts,
+
+            -- column_b: COMPLETED/COMPLETED_WITH_ERRORS timestamp per config
+            min(case when status in ('COMPLETED', 'COMPLETED_WITH_ERRORS')
+                then first_update_timestamp end)
+                over(partition by uuid, start_date_for_config_generation, end_date_for_config_generation) as final_ts
+
+          from base
+          order by uuid, start_date_for_config_generation, status
+          ;;
+}
+
+  dimension: uuid {
+    type: string
+    sql: ${TABLE}.uuid ;;
+  }
+
+  dimension: status {
+    type: string
+    sql: ${TABLE}.status ;;
+  }
+
+  dimension: start_date_for_config_generation {
+    type: number
+    sql: ${TABLE}.start_date_for_config_generation ;;
+  }
+
+  dimension: end_date_for_config_generation {
+    type: number
+    sql: ${TABLE}.end_date_for_config_generation ;;
+  }
+
+  dimension: config_status_key {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${uuid} || '-' || ${start_date_for_config_generation} || '-' || ${end_date_for_config_generation} || '-' || ${status} ;;
+  }
+
+  dimension: config_key {
+    hidden: yes
+    type: string
+    sql: MD5(${uuid} || '-' || ${start_date_for_config_generation} || '-' || ${end_date_for_config_generation}) ;;
+  }
+
+# Convert epoch (10-digit seconds) to readable date
+  dimension_group: start_date {
+    type: time
+    timeframes: [raw, date, week, month, year]
+    datatype: epoch
+    sql: ${TABLE}.start_date_for_config_generation ;;
+  }
+
+  dimension_group: end_date {
+    type: time
+    timeframes: [raw, date, week, month, year]
+    datatype: epoch
+    sql: ${TABLE}.end_date_for_config_generation ;;
+  }
+
+
+  dimension: first_update_timestamp {
+    type: number
+    sql: ${TABLE}.first_update_timestamp ;;
+  }
+
+  dimension: latest_update_timestamp {
+    type: number
+    sql: ${TABLE}.latest_update_timestamp ;;
+  }
+
+# Convert epoch (13-digit seconds) to readable date
+  dimension_group: first_update {
+    type: time
+    timeframes: [raw, date, week, month, year]
+    datatype: epoch
+    sql: ${TABLE}.first_update_timestamp / 1000 ;;
+  }
+
+  dimension_group: latest_update {
+    type: time
+    timeframes: [raw, date, week, month, year]
+    datatype: epoch
+    sql: ${TABLE}.latest_update_timestamp  / 1000 ;;
+  }
+
+  dimension: total_entries {
+    type: number
+    sql: ${TABLE}.total_entries ;;
+  }
+
+  dimension: total_entries_with_retries {
+    type: number
+    sql: ${TABLE}.total_entries_with_retries ;;
+  }
+
+  dimension: sum_of_retry_counts {
+    type: number
+    sql: ${TABLE}.sum_of_retry_counts ;;
+  }
+
+  dimension: uuid_timestamp_key {
+    #primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${uuid} || '-' || ${latest_update_timestamp} ;;
+  }
+
+
+  dimension: request_sent_ts {
+    type: number
+    sql: ${TABLE}.request_sent_ts ;;
+  }
+
+  dimension: final_ts {
+    type: number
+    sql: ${TABLE}.final_ts ;;
+  }
+
+  dimension: time_required_seconds {
+    type: number
+    sql: CASE
+         WHEN ${status} = 'REQUEST_SENT'
+           AND ${request_sent_ts} IS NOT NULL
+           AND ${final_ts} IS NOT NULL
+         THEN (${final_ts} - ${request_sent_ts}) / 1000
+       END ;;
+  }
+
+  measure: average_time_required_seconds {
+    type: number
+    sql: AVG(CASE WHEN ${status} = 'REQUEST_SENT'
+            AND ${request_sent_ts} IS NOT NULL
+            AND ${final_ts} IS NOT NULL
+       THEN (${final_ts} - ${request_sent_ts}) / 1000 END) ;;
+    value_format_name: decimal_2
+    label: "Avg Time Required (seconds)"
+  }
+
+  measure: average_time_required_min {
+    type: number
+    sql: ${average_time_required_seconds} / 60.0 ;;
+    value_format_name: decimal_2
+    label: "Avg Time Required (minutes)"
+  }
+
+  measure: average_time_required_hh_mm_ss {
+    type: string
+    sql:
+    TO_CHAR(
+      DATEADD(
+        second,
+        ${average_time_required_seconds},
+        TIMESTAMP '1970-01-01'
+      ),
+      'HH24:MI:SS'
+    ) ;;
+    label: "Avg Time Required (HH:MM:SS)"
+  }
+
+  measure: total_entries_sum {
+    type: sum
+    sql:  ${total_entries} ;;
+  }
+
+  measure: total_entries_with_retries_sum {
+    type: sum
+    sql:  ${total_entries_with_retries} ;;
+  }
+
+  measure: sum_retry_counts {
+    type: sum
+    sql:  ${sum_of_retry_counts} ;;
+  }
+
+  measure: count_users_config_issued {
+    type: count_distinct
+    sql: CASE WHEN ${first_update_date} = ${date_series.continous_date} THEN ${uuid_timestamp_key} END ;;
+  }
+
+  measure: count_users_per_day {
+    type: count_distinct
+    sql: CASE WHEN ${first_update_date} = ${date_series.continous_date} THEN ${uuid} END ;;
+  }
+
+}
+
+view: itron_config_confirmation {
+  derived_table: {
+    sql: select *, date_add('ms',lastdatatimestamp,'1970-01-01')::date as update_date
+      from (
+      select meterid, lastdatatimestamp
+      from public.itron_config_messages
+      --where meterid = '2.16.840.1.114416.15.80.1000169669'
+      group by 1,2) ;;
+  }
+
+  measure: count_meter_config_confirmation {
+    type: count_distinct
+    sql: CASE WHEN ${update_time_date} = ${date_series.continous_date} THEN ${meter_timestamp_key} END ;;
+  }
+
+  measure: count_meters_per_day {
+    type: count_distinct
+    sql: CASE WHEN ${update_time_date} = ${date_series.continous_date} THEN ${meter_id} END ;;
+  }
+
+  dimension: meter_id {
+    type: string
+    sql: ${TABLE}.meterid ;;
+  }
+
+  dimension: lastdatatimestamp {
+    type: number
+    sql: ${TABLE}.lastdatatimestamp ;;
+  }
+
+  dimension: meter_timestamp_key {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${meter_id} || '-' || ${lastdatatimestamp} ;;
+  }
+
+  dimension_group: update_time {
+    type: time
+    timeframes: [raw, time, date, week, month]
+    sql: CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, ${lastdatatimestamp}/1000, '1970-01-01')) ;;
+  }
+
+}
+
+view: itron_config_messages {
+  derived_table: {
+    sql: select meterid as meter_id, bidgelymeterid as bidgely_meter_id, evmin, evmax, duration, checkforev, interference, evlicence, lastdatatimestamp, (timestamp 'epoch' + lastdatatimestamp/1000 * interval '1 second') AS update_date
+      from (
+        select *, row_number() over (partition by meterid order by lastdatatimestamp desc) as rid
+        from public.itron_config_messages
+        --where meterid = '2.16.840.1.114416.15.80.1000416353'
+        )
+      where rid = 1;;
+  }
+
+  dimension: meter_id {
+    type: string
+    sql: ${TABLE}.meter_id ;;
+  }
+
+  dimension: bidgely_meter_id {
+    type: string
+    sql: ${TABLE}.bidgely_meter_id ;;
+  }
+
+  dimension: evmin {
+    type: number
+    sql: ${TABLE}.evmin ;;
+  }
+
+  dimension: evmax {
+    type: number
+    sql: ${TABLE}.evmax ;;
+  }
+
+  dimension: duration {
+    type: number
+    sql: ${TABLE}.duration ;;
+  }
+
+  dimension: checkforev {
+    type: number
+    sql: ${TABLE}.checkforev ;;
+  }
+
+  dimension: interference {
+    type: number
+    sql: ${TABLE}.interference ;;
+  }
+
+  dimension: evlicence {
+    type: number
+    sql: ${TABLE}.evlicence ;;
+  }
+
+  dimension: lastdatatimestamp {
+    type: number
+    sql: ${TABLE}.lastdatatimestamp ;;
+  }
+
+  dimension_group: update_time {
+    type: time
+    timeframes: [raw, time, date, week, month]
+    sql: CONVERT_TIMEZONE('UTC', 'US/Eastern', DATEADD(SECOND, ${lastdatatimestamp}/1000, '1970-01-01')) ;;
+  }
+
+  measure: count_meter_config_recieved {
+    type: count_distinct
+    sql: CASE
+          WHEN ${update_time_date} = ${date_series.continous_date}
+          THEN ${TABLE}.meter_id
+       END ;;
+  }
+
+}
+
+view: itron_consumption_data{
+  derived_table: {
+    sql: SELECT
+              uuid,
+              data_date,
+              COUNT(uuid) AS total_15_min_entries,
+              CASE
+                  WHEN COUNT(uuid) < 96 THEN 'incomplete_data'
+                  WHEN COUNT(uuid) = 96 THEN 'complete_data'
+                  WHEN COUNT(uuid) > 96 THEN 'more_than_96_entries'
+              END AS data_category_15_min
+      FROM (  SELECT *
+              FROM public.raw_consumption_data
+              WHERE pilot_id in ('10112', '10014', '10117', '10118', '10126', '10223', '10224')
+               -- AND uuid = 'b3a92fbc-6693-45ce-9995-9fce40759e8a' AND data_month = '2025-06-01'
+            ) raw_data
+      GROUP BY uuid, data_date
+      ;;
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [detail*]
+  }
+
+  dimension: uuid {
+    type: string
+    sql: ${TABLE}.uuid ;;
+  }
+
+  dimension: data_date {
+    type: date
+    sql: ${TABLE}.data_date ;;
+  }
+
+  dimension: total_15_min_entries {
+    type: number
+    sql: ${TABLE}.total_15_min_entries ;;
+  }
+
+  dimension: data_category_15_min {
+    type: string
+    sql: ${TABLE}.data_category_15_min ;;
+  }
+
+  set: detail {
+    fields: [
+      uuid,
+      data_date,
+      total_15_min_entries,
+      data_category_15_min
+    ]
+  }
+
+}
+
+view: itron_consumption_data_uat{
+  derived_table: {
+    sql: WITH base AS (
+          SELECT
+              uuid,
+              pilot_id,
+              data_date,
+              COUNT(uuid) AS raw_count,
+              CASE
+                  WHEN pilot_id = '10014' THEN COUNT(uuid)/3
+                  ELSE COUNT(uuid)
+              END AS adjusted_count
+          FROM public.raw_consumption_data
+          WHERE pilot_id IN ('10112', '10014', '10117','10118','10126', '10223', '10224')
+          GROUP BY uuid, pilot_id, data_date
+      )
+      SELECT
+          uuid,
+          pilot_id,
+          data_date,
+          raw_count AS total_15_min_entries,
+          CASE
+              WHEN adjusted_count < 96 THEN 'incomplete_data'
+              WHEN adjusted_count = 96 THEN 'complete_data'
+              WHEN adjusted_count > 96 THEN 'more_than_96_entries'
+          END AS data_category_15_min
+      FROM base
+      ;;
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [detail*]
+  }
+
+  dimension: uuid {
+    type: string
+    sql: ${TABLE}.uuid ;;
+  }
+
+  dimension: data_date {
+    type: date
+    sql: ${TABLE}.data_date ;;
+  }
+
+  dimension: total_15_min_entries {
+    type: number
+    sql: ${TABLE}.total_15_min_entries ;;
+  }
+
+  dimension: data_category_15_min {
+    type: string
+    sql: ${TABLE}.data_category_15_min ;;
+  }
+
+  set: detail {
+    fields: [
+      uuid,
+      data_date,
+      total_15_min_entries,
+      data_category_15_min
+    ]
+  }
+
+}
+
+view: itron_solar_uat_data {
+  derived_table: {
+    sql:
+      WITH latest_rows AS (
+        SELECT
+          uuid,
+          "date",
+          pilot_name,
+          pilot_id,
+          "hour",
+          status,
+          loaded_at,
+          DATEADD(hour, "hour", "date"::timestamp) AS date_hour,
+          ROW_NUMBER() OVER (
+            PARTITION BY pilot_id, uuid, "date", "hour"
+            ORDER BY loaded_at DESC
+          ) AS rn
+        FROM public.itron_uat_solar_data
+      )
+      SELECT
+        uuid,
+        "date",
+        pilot_name,
+        pilot_id,
+        "hour",
+        status,
+        loaded_at,
+        date_hour
+      FROM latest_rows
+      WHERE rn = 1 ;;
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [detail*]
+  }
+
+  measure: distinct_uuid_count {
+    type: count_distinct
+    sql: ${uuid} ;;
+    drill_fields: [detail*]
+  }
+
+  dimension: uuid {
+    type: string
+    sql: ${TABLE}.uuid ;;
+  }
+
+  dimension: date {
+    type: date
+    sql: ${TABLE}.date ;;
+  }
+
+  dimension: pilot_name {
+    type: string
+    sql: ${TABLE}.pilot_name ;;
+  }
+
+  dimension: pilot_id {
+    type: number
+    sql: ${TABLE}.pilot_id ;;
+  }
+
+  dimension: hour {
+    type: number
+    sql: ${TABLE}.hour ;;
+  }
+
+  dimension: status {
+    type: string
+    sql: ${TABLE}.status ;;
+  }
+
+  dimension_group: loaded_at {
+    type: time
+    sql: ${TABLE}.loaded_at ;;
+  }
+
+  dimension_group: date_hour {
+    type: time
+    sql: ${TABLE}.date_hour ;;
+  }
+
+  set: detail {
+    fields: [
+      uuid,
+      date,
+      pilot_name,
+      pilot_id,
+      hour,
+      status,
+      loaded_at_time,
+      date_hour_time
+    ]
+  }
+}
+
+view: itron_meter_config_update_request {
+  derived_table: {
+    sql:
+      WITH last_event AS (
+        SELECT
+          request_id,
+          status,
+          ROW_NUMBER() OVER (PARTITION BY request_id ORDER BY last_updated_timestamp DESC) AS rn
+        FROM public.meter_config_update_request
+      )
+      SELECT
+        m.request_id,
+        MAX(m.uuid) AS uuid,
+        MAX(m.esn_list) AS meter_esn,
+        MAX(m.pilot_id) AS pilot_id,
+        MAX(m.partner_id) AS partner_id,
+        MAX(m.feature) AS feature,
+        MAX(m.hardware_version) AS hardware_version,
+        MAX(m.country_code) AS country_code,
+        MAX(m.retry_count) AS retry_count,
+        MAX(le.status) AS final_status,
+        MAX(CASE WHEN m.status = 'CONFIG_GENERATED' THEN 1 ELSE 0 END) AS has_config_generated,
+        COALESCE(
+          MIN(CASE WHEN m.status = 'CONFIG_GENERATED' THEN m.last_updated_timestamp END),
+          MIN(m.last_updated_timestamp)
+        ) AS issued_at_ms,
+        MAX(CASE WHEN m.status IN ('INITIALIZING','PREPARING','REQUEST_SENT','COMPLETED','FAILED')
+                 THEN 1 ELSE 0 END) AS is_confirmed_sent,
+        MIN(CASE WHEN m.status IN ('INITIALIZING','PREPARING','REQUEST_SENT','COMPLETED','FAILED')
+                 THEN m.last_updated_timestamp END) AS confirmed_at_ms,
+        MAX(CASE WHEN m.status = 'FAILED' THEN 1 ELSE 0 END) AS is_failed,
+        MAX(CASE
+              WHEN m.status = 'FAILED' AND m.remarks LIKE 'Patch request time out%' THEN 'api_timeout'
+              WHEN m.status = 'FAILED' AND m.remarks LIKE 'Config confirmation message not received%' THEN 'no_confirmation_received'
+              WHEN m.status = 'FAILED' THEN 'other'
+            END) AS failure_reason,
+        MAX(CASE WHEN m.status = 'COMPLETED' THEN 1 ELSE 0 END) AS is_completed,
+        MIN(CASE WHEN m.status = 'COMPLETED' THEN m.last_updated_timestamp END) AS completed_at_ms
+      FROM public.meter_config_update_request m
+      JOIN last_event le ON le.request_id = m.request_id AND le.rn = 1
+      GROUP BY m.request_id
+     ;;
+  }
+
+  dimension: request_id {
+    primary_key: yes
+    type: string
+    sql: ${TABLE}.request_id ;;
+  }
+
+  dimension: uuid {
+    type: string
+    sql: ${TABLE}.uuid ;;
+  }
+
+  dimension: meter_esn {
+    label: "Meter ESN"
+    type: string
+    sql: ${TABLE}.meter_esn ;;
+  }
+
+  dimension: pilot_id {
+    type: number
+    sql: ${TABLE}.pilot_id ;;
+  }
+
+  dimension: partner_id {
+    type: string
+    sql: ${TABLE}.partner_id ;;
+  }
+
+  dimension: feature {
+    type: string
+    sql: ${TABLE}.feature ;;
+  }
+
+  dimension: hardware_version {
+    type: string
+    sql: ${TABLE}.hardware_version ;;
+  }
+
+  dimension: country_code {
+    type: string
+    sql: ${TABLE}.country_code ;;
+  }
+
+  dimension: retry_count {
+    label: "Retry Count"
+    description: "Attempt number for this meter's configuration process; constant per request_id. A handful of meters climb into the high teens/thirties — a persistent fail/retry loop worth monitoring."
+    type: number
+    sql: ${TABLE}.retry_count ;;
+  }
+
+  dimension: is_retry {
+    label: "Is Retry"
+    description: "True if this request is itself a retry attempt (retry_count > 0)"
+    type: yesno
+    sql: ${TABLE}.retry_count > 0 ;;
+  }
+
+  dimension: final_status {
+    label: "Final Status"
+    description: "The last status this request reached, by most recent event timestamp — e.g. COMPLETED, FAILED, REQUEST_SENT, CONFIG_GENERATED, PENDING"
+    type: string
+    sql: ${TABLE}.final_status ;;
+  }
+
+  dimension: has_config_generated {
+    label: "Has Config Generated Step"
+    description: "True if this request ever reached CONFIG_GENERATED status; false if it skipped straight to a later status"
+    type: yesno
+    sql: ${TABLE}.has_config_generated = 1 ;;
+  }
+
+  dimension: is_confirmed_sent {
+    label: "Is Confirmed Sent"
+    description: "True if this request ever reached a status confirming the configuration was sent to the meter (INITIALIZING/PREPARING/REQUEST_SENT/COMPLETED/FAILED)"
+    type: yesno
+    sql: ${TABLE}.is_confirmed_sent = 1 ;;
+  }
+
+  dimension: is_failed {
+    label: "Is Failed"
+    description: "True if this request's status ever reached FAILED"
+    type: yesno
+    sql: ${TABLE}.is_failed = 1 ;;
+  }
+
+  dimension: failure_reason {
+    label: "Failure Reason"
+    description: "Only populated when the request ultimately failed. api_timeout = 'Patch request time out'; no_confirmation_received = 'Config confirmation message not received after 10 days.'; other = rare edge cases."
+    type: string
+    sql: ${TABLE}.failure_reason ;;
+  }
+
+  dimension: is_completed {
+    label: "Is Successfully Completed"
+    description: "True if this request's status ever reached COMPLETED"
+    type: yesno
+    sql: ${TABLE}.is_completed = 1 ;;
+  }
+
+  dimension_group: issued {
+    label: "Issued"
+    description: "First CONFIG_GENERATED event for this request, or its first event overall if CONFIG_GENERATED never occurred"
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: TIMESTAMP 'epoch' + (${TABLE}.issued_at_ms / 1000) * INTERVAL '1 second' ;;
+  }
+
+  dimension_group: confirmed {
+    label: "Confirmed Sent"
+    description: "First event confirming the configuration was sent to the meter (null if never confirmed)"
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: TIMESTAMP 'epoch' + (${TABLE}.confirmed_at_ms / 1000) * INTERVAL '1 second' ;;
+  }
+
+  dimension_group: completed {
+    label: "Completed"
+    description: "First event where the request reached COMPLETED (null if never completed)"
+    type: time
+    timeframes: [raw, time, date, week, month, quarter, year]
+    sql: TIMESTAMP 'epoch' + (${TABLE}.completed_at_ms / 1000) * INTERVAL '1 second' ;;
+  }
+
+  dimension: confirmation_duration_hours {
+    label: "Confirmation Duration (Hours)"
+    description: "Hours between issued and confirmed-sent; null if never confirmed"
+    type: number
+    sql: CASE WHEN ${TABLE}.confirmed_at_ms IS NOT NULL
+           THEN (${TABLE}.confirmed_at_ms - ${TABLE}.issued_at_ms) / 1000.0 / 3600.0
+         END ;;
+  }
+
+  dimension: successful_configuration_duration_hours {
+    label: "Successful Configuration Duration (Hours)"
+    description: "Hours between issued and COMPLETED; null unless the request actually completed successfully"
+    type: number
+    sql: CASE WHEN ${TABLE}.completed_at_ms IS NOT NULL
+           THEN (${TABLE}.completed_at_ms - ${TABLE}.issued_at_ms) / 1000.0 / 3600.0
+         END ;;
+  }
+
+  measure: count_configuration_requests_issued {
+    label: "Configuration Requests Issued"
+    description: "Every request_id counts once, regardless of status"
+    type: count
+  }
+
+  measure: count_configuration_confirmations_received {
+    label: "Configuration Confirmations Received"
+    description: "Requests that reached a status confirming the config was sent to the meter"
+    type: count
+    filters: [is_confirmed_sent: "yes"]
+  }
+
+  measure: count_distinct_meters {
+    label: "Distinct Meters"
+    type: count_distinct
+    sql: ${meter_esn} ;;
+  }
+
+  measure: max_retry_count {
+    label: "Max Retry Count"
+    description: "Highest attempt number seen in the current filter context — use to surface meters stuck in a fail/retry loop"
+    type: max
+    sql: ${retry_count} ;;
+  }
+
+  measure: average_confirmation_time_hours {
+    label: "Average Confirmation Time (Hours)"
+    description: "Average hours from issued to confirmed, across confirmed requests only"
+    type: average
+    sql: ${confirmation_duration_hours} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: confirmation_rate {
+    label: "Confirmation Rate"
+    description: "Share of issued requests that were eventually confirmed sent"
+    type: number
+    sql: 1.0 * ${count_configuration_confirmations_received} / NULLIF(${count_configuration_requests_issued}, 0) ;;
+    value_format_name: percent_1
+  }
+
+  measure: count_retries {
+    label: "Retries"
+    description: "Requests that are themselves a retry attempt (retry_count > 0)"
+    type: count
+    filters: [is_retry: "yes"]
+  }
+
+  measure: retry_rate {
+    label: "Retry Rate"
+    description: "Share of issued requests that are retry attempts"
+    type: number
+    sql: 1.0 * ${count_retries} / NULLIF(${count_configuration_requests_issued}, 0) ;;
+    value_format_name: percent_1
+  }
+
+  measure: count_failures {
+    label: "Failures"
+    description: "Requests whose status ever reached FAILED"
+    type: count
+    filters: [is_failed: "yes"]
+  }
+
+  measure: failure_rate {
+    label: "Failure Rate"
+    description: "Share of issued requests that ultimately failed"
+    type: number
+    sql: 1.0 * ${count_failures} / NULLIF(${count_configuration_requests_issued}, 0) ;;
+    value_format_name: percent_1
+  }
+
+  measure: count_successful_configurations {
+    label: "Successful Configurations"
+    description: "Requests whose status ever reached COMPLETED"
+    type: count
+    filters: [is_completed: "yes"]
+  }
+
+  measure: success_rate {
+    label: "Success Rate"
+    description: "Share of issued requests that completed successfully"
+    type: number
+    sql: 1.0 * ${count_successful_configurations} / NULLIF(${count_configuration_requests_issued}, 0) ;;
+    value_format_name: percent_1
+  }
+
+  measure: average_successful_configuration_time_hours {
+    label: "Average Successful Configuration Time (Hours)"
+    description: "Average hours from issued to COMPLETED, across successfully completed requests only"
+    type: average
+    sql: ${successful_configuration_duration_hours} ;;
+    value_format_name: decimal_1
+  }
+}
+
+
+--dashboard lookml code
+
+---
+- dashboard: itron_di_monitoring_dashboard_v2__uat_pilots
+  title: ITRON DI Monitoring Dashboard v2 - UAT Pilots
+  preferred_viewer: dashboards-next
+  description: ''
+  preferred_slug: 8OfaJnzEjDH0O0jfzdkILp
+  layout: newspaper
+  tabs:
+  - name: ''
+    label: ''
+  elements:
+  - title: "% of active meters with no messages ingested [Primary Time Filter & Granularity]"
+    name: "% of active meters with no messages ingested [Primary Time Filter & Granularity]"
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_line
+    fields: [date_series.dynamic_date, itron_di_monitoring.count_meter_with_data,
+      itron_enrollment_files.count_active_meters]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    show_null_points: true
+    interpolation: linear
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: [itron_di_monitoring.count_meter_with_data, itron_enrollment_files.count_active_meters,
+      percentage_of_active_meters_with_messages_received]
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 2
+    col: 0
+    width: 15
+    height: 9
+    tab_name: ''
+  - title: Breakup of data points received per meter [Secondary Time Filter]
+    name: Breakup of data points received per meter [Secondary Time Filter]
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_di_monitoring.total_entries_percentile_category,
+      itron_enrollment_files.count_active_meters]
+    pivots: [itron_di_monitoring.total_entries_percentile_category]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+    sorts: [date_series.dynamic_date, itron_di_monitoring.total_entries_percentile_category]
+    limit: 500
+    column_limit: 50
+    x_axis_gridlines: true
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: true
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_active_meters,
+            id: '00: 0 - itron_enrollment_files.count_active_meters', name: '00: 0'},
+          {axisId: itron_enrollment_files.count_active_meters, id: '01: 1–48 - itron_enrollment_files.count_active_meters',
+            name: '01: 1–48'}, {axisId: itron_enrollment_files.count_active_meters,
+            id: '02: 49–96 - itron_enrollment_files.count_active_meters', name: '02:
+              49–96'}, {axisId: itron_enrollment_files.count_active_meters, id: '03:
+              97–144 - itron_enrollment_files.count_active_meters', name: '03: 97–144'},
+          {axisId: itron_enrollment_files.count_active_meters, id: '04: 145–192 -
+              itron_enrollment_files.count_active_meters', name: '04: 145–192'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '05: 193–240 -
+              itron_enrollment_files.count_active_meters', name: '05: 193–240'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '06: 241–288 -
+              itron_enrollment_files.count_active_meters', name: '06: 241–288'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '07: 289–336 -
+              itron_enrollment_files.count_active_meters', name: '07: 289–336'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '08: 337–384 -
+              itron_enrollment_files.count_active_meters', name: '08: 337–384'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '10: 433–480 -
+              itron_enrollment_files.count_active_meters', name: '10: 433–480'}],
+        showLabels: true, showValues: true, unpinAxis: false, tickDensity: default,
+        tickDensityCustom: 5, type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    column_spacing_ratio:
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    note_state: collapsed
+    note_display: hover
+    note_text: Displays the breakdown of total active meters in each bucket (Bucket
+      derived from number of messages received per meter per day), based on the selected
+      secondary time filter
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      Secondary Time Filter (UAT): date_series.continous_date
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+    row: 2
+    col: 15
+    width: 9
+    height: 9
+    tab_name: ''
+  - name: EV Charge Events
+    type: text
+    title_text: EV Charge Events
+    body_text: ''
+    row: 30
+    col: 0
+    width: 24
+    height: 2
+    tab_name: ''
+  - title: Breakup of data points processed per meter [Secondary Time Filter]
+    name: Breakup of data points processed per meter [Secondary Time Filter]
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
+      minutes_processed_data_category]
+    pivots: [minutes_processed_data_category]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 1 month ago for 1 month
+      itron_enrollment_files.active_meter: 'Yes'
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: dimension
+      expression: case(when(is_null(${itron_consumption_data_uat.data_category_15_min}),"Missing
+        Data"),${itron_consumption_data_uat.data_category_15_min})
+      label: 15 Minutes Processed Data Category
+      value_format:
+      value_format_name:
+      dimension: minutes_processed_data_category
+      _kind_hint: dimension
+      _type_hint: string
+    x_axis_gridlines: true
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: normal
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: true
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_active_meters,
+            id: '00: 0 - itron_enrollment_files.count_active_meters', name: '00: 0'},
+          {axisId: itron_enrollment_files.count_active_meters, id: '01: 1–48 - itron_enrollment_files.count_active_meters',
+            name: '01: 1–48'}, {axisId: itron_enrollment_files.count_active_meters,
+            id: '02: 49–96 - itron_enrollment_files.count_active_meters', name: '02:
+              49–96'}, {axisId: itron_enrollment_files.count_active_meters, id: '03:
+              97–144 - itron_enrollment_files.count_active_meters', name: '03: 97–144'},
+          {axisId: itron_enrollment_files.count_active_meters, id: '04: 145–192 -
+              itron_enrollment_files.count_active_meters', name: '04: 145–192'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '05: 193–240 -
+              itron_enrollment_files.count_active_meters', name: '05: 193–240'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '06: 241–288 -
+              itron_enrollment_files.count_active_meters', name: '06: 241–288'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '07: 289–336 -
+              itron_enrollment_files.count_active_meters', name: '07: 289–336'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '08: 337–384 -
+              itron_enrollment_files.count_active_meters', name: '08: 337–384'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '10: 433–480 -
+              itron_enrollment_files.count_active_meters', name: '10: 433–480'}],
+        showLabels: true, showValues: true, unpinAxis: false, tickDensity: default,
+        tickDensityCustom: 5, type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      Secondary Time Filter (UAT): date_series.continous_date
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+    row: 21
+    col: 15
+    width: 9
+    height: 9
+    tab_name: ''
+  - name: Ingested Data Report
+    type: text
+    title_text: Ingested Data Report
+    subtitle_text: Based on 3 Minutes Data Points Received from Utility
+    body_text: ''
+    row: 0
+    col: 0
+    width: 24
+    height: 2
+    tab_name: ''
+  - name: Processes Data Report
+    type: text
+    title_text: Processes Data Report
+    subtitle_text: Based on 15 Minutes Data Points from Bidgely
+    body_text: ''
+    row: 19
+    col: 0
+    width: 24
+    height: 2
+    tab_name: ''
+  - title: Number of meters with EV-related messages received [Primary Time Filter
+      & Granularity]
+    name: Number of meters with EV-related messages received [Primary Time Filter
+      & Granularity]
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
+      itron_appliance_data.count_unique_meter, itron_appliance_data.count_events]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      itron_appliance_data.corresponding_event_flag: ''
+      date_series.continous_date: 1 month ago for 1 month
+      itron_enrollment_files.active_meter: 'Yes'
+      itron_appliance_data.appliance_id: '18'
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_types:
+      itron_appliance_data.count_events: line
+    series_labels:
+      itron_appliance_data.count_unique_meter: Unique Meters with EV
+      itron_appliance_data.count_events: Total EV Events
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: [itron_enrollment_files.count_active_meters]
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 32
+    col: 0
+    width: 12
+    height: 9
+    tab_name: ''
+  - title: EV Charge Events without its corresponding counterpart [Primary Time Filter
+      & Granularity]
+    name: EV Charge Events without its corresponding counterpart [Primary Time Filter
+      & Granularity]
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
+      itron_appliance_data.count_unique_meter, itron_appliance_data.count_events]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      itron_appliance_data.corresponding_event_flag: ''
+      itron_appliance_data.corresponding_event_flag_filter: 'TRUE'
+      date_series.continous_date: 1 month ago for 1 month
+      itron_enrollment_files.active_meter: 'Yes'
+      itron_appliance_data.appliance_id: '18'
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_types:
+      itron_appliance_data.count_events: line
+    series_labels:
+      itron_appliance_data.count_events: Events without its corresponding counterpart
+      itron_appliance_data.count_unique_meter: Unique Meters with events without its
+        corresponding counterpart
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: [itron_enrollment_files.count_active_meters]
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 32
+    col: 12
+    width: 12
+    height: 9
+    tab_name: ''
+  - title: "% of active meters - Processed Data 15 Min [Primary Time Filter & Granularity] "
+    name: "% of active meters - Processed Data 15 Min [Primary Time Filter & Granularity] "
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_enrollment_files.count_active_meters,
+      minutes_processed_data_category]
+    pivots: [minutes_processed_data_category]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 1 month ago for 1 month
+      itron_enrollment_files.active_meter: 'Yes'
+    sorts: [date_series.dynamic_date, minutes_processed_data_category]
+    limit: 500
+    column_limit: 50
+    row_total: right
+    dynamic_fields:
+    - category: dimension
+      expression: case(when(is_null(${itron_consumption_data_uat.data_category_15_min}),"Missing
+        Data"),${itron_consumption_data_uat.data_category_15_min})
+      label: 15 Minutes Processed Data Category
+      value_format:
+      value_format_name:
+      dimension: minutes_processed_data_category
+      _kind_hint: dimension
+      _type_hint: string
+    - category: table_calculation
+      label: Percent_calc
+      value_format:
+      value_format_name: percent_2
+      calculation_type: percent_of_row
+      table_calculation: percent_calc
+      args:
+      - itron_enrollment_files.count_active_meters
+      _kind_hint: measure
+      _type_hint: number
+    x_axis_gridlines: true
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: true
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_active_meters,
+            id: '00: 0 - itron_enrollment_files.count_active_meters', name: '00: 0'},
+          {axisId: itron_enrollment_files.count_active_meters, id: '01: 1–48 - itron_enrollment_files.count_active_meters',
+            name: '01: 1–48'}, {axisId: itron_enrollment_files.count_active_meters,
+            id: '02: 49–96 - itron_enrollment_files.count_active_meters', name: '02:
+              49–96'}, {axisId: itron_enrollment_files.count_active_meters, id: '03:
+              97–144 - itron_enrollment_files.count_active_meters', name: '03: 97–144'},
+          {axisId: itron_enrollment_files.count_active_meters, id: '04: 145–192 -
+              itron_enrollment_files.count_active_meters', name: '04: 145–192'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '05: 193–240 -
+              itron_enrollment_files.count_active_meters', name: '05: 193–240'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '06: 241–288 -
+              itron_enrollment_files.count_active_meters', name: '06: 241–288'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '07: 289–336 -
+              itron_enrollment_files.count_active_meters', name: '07: 289–336'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '08: 337–384 -
+              itron_enrollment_files.count_active_meters', name: '08: 337–384'}, {
+            axisId: itron_enrollment_files.count_active_meters, id: '10: 433–480 -
+              itron_enrollment_files.count_active_meters', name: '10: 433–480'}],
+        showLabels: true, showValues: true, unpinAxis: false, tickDensity: default,
+        tickDensityCustom: 5, type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_types:
+      incomplete_data - percent_calc: line
+      Missing Data - percent_calc: line
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots:
+      complete_data:
+        is_entire_pivot_hidden: true
+    defaults_version: 1
+    hidden_fields: [itron_enrollment_files.count_active_meters]
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 21
+    col: 0
+    width: 15
+    height: 9
+    tab_name: ''
+  - name: Configuration Messages
+    type: text
+    title_text: Configuration Messages
+    body_text: ''
+    row: 41
+    col: 0
+    width: 24
+    height: 2
+    tab_name: ''
+  - title: Meter Enrollment Status
+    name: Meter Enrollment Status
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_enrollment_files.count_enrolled_meters,
+      itron_enrollment_files.count_unenrolled_meters]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 60 day ago for 60 day
+      itron_enrollment_files.active_meter: ''
+      itron_enrollment_files.pilot_id: ''
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_meters,
+            id: Pecan ST - itron_enrollment_files.count_meters, name: Pecan ST - Itron
+              Enrollment Files Count Meters}, {axisId: itron_enrollment_files.count_meters,
+            id: TECO - itron_enrollment_files.count_meters, name: TECO - Itron Enrollment
+              Files Count Meters}], showLabels: true, showValues: true, unpinAxis: false,
+        tickDensity: default, tickDensityCustom: 5, type: linear}, {label: !!null '',
+        orientation: right, series: [{axisId: percentage_of_active_meters_with_no_messages_received,
+            id: Pecan ST - percentage_of_active_meters_with_no_messages_received,
+            name: Pecan ST - Percentage of active meters with no messages received},
+          {axisId: percentage_of_active_meters_with_no_messages_received, id: TECO
+              - percentage_of_active_meters_with_no_messages_received, name: TECO
+              - Percentage of active meters with no messages received}], showLabels: true,
+        showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+        type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_colors:
+      Pecan ST - percentage_of_active_meters_with_no_messages_received: "#354053"
+      itron_enrollment_files.count_unenrolled_meters: "#ffab40"
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    listen:
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 11
+    col: 0
+    width: 24
+    height: 8
+    tab_name: ''
+  - title: Total Configuration Issued with Status
+    name: Total Configuration Issued with Status
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_config_issued.status, itron_config_issued.count_users_config_issued]
+    pivots: [itron_config_issued.status]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 60 day ago for 60 day
+      itron_enrollment_files.active_meter: ''
+      itron_enrollment_files.pilot_id: ''
+    sorts: [date_series.dynamic_date, itron_config_issued.status]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: normal
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: false
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: true
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_meters,
+            id: Pecan ST - itron_enrollment_files.count_meters, name: Pecan ST - Itron
+              Enrollment Files Count Meters}, {axisId: itron_enrollment_files.count_meters,
+            id: TECO - itron_enrollment_files.count_meters, name: TECO - Itron Enrollment
+              Files Count Meters}], showLabels: true, showValues: true, unpinAxis: false,
+        tickDensity: default, tickDensityCustom: 5, type: linear}, {label: !!null '',
+        orientation: right, series: [{axisId: percentage_of_active_meters_with_no_messages_received,
+            id: Pecan ST - percentage_of_active_meters_with_no_messages_received,
+            name: Pecan ST - Percentage of active meters with no messages received},
+          {axisId: percentage_of_active_meters_with_no_messages_received, id: TECO
+              - percentage_of_active_meters_with_no_messages_received, name: TECO
+              - Percentage of active meters with no messages received}], showLabels: true,
+        showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+        type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_colors:
+      Pecan ST - percentage_of_active_meters_with_no_messages_received: "#354053"
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    listen:
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 43
+    col: 0
+    width: 24
+    height: 8
+    tab_name: ''
+  - title: Total Configuration confirmations Received
+    name: Total Configuration confirmations Received
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_config_confirmation.count_meters_per_day,
+      itron_config_confirmation.count_meter_config_confirmation]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 60 day ago for 60 day
+      itron_enrollment_files.active_meter: ''
+      itron_enrollment_files.pilot_id: ''
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: ''
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: false
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_meters,
+            id: Pecan ST - itron_enrollment_files.count_meters, name: Pecan ST - Itron
+              Enrollment Files Count Meters}, {axisId: itron_enrollment_files.count_meters,
+            id: TECO - itron_enrollment_files.count_meters, name: TECO - Itron Enrollment
+              Files Count Meters}], showLabels: true, showValues: true, unpinAxis: false,
+        tickDensity: default, tickDensityCustom: 5, type: linear}, {label: !!null '',
+        orientation: right, series: [{axisId: percentage_of_active_meters_with_no_messages_received,
+            id: Pecan ST - percentage_of_active_meters_with_no_messages_received,
+            name: Pecan ST - Percentage of active meters with no messages received},
+          {axisId: percentage_of_active_meters_with_no_messages_received, id: TECO
+              - percentage_of_active_meters_with_no_messages_received, name: TECO
+              - Percentage of active meters with no messages received}], showLabels: true,
+        showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+        type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_types:
+      itron_config_confirmation.count_meter_config_confirmation: line
+    series_colors:
+      Pecan ST - percentage_of_active_meters_with_no_messages_received: "#354053"
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    listen:
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 51
+    col: 0
+    width: 24
+    height: 8
+    tab_name: ''
+  - title: Configuration Issued with >0 Retries
+    name: Configuration Issued with >0 Retries
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_line
+    fields: [date_series.dynamic_date, itron_config_issued.total_entries_sum, itron_config_issued.total_entries_with_retries_sum,
+      itron_config_issued.sum_retry_counts]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 60 day ago for 60 day
+      itron_enrollment_files.active_meter: ''
+      itron_enrollment_files.pilot_id: ''
+      itron_config_issued.status: ''
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: normal
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: false
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    show_null_points: true
+    interpolation: linear
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: true
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_meters,
+            id: Pecan ST - itron_enrollment_files.count_meters, name: Pecan ST - Itron
+              Enrollment Files Count Meters}, {axisId: itron_enrollment_files.count_meters,
+            id: TECO - itron_enrollment_files.count_meters, name: TECO - Itron Enrollment
+              Files Count Meters}], showLabels: true, showValues: true, unpinAxis: false,
+        tickDensity: default, tickDensityCustom: 5, type: linear}, {label: !!null '',
+        orientation: right, series: [{axisId: percentage_of_active_meters_with_no_messages_received,
+            id: Pecan ST - percentage_of_active_meters_with_no_messages_received,
+            name: Pecan ST - Percentage of active meters with no messages received},
+          {axisId: percentage_of_active_meters_with_no_messages_received, id: TECO
+              - percentage_of_active_meters_with_no_messages_received, name: TECO
+              - Percentage of active meters with no messages received}], showLabels: true,
+        showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+        type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_colors:
+      Pecan ST - percentage_of_active_meters_with_no_messages_received: "#354053"
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    hidden_series: [itron_config_issued.total_entries_sum, itron_config_issued.sum_retry_counts]
+    listen:
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 59
+    col: 8
+    width: 8
+    height: 9
+    tab_name: ''
+  - title: Configuration Issued Failed on Daily Basis
+    name: Configuration Issued Failed on Daily Basis
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_column
+    fields: [date_series.dynamic_date, itron_config_issued.status, itron_config_issued.count_users_config_issued]
+    pivots: [itron_config_issued.status]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 60 day ago for 60 day
+      itron_enrollment_files.active_meter: ''
+      itron_enrollment_files.pilot_id: ''
+    sorts: [date_series.dynamic_date, itron_config_issued.status]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: normal
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: false
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: true
+    show_silhouette: false
+    totals_color: "#808080"
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_meters,
+            id: Pecan ST - itron_enrollment_files.count_meters, name: Pecan ST - Itron
+              Enrollment Files Count Meters}, {axisId: itron_enrollment_files.count_meters,
+            id: TECO - itron_enrollment_files.count_meters, name: TECO - Itron Enrollment
+              Files Count Meters}], showLabels: true, showValues: true, unpinAxis: false,
+        tickDensity: default, tickDensityCustom: 5, type: linear}, {label: !!null '',
+        orientation: right, series: [{axisId: percentage_of_active_meters_with_no_messages_received,
+            id: Pecan ST - percentage_of_active_meters_with_no_messages_received,
+            name: Pecan ST - Percentage of active meters with no messages received},
+          {axisId: percentage_of_active_meters_with_no_messages_received, id: TECO
+              - percentage_of_active_meters_with_no_messages_received, name: TECO
+              - Percentage of active meters with no messages received}], showLabels: true,
+        showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+        type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_colors:
+      Pecan ST - percentage_of_active_meters_with_no_messages_received: "#354053"
+    show_null_points: true
+    interpolation: linear
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: []
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    hidden_series: [404 - itron_config_issued.count_users_config_issued, CANCELED
+        - itron_config_issued.count_users_config_issued, COMPLETED - itron_config_issued.count_users_config_issued,
+      COMPLETEDWITHERRORS - itron_config_issued.count_users_config_issued, CONFIG_GENERATED
+        - itron_config_issued.count_users_config_issued, FINALIZING - itron_config_issued.count_users_config_issued,
+      PREPARED - itron_config_issued.count_users_config_issued, PREPARING - itron_config_issued.count_users_config_issued,
+      REQUEST_SENT - itron_config_issued.count_users_config_issued, itron_config_issued.status___null
+        - itron_config_issued.count_users_config_issued]
+    listen:
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 59
+    col: 0
+    width: 8
+    height: 9
+    tab_name: ''
+  - title: Average time required for a successful configuration
+    name: Average time required for a successful configuration
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_line
+    fields: [date_series.dynamic_date, itron_config_issued.average_time_required_seconds,
+      itron_config_issued.average_time_required_min, itron_config_issued.average_time_required_hh_mm_ss]
+    filters:
+      itron_enrollment_files.meter_id: ''
+      date_series.timestamp_parameter: date
+      date_series.continous_date: 60 day ago for 60 day
+      itron_enrollment_files.active_meter: ''
+      itron_enrollment_files.pilot_id: ''
+      itron_config_issued.status: "-FAILED"
+    sorts: [date_series.dynamic_date]
+    limit: 500
+    column_limit: 50
+    dynamic_fields:
+    - category: table_calculation
+      expression: "${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}"
+      label: Percentage of active meters with messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_messages_received
+      _type_hint: number
+      is_disabled: true
+    - category: table_calculation
+      expression: 1-${itron_di_monitoring.count_meter_with_data}/${itron_enrollment_files.count_active_meters}
+      label: Percentage of active meters with no messages received
+      value_format:
+      value_format_name: percent_2
+      _kind_hint: measure
+      table_calculation: percentage_of_active_meters_with_no_messages_received
+      _type_hint: number
+      is_disabled: true
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: normal
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: circle
+    show_value_labels: true
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    show_null_points: true
+    interpolation: linear
+    y_axes: [{label: '', orientation: left, series: [{axisId: itron_enrollment_files.count_meters,
+            id: Pecan ST - itron_enrollment_files.count_meters, name: Pecan ST - Itron
+              Enrollment Files Count Meters}, {axisId: itron_enrollment_files.count_meters,
+            id: TECO - itron_enrollment_files.count_meters, name: TECO - Itron Enrollment
+              Files Count Meters}], showLabels: true, showValues: true, unpinAxis: false,
+        tickDensity: default, tickDensityCustom: 5, type: linear}, {label: !!null '',
+        orientation: right, series: [{axisId: percentage_of_active_meters_with_no_messages_received,
+            id: Pecan ST - percentage_of_active_meters_with_no_messages_received,
+            name: Pecan ST - Percentage of active meters with no messages received},
+          {axisId: percentage_of_active_meters_with_no_messages_received, id: TECO
+              - percentage_of_active_meters_with_no_messages_received, name: TECO
+              - Percentage of active meters with no messages received}], showLabels: true,
+        showValues: true, unpinAxis: false, tickDensity: default, tickDensityCustom: 5,
+        type: linear}]
+    x_axis_zoom: true
+    y_axis_zoom: true
+    limit_displayed_rows_values:
+      show_hide: hide
+      first_last: first
+      num_rows: 0
+    series_colors:
+      Pecan ST - percentage_of_active_meters_with_no_messages_received: "#354053"
+    ordering: none
+    show_null_labels: false
+    show_totals_labels: true
+    show_silhouette: false
+    totals_color: "#808080"
+    show_row_numbers: true
+    transpose: false
+    truncate_text: true
+    hide_totals: false
+    hide_row_totals: false
+    size_to_fit: true
+    table_theme: white
+    enable_conditional_formatting: false
+    header_text_alignment: left
+    header_font_size: 12
+    rows_font_size: 12
+    conditional_formatting_include_totals: false
+    conditional_formatting_include_nulls: false
+    hidden_pivots: {}
+    defaults_version: 1
+    hidden_fields: [itron_config_issued.average_time_required_seconds, itron_config_issued.average_time_required_min]
+    note_state: collapsed
+    note_display: hover
+    note_text: Based on the selected date granularity and primary time filter, this
+      shows the percentage of active meters that received zero data during each corresponding
+      time period
+    listen:
+      Date Granularity: date_series.timestamp_parameter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+    row: 59
+    col: 16
+    width: 8
+    height: 9
+    tab_name: ''
+  - title: Solar Generation Data
+    name: Solar Generation Data
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    type: looker_area
+    fields: [itron_solar_uat_data.date_hour_time, itron_solar_uat_data.status, itron_solar_uat_data.distinct_uuid_count]
+    pivots: [itron_solar_uat_data.status]
+    filters:
+      itron_solar_uat_data.date: 30 day ago for 30 day
+      itron_solar_uat_data.pilot_id: ''
+      itron_solar_uat_data.pilot_name: SMUD,PECAN
+      itron_solar_uat_data.status: present,missing
+    sorts: [itron_solar_uat_data.date_hour_time, itron_solar_uat_data.status]
+    limit: 500
+    column_limit: 50
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    show_y_axis_labels: true
+    show_y_axis_ticks: true
+    y_axis_tick_density: default
+    y_axis_tick_density_custom: 5
+    show_x_axis_label: true
+    show_x_axis_ticks: true
+    y_axis_scale_mode: linear
+    x_axis_reversed: false
+    y_axis_reversed: false
+    plot_size_by_field: false
+    trellis: ''
+    stacking: normal
+    limit_displayed_rows: false
+    legend_position: center
+    point_style: none
+    show_value_labels: false
+    label_density: 25
+    x_axis_scale: auto
+    y_axis_combined: true
+    show_null_points: true
+    interpolation: linear
+    show_totals_labels: true
+    show_silhouette: false
+    totals_color: "#808080"
+    color_application:
+      collection_id: bidgely-account-palette
+      palette_id: bidgely-account-palette-categorical-0
+      options:
+        steps: 5
+    x_axis_zoom: true
+    y_axis_zoom: true
+    hide_legend: false
+    series_colors:
+      missing - itron_solar_uat_data.distinct_uuid_count: "#F83E16"
+      present - itron_solar_uat_data.distinct_uuid_count: "#EFEF42"
+    ordering: none
+    show_null_labels: false
+    hidden_pivots: {}
+    defaults_version: 1
+    listen:
+      Active Meter (Yes / No): itron_enrollment_files.active_meter
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_solar_uat_data.pilot_id
+      Primary Time Filter (UAT): itron_solar_uat_data.date
+    row: 70
+    col: 0
+    width: 24
+    height: 10
+    tab_name: ''
+  - name: Solar Generation
+    type: text
+    title_text: Solar Generation
+    subtitle_text: ''
+    body_text: ''
+    row: 68
+    col: 0
+    width: 24
+    height: 2
+    tab_name: ''
+  filters:
+  - name: 'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126:
+      Hydro One]'
+    title: 'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126:
+      Hydro One]'
+    type: field_filter
+    default_value: '10014'
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: checkboxes
+      display: inline
+      options:
+      - '10014'
+      - '10015'
+      - '10117'
+      - '10118'
+      - '10126'
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    listens_to_filters: []
+    field: itron_enrollment_files.pilot_id
+  - name: Primary Time Filter (UAT)
+    title: Primary Time Filter (UAT)
+    type: field_filter
+    default_value: 30 day
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: advanced
+      display: popover
+      options:
+      - past
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    listens_to_filters: []
+    field: date_series.continous_date
+  - name: Secondary Time Filter (UAT)
+    title: Secondary Time Filter (UAT)
+    type: field_filter
+    default_value: yesterday
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: relative_timeframes
+      display: inline
+      options: []
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    listens_to_filters: []
+    field: date_series.continous_date
+  - name: Active Meter (Yes / No)
+    title: Active Meter (Yes / No)
+    type: field_filter
+    default_value: 'Yes'
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: button_toggles
+      display: overflow
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    listens_to_filters: []
+    field: itron_enrollment_files.active_meter
+  - name: Date Granularity
+    title: Date Granularity
+    type: field_filter
+    default_value: date
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: dropdown_menu
+      display: overflow
+    model: matrix-nonprod-uat
+    explore: itron_enrollment_files
+    listens_to_filters: []
+    field: date_series.timestamp_parameter

@@ -1,0 +1,23 @@
+--data sources summary
+Name	Connector Type	Type	Used in report	Status	Alias	Alias_1
+User Analytics	Google Analytics	Reusable	8 charts, 0 variables	Working	ds49	--User Analytics[Google Analytics][8 charts, 0 variables]
+SRE Billing Cycle Length	Amazon Redshift	Reusable	1 chart, 0 variables	Working	ds358	--SRE Billing Cycle Length[Amazon Redshift][1 chart, 0 variables]
+SRE Post Ingestion Data Quality	Amazon Redshift	Reusable	3 charts, 0 variables	Working	ds357	--SRE Post Ingestion Data Quality[Amazon Redshift][3 charts, 0 variables]
+SRE Master Pilot List	Amazon Redshift	Reusable	1 chart, 0 variables	Working	ds351	--SRE Master Pilot List[Amazon Redshift][1 chart, 0 variables]
+SRE Ingestion Audit	Amazon Redshift	Reusable	7 charts, 0 variables	Working	ds350	--SRE Ingestion Audit[Amazon Redshift][7 charts, 0 variables]
+SRE Email Statistics	Amazon Redshift	Reusable	6 charts, 0 variables	Working	ds109	--SRE Email Statistics[Amazon Redshift][6 charts, 0 variables]
+SRE Ingestion Failure Statistics	Amazon Redshift	Reusable	2 charts, 0 variables	Working	ds355	--SRE Ingestion Failure Statistics[Amazon Redshift][2 charts, 0 variables]
+SRE Email Reco Statistics	Amazon Redshift	Reusable	2 charts, 0 variables	Working	ds107	--SRE Email Reco Statistics[Amazon Redshift][2 charts, 0 variables]
+SRE Email Daily Tracker	Amazon Redshift	Reusable	3 charts, 0 variables	Working	ds110	--SRE Email Daily Tracker[Amazon Redshift][3 charts, 0 variables]
+SRE Invoice Statistics	Amazon Redshift	Reusable	9 charts, 0 variables	Working	ds356	--SRE Invoice Statistics[Amazon Redshift][9 charts, 0 variables]
+SRE All Active Users	Amazon Redshift	Reusable	2 charts, 0 variables	Working	ds354	--SRE All Active Users[Amazon Redshift][2 charts, 0 variables]
+SRE Email Failure Statistics	Amazon Redshift	Reusable	3 charts, 0 variables	Working	ds108	--SRE Email Failure Statistics[Amazon Redshift][3 charts, 0 variables]
+SRE Failure Statistics	Amazon Redshift	Reusable	3 charts, 0 variables	Working	ds360	--SRE Failure Statistics[Amazon Redshift][3 charts, 0 variables]
+SRE Quality Disagg	Amazon Redshift	Open	3 charts, 0 variables	Working	ds359	--SRE Quality Disagg[Amazon Redshift][3 charts, 0 variables]
+
+
+--dashboard data
+Dashboard	Filters	Tiles
+[Ingestion]	[Time Period, Period -  Daily/Weekly, Pilot ID, Pilot Name, File Type - Billing, Consumption, Meter, User_Meta]	[Active UUID, Total UUID, # of Files Per Day, Daily Averages, Daily Ingestion Statistics, Daily Post-Ingestion Data Quality Report (Only for Elec/Gas AMI** ), Daily Top Ingestion Failure Reasons]
+[Disagg]	[Time Period, Period -  Daily/Weekly, Pilot ID, Pilot Name, Meter Type - AMI/NSM, Fuel Type - Electric, Gas, Water, Module Name - Itemization, PyAMIDisagg]	[Active UUID, Total UUID, # of Invoices Per Day, Averages Sucess %, Daily Invoice Ingestion vs Hybrid Disagg Processing Success %, Daily Disagg Quality Report (Only for Elec AMI** ), Daily Top Disagg/Itemisation Failure Reasons]
+[Email]	[Time Period, Period -  Daily/Weekly, Pilot ID, Pilot Name, Email Type, BC End Week#]	[Active UUID, Total UUID, # of Emails Sent Per Week, Averages Sent %, Email Delivery Statistics, Weekly Email Reco Quality Report, Weekly Top Email Failure Reasons]
