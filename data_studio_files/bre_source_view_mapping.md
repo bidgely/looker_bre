@@ -595,3 +595,12 @@ All 108 rendered SQL combinations previously passed Starburst `EXPLAIN (TYPE VAL
 **Looker Validator and Looker-generated SQL inspection are pending.** The local renderer is not the Looker compiler, and the recorded SQL checks must not be described as Looker validation. When Looker access is available, validate both models and inspect the actual generated SQL, especially inheritance/alias resolution, family selection, period behavior, and inactive measures. Do not run data queries as part of that check.
 
 Next, agree the CA dashboard filters, tile meanings and measure aggregation choices using this mapping, then create the LookML dashboard replacements. Apply the shared design to EU afterward. Source chart counts alone do not establish each tile's exact field selections or aggregation.
+
+
+## CA Ingestion dashboard implementation — 2026-09-13
+
+The [CA Ingestion dashboard design](bre_ca_ingestion_dashboard_design.md) records the agreed eight query tiles and five controls. The dashboard uses the existing bre_dashboard Explore with four selected families. Both regional models expose the new shared calculations; only bre_ca includes the dashboard.
+
+The 25th shared view, bre_ingestion_filter_values, supplies dynamic filter suggestions through a hidden Explore. A second hidden Explore exposes the existing pilot directory for consistent pilot suggestions. There are still 20 source families and one user-facing dashboard Explore per model. No fact joins or PDTs were introduced.
+
+Ingestion uses a separate Sunday-start ingestion_period_date field; existing Monday grouping and HER source periods are preserved. The user approved treating OPOWER as Billing in the File Type control and in the Users (M)/day invoice calculation. Other ingestion-type values remain dynamic. New file comparisons use exact median and average over source rows and compare the selected calendar range with the immediately preceding equal-length range.

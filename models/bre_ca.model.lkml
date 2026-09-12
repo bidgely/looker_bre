@@ -52,3 +52,17 @@ explore: bre_dashboard {
     bre_dashboard.nbi_generic_tags*
   ]
 }
+
+# Hidden helpers supply dropdown values; all dashboard tiles use bre_dashboard.
+include: "/views/bre/bre_ingestion_filter_values.view.lkml"
+explore: bre_ingestion_filter_values {
+  hidden: yes
+  description: "Dynamic Ingestion File Type filter suggestions across source families."
+}
+explore: bre_pilot_filters {
+  view_name: bre_pilots
+  hidden: yes
+  description: "Consistent pilot filter suggestions from the shared pilot directory."
+}
+
+include: "/dashboards/bre_ca_ingestion.dashboard.lookml"

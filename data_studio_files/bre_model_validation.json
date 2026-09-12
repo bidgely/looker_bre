@@ -24,8 +24,8 @@
     "result": "PASS"
   },
   "looker_validator": {
-    "status": "PENDING_USER_REVALIDATION",
-    "reason": "User-reported validation errors addressed with direct inheritance includes and Explore-qualified router parameters. No Looker connector or compiler is available in this session; local rendering is not Looker-generated SQL.",
+    "status": "USER_REPORTED_CLEAN",
+    "reason": "After the inheritance and parameter-alias fixes, the user reported that the code is clean and requested the next migration stage. This records user confirmation; the agent has not independently run Looker's validator.",
     "reported_errors": [
       "Variable not found source_family in both regional routing views",
       "Could not find bre_dashboard_fields to extend in both regional routing views"

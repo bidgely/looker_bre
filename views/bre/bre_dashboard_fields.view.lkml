@@ -39,6 +39,8 @@ view: bre_dashboard_fields {
     group_label: "Common"
     description: "Pilot Id for the selected family; NULL when not supplied by that source."
     sql: ${TABLE}.pilot_id ;;
+    suggest_explore: bre_pilot_filters
+    suggest_dimension: bre_pilots.pilot_id
   }
   dimension: pilot_name {
     type: string
@@ -46,6 +48,8 @@ view: bre_dashboard_fields {
     group_label: "Common"
     description: "Pilot Name for the selected family; NULL when not supplied by that source."
     sql: ${TABLE}.pilot_name ;;
+    suggest_explore: bre_pilot_filters
+    suggest_dimension: bre_pilots.pilot_name
   }
   dimension: pilot_id_name {
     type: string
@@ -2740,8 +2744,248 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "#,##0"
   }
+
+  # Ingestion dashboard calculations. All are evaluated at query time.
+  dimension: ingestion_file_type {
+    type: string
+    description: "Dashboard File Type: Billing includes BILLING and OPOWER; other source values remain available."
+    group_label: "Ingestion Dashboard"
+    label: "File Type"
+    suggest_explore: bre_ingestion_filter_values
+    suggest_dimension: bre_ingestion_filter_values.file_type
+    sql: CASE WHEN ${ingestion_type} IN ('BILLING', 'OPOWER') THEN 'Billing' WHEN ${ingestion_type} = 'CONSUMPTION' THEN 'Consumption' WHEN ${ingestion_type} = 'USER_META' THEN 'User_Meta' ELSE ${ingestion_type} END ;;
+  }
+  dimension: ingestion_period_date {
+    type: date
+    description: "Analysis date grouped by Period for Ingestion. Weeks begin Sunday; legacy source period logic is unchanged."
+    group_label: "Ingestion Dashboard"
+    label: "Period"
+    convert_tz: no
+    sql: {% if period._parameter_value == "'Weekly'" %}
+        CAST(date_add('day', -1, CAST(date_trunc('week', date_add('day', 1, ${analysis_date})) AS DATE)) AS DATE)
+      {% elsif period._parameter_value == "'Monthly'" %}
+        CAST(date_trunc('month', ${analysis_date}) AS DATE)
+      {% else %} ${analysis_date}
+      {% endif %} ;;
+  }
+  filter: ingestion_comparison_date_range {
+    type: date
+    label: "Files Comparison Date Range"
+    description: "Selected calendar-date range. Files measures retain the preceding equal-length range. Open-ended ranges have no previous-period comparison."
+  }
+  dimension: ingestion_comparison_start {
+    type: date
+    description: "Inclusive selected range start; NULL for an unbounded start."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_start ingestion_comparison_date_range %} AS DATE) ;;
+  }
+  dimension: ingestion_comparison_end {
+    type: date
+    description: "Exclusive selected range end; NULL for an unbounded end."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_end ingestion_comparison_date_range %} AS DATE) ;;
+  }
+  dimension: ingestion_is_selected_period {
+    type: yesno
+    description: "Matches the selected date filter, without removing prior rows from comparison queries."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: {% condition ingestion_comparison_date_range %} ${analysis_date} {% endcondition %} ;;
+  }
+  dimension: ingestion_is_previous_period {
+    type: yesno
+    description: "Immediately preceding equal-length calendar range; false if either boundary is absent."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: COALESCE(
+      ${ingestion_comparison_end} > ${ingestion_comparison_start}
+      AND ${analysis_date} >= date_add('day', -date_diff('day', ${ingestion_comparison_start}, ${ingestion_comparison_end}), ${ingestion_comparison_start})
+      AND ${analysis_date} < ${ingestion_comparison_start}, FALSE) ;;
+  }
+  dimension: ingestion_in_comparison_window {
+    type: yesno
+    description: "Keep current and previous rows before calculating the two file statistics."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: ${ingestion_is_selected_period} OR ${ingestion_is_previous_period} ;;
+  }
+  dimension: ingestion_audit_files_selected {
+    type: number
+    description: "File count for the selected comparison period; other rows are NULL."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${ingestion_is_selected_period} THEN ${ingestion_audit_total_files_processed} END ;;
+  }
+  measure: ingestion_audit_files_selected_average {
+    type: number
+    label: "Files — Selected Average"
+    group_label: "Ingestion Dashboard"
+    description: "Unweighted average of source total_files_processed within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'ingestionaudit'" %}
+        AVG(${ingestion_audit_files_selected})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: ingestion_audit_files_selected_median {
+    type: number
+    label: "Files — Selected Median"
+    group_label: "Ingestion Dashboard"
+    description: "Exact median of source file counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'ingestionaudit'" %}
+        CASE WHEN COUNT(${ingestion_audit_files_selected}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${ingestion_audit_files_selected} AS DOUBLE)) FILTER (WHERE ${ingestion_audit_files_selected} IS NOT NULL)), CAST(floor((COUNT(${ingestion_audit_files_selected}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${ingestion_audit_files_selected} AS DOUBLE)) FILTER (WHERE ${ingestion_audit_files_selected} IS NOT NULL)), CAST(floor((COUNT(${ingestion_audit_files_selected}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  dimension: ingestion_audit_files_previous {
+    type: number
+    description: "File count for the previous comparison period; other rows are NULL."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${ingestion_is_previous_period} THEN ${ingestion_audit_total_files_processed} END ;;
+  }
+  measure: ingestion_audit_files_previous_average {
+    type: number
+    label: "Files — Previous Average"
+    group_label: "Ingestion Dashboard"
+    description: "Unweighted average of source total_files_processed within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'ingestionaudit'" %}
+        AVG(${ingestion_audit_files_previous})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: ingestion_audit_files_previous_median {
+    type: number
+    label: "Files — Previous Median"
+    group_label: "Ingestion Dashboard"
+    description: "Exact median of source file counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'ingestionaudit'" %}
+        CASE WHEN COUNT(${ingestion_audit_files_previous}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${ingestion_audit_files_previous} AS DOUBLE)) FILTER (WHERE ${ingestion_audit_files_previous} IS NOT NULL)), CAST(floor((COUNT(${ingestion_audit_files_previous}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${ingestion_audit_files_previous} AS DOUBLE)) FILTER (WHERE ${ingestion_audit_files_previous} IS NOT NULL)), CAST(floor((COUNT(${ingestion_audit_files_previous}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: ingestion_audit_files_average_change {
+    type: number
+    label: "Files Average Change"
+    group_label: "Ingestion Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'ingestionaudit'" %}
+        (${ingestion_audit_files_selected_average} - ${ingestion_audit_files_previous_average}) / NULLIF(${ingestion_audit_files_previous_average}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
+  measure: ingestion_audit_files_median_change {
+    type: number
+    label: "Files Median Change"
+    group_label: "Ingestion Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'ingestionaudit'" %}
+        (${ingestion_audit_files_selected_median} - ${ingestion_audit_files_previous_median}) / NULLIF(${ingestion_audit_files_previous_median}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
+  dimension: post_ingestion_users_receiving_raw {
+    type: number
+    description: "Row-level raw bucket sum. Any zero or NULL bucket makes this total NULL; no day denominator."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: NULLIF(${post_ingestion_user_raw_with_delay_0_3}, 0) + NULLIF(${post_ingestion_user_raw_with_delay_4_7}, 0) + NULLIF(${post_ingestion_user_raw_with_delay_8_15}, 0) + NULLIF(${post_ingestion_user_raw_with_delay_gt_15}, 0) ;;
+  }
+  measure: post_ingestion_users_receiving_raw_sum {
+    type: number
+    label: "Total Users Receiving Raw Data"
+    group_label: "Ingestion Dashboard"
+    description: "Sum of the row-level NULLIF bucket calculation; not a distinct-user count over the period."
+    sql:
+      {% if source_family._parameter_value == "'postingestion'" %}
+        SUM(${post_ingestion_users_receiving_raw})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0"
+  }
+  dimension: post_ingestion_users_receiving_invoice {
+    type: number
+    description: "Row-level invoice bucket sum. Any zero or NULL bucket makes this total NULL; no day denominator."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: NULLIF(${post_ingestion_user_invoice_with_delay_0_7}, 0) + NULLIF(${post_ingestion_user_invoice_with_delay_7_15}, 0) + NULLIF(${post_ingestion_user_invoice_with_delay_15_30}, 0) + NULLIF(${post_ingestion_user_invoice_with_delay_gt_30}, 0) ;;
+  }
+  measure: post_ingestion_users_receiving_invoice_sum {
+    type: number
+    label: "Total Users Receiving Invoice Data"
+    group_label: "Ingestion Dashboard"
+    description: "Sum of the row-level NULLIF bucket calculation; not a distinct-user count over the period."
+    sql:
+      {% if source_family._parameter_value == "'postingestion'" %}
+        SUM(${post_ingestion_users_receiving_invoice})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0"
+  }
+  dimension: post_ingestion_users_per_day_millions {
+    type: number
+    description: "Row-level raw total for CONSUMPTION or invoice total for BILLING/OPOWER, in millions. Other types return NULL."
+    group_label: "Ingestion Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${ingestion_type} = 'CONSUMPTION' THEN ${post_ingestion_users_receiving_raw} / 1000000.0 WHEN ${ingestion_type} IN ('BILLING', 'OPOWER') THEN ${post_ingestion_users_receiving_invoice} / 1000000.0 END ;;
+  }
+  measure: post_ingestion_users_per_day_millions_average {
+    type: number
+    label: "Users (M)/day"
+    group_label: "Ingestion Dashboard"
+    description: "Unweighted average of the row-level users calculation in millions. Preserves NULLIF omissions; OPOWER uses invoice buckets."
+    sql:
+      {% if source_family._parameter_value == "'postingestion'" %}
+        AVG(${post_ingestion_users_per_day_millions})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.000"
+  }
+  measure: active_users_uuid_summary {
+    type: number
+    label: "Active UUID out of Total UUID"
+    group_label: "Ingestion Dashboard"
+    description: "Latest snapshot active and total UUID counts for selected pilots. Only pilot controls affect this tile."
+    sql:
+      {% if source_family._parameter_value == "'activeusers'" %}
+        ${active_users_active_uuid_sum}
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0"
+    html: Active UUID: {{ rendered_value }} out of Total UUID: {{ bre_dashboard.active_users_total_uuid_sum._rendered_value }} ;;
+  }
+
   set: common {
     fields: [
+      ingestion_file_type,
+      ingestion_period_date,
+      ingestion_comparison_date_range,
+      ingestion_comparison_start,
+      ingestion_comparison_end,
+      ingestion_is_selected_period,
+      ingestion_is_previous_period,
+      ingestion_in_comparison_window,
       pilot_id,
       pilot_name,
       pilot_id_name,
@@ -2782,6 +3026,7 @@ view: bre_dashboard_fields {
   }
   set: active_users {
     fields: [
+      active_users_uuid_summary,
       active_users_total_uuid,
       active_users_total_uuid_sum,
       active_users_enabled_uuid,
@@ -2811,6 +3056,14 @@ view: bre_dashboard_fields {
   }
   set: ingestion_audit {
     fields: [
+      ingestion_audit_files_selected,
+      ingestion_audit_files_selected_average,
+      ingestion_audit_files_selected_median,
+      ingestion_audit_files_previous,
+      ingestion_audit_files_previous_average,
+      ingestion_audit_files_previous_median,
+      ingestion_audit_files_average_change,
+      ingestion_audit_files_median_change,
       ingestion_audit_total_files_processed,
       ingestion_audit_total_files_processed_sum,
       ingestion_audit_total_chunks_processed,
@@ -2838,6 +3091,12 @@ view: bre_dashboard_fields {
   }
   set: post_ingestion {
     fields: [
+      post_ingestion_users_receiving_raw,
+      post_ingestion_users_receiving_raw_sum,
+      post_ingestion_users_receiving_invoice,
+      post_ingestion_users_receiving_invoice_sum,
+      post_ingestion_users_per_day_millions,
+      post_ingestion_users_per_day_millions_average,
       post_ingestion_user_raw_with_delay_0_3,
       post_ingestion_user_raw_with_delay_0_3_sum,
       post_ingestion_user_raw_with_delay_4_7,

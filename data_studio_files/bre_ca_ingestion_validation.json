@@ -1,0 +1,150 @@
+{
+  "checked_at": "2026-09-13",
+  "scope": "CA Ingestion dashboard and shared CA/EU fields. Local rendering and synthetic fixtures; Starburst EXPLAIN (TYPE VALIDATE) only.",
+  "result": "PASS",
+  "dashboard": "bre_ca_ingestion",
+  "query_tiles": 8,
+  "filters": 5,
+  "rendered_tile_sql_cases": 48,
+  "suggestion_sql_cases": 2,
+  "synthetic_checks": 23,
+  "no_pdts": {
+    "models": 4,
+    "views": 38,
+    "derived_tables": 37,
+    "result": "PASS"
+  },
+  "source_data_read": false,
+  "looker_validation": "PENDING USER WEB UI",
+  "limitations": "Local renderer simulates bounded date tags; DuckDB tests translated expressions, not the Trino execution engine.",
+  "model_validation": {
+    "result": "PASS",
+    "rendered_cases": 108,
+    "source_families": 20,
+    "router_columns": 168,
+    "lookml_files": 27
+  },
+  "starburst": {
+    "statement": "EXPLAIN (TYPE VALIDATE)",
+    "validated_cases": 22,
+    "no_source_data_read": true,
+    "checks": [
+      {
+        "case": "ca_files_median_daily",
+        "result": "PASS",
+        "query_id": "20260912_221754_25158_6i6fk"
+      },
+      {
+        "case": "eu_files_median_daily",
+        "result": "PASS",
+        "query_id": "20260912_221754_59856_pdizt"
+      },
+      {
+        "case": "ca_active_uuid_daily",
+        "result": "PASS",
+        "query_id": "20260912_221815_12234_f92w6"
+      },
+      {
+        "case": "ca_files_average_daily",
+        "result": "PASS",
+        "query_id": "20260912_221816_12241_f92w6"
+      },
+      {
+        "case": "ca_daily_users_daily",
+        "result": "PASS",
+        "query_id": "20260912_221817_35635_upv6f"
+      },
+      {
+        "case": "ca_daily_success_daily",
+        "result": "PASS",
+        "query_id": "20260912_221818_35642_upv6f"
+      },
+      {
+        "case": "ca_daily_ingestion_statistics_daily",
+        "result": "PASS",
+        "query_id": "20260912_221819_88071_estru"
+      },
+      {
+        "case": "ca_post_ingestion_quality_daily",
+        "result": "PASS",
+        "query_id": "20260912_221820_12258_f92w6"
+      },
+      {
+        "case": "ca_ingestion_failure_reasons_daily",
+        "result": "PASS",
+        "query_id": "20260912_221820_79231_3xuu7"
+      },
+      {
+        "case": "ca_daily_ingestion_statistics_weekly",
+        "result": "PASS",
+        "query_id": "20260912_221821_25258_6i6fk"
+      },
+      {
+        "case": "ca_daily_ingestion_statistics_monthly",
+        "result": "PASS",
+        "query_id": "20260912_221822_12279_f92w6"
+      },
+      {
+        "case": "ca_filter_suggestions",
+        "result": "PASS",
+        "query_id": "20260912_221823_59903_pdizt"
+      },
+      {
+        "case": "eu_active_uuid_daily",
+        "result": "PASS",
+        "query_id": "20260912_221824_25272_6i6fk"
+      },
+      {
+        "case": "eu_files_average_daily",
+        "result": "PASS",
+        "query_id": "20260912_221824_58656_z5czz"
+      },
+      {
+        "case": "eu_daily_users_daily",
+        "result": "PASS",
+        "query_id": "20260912_221826_25294_6i6fk"
+      },
+      {
+        "case": "eu_daily_success_daily",
+        "result": "PASS",
+        "query_id": "20260912_221827_12321_f92w6"
+      },
+      {
+        "case": "eu_daily_ingestion_statistics_daily",
+        "result": "PASS",
+        "query_id": "20260912_221827_88106_estru"
+      },
+      {
+        "case": "eu_post_ingestion_quality_daily",
+        "result": "PASS",
+        "query_id": "20260912_221828_79279_3xuu7"
+      },
+      {
+        "case": "eu_ingestion_failure_reasons_daily",
+        "result": "PASS",
+        "query_id": "20260912_221830_12340_f92w6"
+      },
+      {
+        "case": "eu_daily_ingestion_statistics_weekly",
+        "result": "PASS",
+        "query_id": "20260912_221830_25316_6i6fk"
+      },
+      {
+        "case": "eu_daily_ingestion_statistics_monthly",
+        "result": "PASS",
+        "query_id": "20260912_221831_58701_z5czz"
+      },
+      {
+        "case": "eu_filter_suggestions",
+        "result": "PASS",
+        "query_id": "20260912_221832_25327_6i6fk"
+      }
+    ]
+  },
+  "web_ui_review": [
+    "Run LookML validation for the new dashboard and fields.",
+    "Inspect UUID sentence, average/median percentage comparisons and Success % axis.",
+    "Check separate pilot filters, dynamic File Type choices and Billing including OPOWER.",
+    "Check Daily/Weekly/Monthly charts and source-rank <= 20 behavior."
+  ]
+}

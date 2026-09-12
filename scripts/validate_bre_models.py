@@ -72,13 +72,13 @@ def parse_project():
                 assert parent in views, f"Missing parent view: {parent}"
                 parent_path = "/" + str(paths[parent].relative_to(ROOT))
                 assert parent_path in includes, f"Missing direct include of {parent} in {paths[name]}"
-    assert len(views) == 24, f"Expected 24 views, got {len(views)}"
+    assert len(views) == 25, f"Expected 25 views, got {len(views)}"
     base = views["bre_dashboard_fields"]
     dimensions = {f["name"]: f for f in base["dimensions"]}
     measures = {f["name"]: f for f in base["measures"]}
     parameters = {f["name"]: f for f in base["parameters"]}
     assert COMMON_FIELDS <= dimensions.keys()
-    all_names = list(dimensions) + list(measures) + list(parameters)
+    all_names = list(dimensions) + list(measures) + list(parameters) + [f["name"] for f in base.get("filters", [])]
     assert len(all_names) == len(set(all_names)), "Duplicate field name"
     for view in views.values():
         fields = view.get("dimensions", []) + view.get("measures", [])
@@ -96,7 +96,18 @@ def parse_project():
     return views, paths, dimensions, measures, sets
 
 
-def render(text, env, family, period, scope):
+def render(text, env, family, period, scope, date_start="2026-09-06", date_end="2026-09-13"):
+    # Fixed fixture boundaries simulate Looker tags; this is not its filter parser.
+    for tag, boundary in (("date_start", date_start), ("date_end", date_end)):
+        literal = "NULL" if boundary is None else f"DATE '{boundary}'"
+        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?ingestion_comparison_date_range\s*%\}", literal, text)
+    def date_condition(match):
+        value = match.group(1).strip()
+        clauses = []
+        if date_start: clauses.append(f"({value}) >= DATE '{date_start}'")
+        if date_end: clauses.append(f"({value}) < DATE '{date_end}'")
+        return "(" + " AND ".join(clauses or ["TRUE"]) + ")"
+    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?ingestion_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
     values = {"source_family": family, "period": period, "failure_scope": scope}
     def parameter(match):
         value = values[match.group(1).removeprefix("bre_dashboard.")]
@@ -133,7 +144,11 @@ def main():
         assert model["connection"] == f"starburst_prod_{env}"
         assert model["week_start_day"] == "monday"
         explore = model["explores"][0]
-        assert len(model["explores"]) == 1 and explore["name"] == "bre_dashboard"
+        assert explore["name"] == "bre_dashboard"
+        helpers = {e["name"]: e for e in model["explores"][1:]}
+        assert set(helpers) == {"bre_ingestion_filter_values", "bre_pilot_filters"}
+        assert all(e.get("hidden") == "yes" for e in helpers.values())
+        assert helpers["bre_pilot_filters"]["view_name"] == "bre_pilots"
         assert explore["from"] == f"bre_dashboard_{env}"
         assert not explore.get("joins"), "Fact joins are outside this model's contract"
         includes = set(model["includes"])
@@ -189,6 +204,9 @@ def main():
                             sql = render(dimensions[name]["sql"], env, family, period, scope).replace("${TABLE}", "q")
                             cache[name] = FIELD_REF.sub(lambda m: "(" + dimension_sql(m.group(1)) + ")", sql)
                         return cache[name]
+                    def measure_sql(name):
+                        sql = render(measures[name]["sql"], env, family, period, scope)
+                        return FIELD_REF.sub(lambda m: "(" + (measure_sql(m.group(1)) if m.group(1) in measures else dimension_sql(m.group(1))) + ")", sql)
                     select_fields = []
                     for name in dimensions:
                         if name in allowed_fields:
@@ -197,8 +215,7 @@ def main():
                     for name, measure in measures.items():
                         if name not in allowed_fields:
                             continue
-                        sql = render(measure["sql"], env, family, period, scope)
-                        sql = FIELD_REF.sub(lambda m: "(" + dimension_sql(m.group(1)) + ")", sql)
+                        sql = measure_sql(name)
                         if name != "source_row_count" and not name.replace('_','').startswith(family):
                             assert not re.search(r"\b(SUM|AVG)\s*\(", sql), (family,name)
                         select_fields.append(f"{sql} AS {name}")
@@ -214,7 +231,7 @@ def main():
             path.write_text("EXPLAIN (TYPE VALIDATE)\n" + case['sql'] + ";\n")
             manifest.append({k:v for k,v in case.items() if k!='sql'} | {'path':str(path)})
         (args.output_dir / 'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    print(json.dumps({'lookml_files':26,'source_families':20,'rendered_cases':len(cases),'router_columns':len(signature),'result':'PASS','no_pdts':persistence,'looker_validator':'NOT RUN; requires Looker'},indent=2))
+    print(json.dumps({'lookml_files':len(views)+2,'source_families':20,'rendered_cases':len(cases),'router_columns':len(signature),'result':'PASS','no_pdts':persistence,'looker_validator':'NOT RUN; requires Looker'},indent=2))
 
 
 if __name__ == '__main__':
