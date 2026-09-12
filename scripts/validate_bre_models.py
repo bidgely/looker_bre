@@ -30,6 +30,32 @@ COMMON_FIELDS = {
 }
 
 
+def check_no_pdts():
+    """Check every model/view, including existing Itron models, without data access."""
+    counts = {"models": 0, "views": 0, "derived_tables": 0}
+    def inspect(node, path):
+        if isinstance(node, dict):
+            assert not node.get("aggregate_tables"), f"Aggregate PDT in {path}"
+            if "derived_table" in node:
+                counts["derived_tables"] += 1
+                # All current derived tables are query-time SQL. Reject build
+                # triggers, materialization and custom DDL if added later.
+                assert set(node["derived_table"]) == {"sql"}, f"Non-ephemeral derived table in {path}"
+            for value in node.values():
+                inspect(value, path)
+        elif isinstance(node, list):
+            for value in node:
+                inspect(value, path)
+    for path in sorted(ROOT.rglob("*.lkml")):
+        if any(part.startswith(".") for part in path.relative_to(ROOT).parts):
+            continue
+        parsed = lkml.load(path.open())
+        counts["models"] += int(path.name.endswith(".model.lkml"))
+        counts["views"] += len(parsed.get("views", []))
+        inspect(parsed, path)
+    return counts | {"result": "PASS"}
+
+
 def parse_project():
     views = {}
     paths = {}
@@ -39,6 +65,13 @@ def parse_project():
             assert view["name"] not in views, f"Duplicate view: {view['name']}"
             views[view["name"]] = view
             paths[view["name"]] = path
+    for name, view in views.items():
+        includes = lkml.load(paths[name].open()).get("includes", [])
+        for group in view.get("extends__all", []):
+            for parent in group:
+                assert parent in views, f"Missing parent view: {parent}"
+                parent_path = "/" + str(paths[parent].relative_to(ROOT))
+                assert parent_path in includes, f"Missing direct include of {parent} in {paths[name]}"
     assert len(views) == 24, f"Expected 24 views, got {len(views)}"
     base = views["bre_dashboard_fields"]
     dimensions = {f["name"]: f for f in base["dimensions"]}
@@ -66,10 +99,11 @@ def parse_project():
 def render(text, env, family, period, scope):
     values = {"source_family": family, "period": period, "failure_scope": scope}
     def parameter(match):
-        value = values[match.group(1)]
+        value = values[match.group(1).removeprefix("bre_dashboard.")]
         return "'" + value.replace("'", "''") + "'"
-    text = re.sub(r"\{%\s*parameter\s+([a-z_]+)\s*%\}", parameter, text)
+    text = re.sub(r"\{%\s*parameter\s+((?:bre_dashboard\.)?[a-z_]+)\s*%\}", parameter, text)
     context = {k: {"_parameter_value": "'" + v + "'"} for k, v in values.items()}
+    context["bre_dashboard"] = dict(context)
     context["_model"] = {"_name": "bre_" + env}
     output = LIQUID.from_string(text).render(**context)
     assert "{%" not in output and "{{" not in output
@@ -90,6 +124,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, help="Optional location for SQL planning fixtures and their manifest")
     args = parser.parse_args()
+    persistence = check_no_pdts()
     views, paths, dimensions, measures, sets = parse_project()
     cases = []
     signature = None
@@ -108,6 +143,12 @@ def main():
             assert member.startswith("bre_dashboard.") and member.endswith("*")
             allowed_fields.update(sets[member.split(".")[1][:-1]])
         route = views[f"bre_dashboard_{env}"]
+        route_sql = route["derived_table"]["sql"]
+        controls = set(re.findall(r"([a-z_.]+)\._parameter_value", route_sql))
+        controls.update(re.findall(r"\{%\s*parameter\s+([a-z_.]+)\s*%\}", route_sql))
+        expected_controls = {f"{explore['name']}.{name}" for name in ("source_family", "period", "failure_scope")}
+        assert controls <= expected_controls, f"Router parameters must use the Explore alias: {controls}"
+        assert f"{explore['name']}.source_family" in controls
         params = {p["name"]: p for p in route["parameters"]}
         families = [v["value"] for v in params["source_family"]["allowed_values"]]
         assert len(families) == expected
@@ -173,7 +214,7 @@ def main():
             path.write_text("EXPLAIN (TYPE VALIDATE)\n" + case['sql'] + ";\n")
             manifest.append({k:v for k,v in case.items() if k!='sql'} | {'path':str(path)})
         (args.output_dir / 'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    print(json.dumps({'lookml_files':26,'source_families':20,'rendered_cases':len(cases),'router_columns':len(signature),'result':'PASS','looker_validator':'NOT RUN; requires Looker'},indent=2))
+    print(json.dumps({'lookml_files':26,'source_families':20,'rendered_cases':len(cases),'router_columns':len(signature),'result':'PASS','no_pdts':persistence,'looker_validator':'NOT RUN; requires Looker'},indent=2))
 
 
 if __name__ == '__main__':

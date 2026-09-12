@@ -1,3 +1,5 @@
+include: "/views/bre/bre_dashboard_fields.view.lkml"
+
 # Regional routing only. Source SQL and fields are shared across the models.
 view: bre_dashboard_eu {
   extends: [bre_dashboard_fields]
@@ -20,34 +22,36 @@ view: bre_dashboard_eu {
   parameter: failure_scope {
     default_value: "Top Three"
   }
+  # Liquid uses the bre_dashboard Explore alias defined by both models.
+  # Keep this query-time only: these connections do not support PDTs.
   derived_table: {
     sql:
       WITH selected_family AS (
-        {% if source_family._parameter_value == "'activeusers'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'activeusers'" %}
           SELECT * FROM ${bre_active_users.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'pilotreporting'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'pilotreporting'" %}
           SELECT * FROM ${bre_pilot_reporting.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'ingestionaudit'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'ingestionaudit'" %}
           SELECT * FROM ${bre_ingestion_audit.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'ingestionfailures'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'ingestionfailures'" %}
           SELECT * FROM ${bre_ingestion_failures.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'postingestion'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'postingestion'" %}
           SELECT * FROM ${bre_post_ingestion.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'invoicestatistics'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'invoicestatistics'" %}
           SELECT * FROM ${bre_invoice_statistics.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'disaggquality'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'disaggquality'" %}
           SELECT * FROM ${bre_disagg_quality.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'processingfailures'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'processingfailures'" %}
           SELECT * FROM ${bre_processing_failures.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'emailstatistics'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'emailstatistics'" %}
           SELECT * FROM ${bre_email_statistics.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'emailtracker'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'emailtracker'" %}
           SELECT * FROM ${bre_email_tracker.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'emailrecommendations'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'emailrecommendations'" %}
           SELECT * FROM ${bre_email_recommendations.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'emailfailures'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'emailfailures'" %}
           SELECT * FROM ${bre_email_failures.SQL_TABLE_NAME}
-        {% elsif source_family._parameter_value == "'billinglength'" %}
+        {% elsif bre_dashboard.source_family._parameter_value == "'billinglength'" %}
           SELECT * FROM ${bre_billing_length.SQL_TABLE_NAME}
         {% else %}
           SELECT CAST(NULL AS BIGINT) AS row_id,
@@ -117,7 +121,7 @@ view: bre_dashboard_eu {
         f.event_type,
         f.delay_in_days,
         f.istou
-        {% if source_family._parameter_value == "'activeusers'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'activeusers'" %}
         , f.total_uuid AS active_users_total_uuid,
           f.enabled_uuid AS active_users_enabled_uuid,
           f.disabled_uuid AS active_users_disabled_uuid,
@@ -140,7 +144,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS INTEGER) AS active_users_total_active_electric_meters,
           CAST(NULL AS INTEGER) AS active_users_total_active_gas_meters
         {% endif %}
-        {% if source_family._parameter_value == "'ingestionaudit'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'ingestionaudit'" %}
         , f.total_files_processed AS ingestion_audit_total_files_processed,
           f.total_chunks_processed AS ingestion_audit_total_chunks_processed,
           f.total_records_count AS ingestion_audit_total_records_count,
@@ -157,7 +161,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS DECIMAL(26, 2)) AS ingestion_audit_success_percentage,
           CAST(NULL AS DECIMAL(26, 2)) AS ingestion_audit_failure_percentage
         {% endif %}
-        {% if source_family._parameter_value == "'ingestionfailures'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'ingestionfailures'" %}
         , f.failed_record_count AS ingestion_failures_failed_record_count,
           f.total_failed_record_count AS ingestion_failures_total_failed_record_count,
           f.failure_percentage AS ingestion_failures_failure_percentage
@@ -166,7 +170,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS BIGINT) AS ingestion_failures_total_failed_record_count,
           CAST(NULL AS DECIMAL(26, 2)) AS ingestion_failures_failure_percentage
         {% endif %}
-        {% if source_family._parameter_value == "'postingestion'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'postingestion'" %}
         , f.user_raw_with_delay_0_3 AS post_ingestion_user_raw_with_delay_0_3,
           f.user_raw_with_delay_4_7 AS post_ingestion_user_raw_with_delay_4_7,
           f.user_raw_with_delay_8_15 AS post_ingestion_user_raw_with_delay_8_15,
@@ -187,7 +191,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS BIGINT) AS post_ingestion_user_invoice_with_delay_gt_30,
           CAST(NULL AS BIGINT) AS post_ingestion_overlapping_bc_count
         {% endif %}
-        {% if source_family._parameter_value == "'invoicestatistics'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'invoicestatistics'" %}
         , f.total_invoices AS invoice_statistics_total_invoices,
           f.failed_itemisation_pct AS invoice_statistics_failed_itemisation_pct,
           f.successful_itemisation_pct AS invoice_statistics_successful_itemisation_pct
@@ -196,7 +200,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS DECIMAL(5, 2)) AS invoice_statistics_failed_itemisation_pct,
           CAST(NULL AS DECIMAL(5, 2)) AS invoice_statistics_successful_itemisation_pct
         {% endif %}
-        {% if source_family._parameter_value == "'disaggquality'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'disaggquality'" %}
         , f.appliances_kwh_variance_pct_1 AS disagg_quality_appliances_kwh_variance_pct_1,
           f.appliances_kwh_variance_pct_2 AS disagg_quality_appliances_kwh_variance_pct_2,
           f.total_cost_deviation_pct_1 AS disagg_quality_total_cost_deviation_pct_1,
@@ -227,7 +231,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS DECIMAL(10, 2)) AS disagg_quality_solar_pct_non_tou,
           CAST(NULL AS DECIMAL(10, 2)) AS disagg_quality_missing_solar_pct_non_tou
         {% endif %}
-        {% if source_family._parameter_value == "'processingfailures'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'processingfailures'" %}
         , f.failure_percentage AS processing_failures_failure_percentage,
           f.failure_count AS processing_failures_failure_count,
           f.total_failure_count AS processing_failures_total_failure_count
@@ -236,7 +240,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS INTEGER) AS processing_failures_failure_count,
           CAST(NULL AS INTEGER) AS processing_failures_total_failure_count
         {% endif %}
-        {% if source_family._parameter_value == "'emailstatistics'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'emailstatistics'" %}
         , f.cnt_bills_ingested AS email_statistics_cnt_bills_ingested,
           f.cnt_bills_emails_sent AS email_statistics_cnt_bills_emails_sent,
           f.cnt_bills_emails_delivered AS email_statistics_cnt_bills_emails_delivered,
@@ -259,7 +263,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS VARCHAR) AS email_statistics_cnt_bills_emails_sent_source_text,
           CAST(NULL AS VARCHAR) AS email_statistics_cnt_bills_emails_delivered_source_text
         {% endif %}
-        {% if source_family._parameter_value == "'emailtracker'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'emailtracker'" %}
         , f.delivered_notification_id AS email_tracker_delivered_notification_id,
           f.generated_notification_id AS email_tracker_generated_notification_id,
           f.invoice_ingested AS email_tracker_invoice_ingested
@@ -268,7 +272,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS BIGINT) AS email_tracker_generated_notification_id,
           CAST(NULL AS BIGINT) AS email_tracker_invoice_ingested
         {% endif %}
-        {% if source_family._parameter_value == "'emailrecommendations'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'emailrecommendations'" %}
         , f.metric_notification_count AS email_recommendations_metric_notification_count,
           f.total_notification_count AS email_recommendations_total_notification_count,
           f.notification_pct AS email_recommendations_notification_pct,
@@ -283,7 +287,7 @@ view: bre_dashboard_eu {
           CAST(NULL AS BIGINT) AS email_recommendations_total_user_count,
           CAST(NULL AS DOUBLE) AS email_recommendations_user_pct
         {% endif %}
-        {% if source_family._parameter_value == "'emailfailures'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'emailfailures'" %}
         , f.failure_count AS email_failures_failure_count,
           f.total_failure_count AS email_failures_total_failure_count,
           f.failure_pct AS email_failures_failure_pct
@@ -350,7 +354,7 @@ view: bre_dashboard_eu {
         , CAST(NULL AS BIGINT) AS nbi_generic_tags_total_nbi_users,
           CAST(NULL AS BIGINT) AS nbi_generic_tags_total_nbi_users_with_generic_tag,
           CAST(NULL AS DECIMAL(26, 2)) AS nbi_generic_tags_pct_users_with_generic_tag
-        {% if source_family._parameter_value == "'billinglength'" %}
+        {% if bre_dashboard.source_family._parameter_value == "'billinglength'" %}
         , f.bc_1_15_count AS billing_length_bc_1_15_count,
           f.bc_15_30_count AS billing_length_bc_15_30_count,
           f.bc_31_45_count AS billing_length_bc_31_45_count,
@@ -369,7 +373,7 @@ view: bre_dashboard_eu {
         {% endif %}
       FROM selected_family f
       WHERE TRUE
-      {% if source_family._parameter_value == "'processingfailures'" and failure_scope._parameter_value == "'Top Three'" %}
+      {% if bre_dashboard.source_family._parameter_value == "'processingfailures'" and bre_dashboard.failure_scope._parameter_value == "'Top Three'" %}
         AND f.source_rank <= 3
       {% endif %}
     ;;

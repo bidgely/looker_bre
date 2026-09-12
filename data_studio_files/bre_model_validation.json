@@ -24,8 +24,23 @@
     "result": "PASS"
   },
   "looker_validator": {
-    "status": "NOT_RUN",
-    "reason": "No Looker connector or compiler is available in this session. Local rendering is not Looker-generated SQL."
+    "status": "PENDING_USER_REVALIDATION",
+    "reason": "User-reported validation errors addressed with direct inheritance includes and Explore-qualified router parameters. No Looker connector or compiler is available in this session; local rendering is not Looker-generated SQL.",
+    "reported_errors": [
+      "Variable not found source_family in both regional routing views",
+      "Could not find bre_dashboard_fields to extend in both regional routing views"
+    ]
+  },
+  "validation_error_fix": {
+    "local_rendered_cases": 108,
+    "sql_fixtures_unchanged_from_prior_starburst_validation": 108,
+    "no_source_data_read": true,
+    "no_pdts": {
+      "models_checked": 4,
+      "views_checked": 37,
+      "query_time_derived_tables": 36,
+      "result": "PASS"
+    }
   },
   "starburst": [
     {
