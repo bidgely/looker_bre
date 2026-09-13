@@ -1,4 +1,4 @@
-# CA Disagg migration in progress: only confirmed tiles are included.
+# Disagg dashboard using the approved CA tile definitions and shared views.
 ---
 - dashboard: bre_ca_disagg
   title: BRE CA — Disagg

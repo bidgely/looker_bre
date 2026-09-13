@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = ["lkml==1.3.7", "python-liquid==2.3.1", "sqlglot==30.18.0", "pyyaml==6.0.2", "duckdb==1.4.3"]
 # ///
-"""Validate confirmed CA Disagg tiles locally; no warehouse queries or Looker compiler."""
+"""Validate CA/EU Disagg parity and shared SQL locally; no warehouse queries or Looker compiler."""
 import sys
 sys.dont_write_bytecode = True
 import argparse
@@ -25,6 +25,9 @@ def main():
     views, _, dimensions, measures, sets = base.parse_project()
     fields = dimensions | measures
     dashboard = yaml.safe_load((base.ROOT/'dashboards/bre_ca_disagg.dashboard.lookml').read_text())[0]
+    eu_dashboard = yaml.safe_load((base.ROOT/'dashboards/bre_eu_disagg.dashboard.lookml').read_text())[0]
+    normalized_eu = json.loads(json.dumps(eu_dashboard).replace('bre_eu', 'bre_ca').replace('BRE EU', 'BRE CA').replace('EU disaggregation', 'CA disaggregation'))
+    assert normalized_eu == dashboard, 'Regional Disagg definitions differ beyond environment identifiers'
     tiles = {tile['name']: tile for tile in dashboard['elements']}
     controls = {control['name']: control for control in dashboard['filters']}
     assert set(tiles['active_uuid']['listen']) == {'Pilot ID', 'Pilot Name'}
@@ -35,6 +38,18 @@ def main():
     suggestion_fixtures = 0
     for env in ('ca', 'eu'):
         region_model = lkml.load((base.ROOT/f'models/bre_{env}.model.lkml').open())
+        region_dashboard = dashboard if env == 'ca' else eu_dashboard
+        assert f'/dashboards/bre_{env}_disagg.dashboard.lookml' in region_model['includes']
+        other = 'eu' if env == 'ca' else 'ca'
+        assert f'/dashboards/bre_{other}_disagg.dashboard.lookml' not in region_model['includes']
+        assert region_model['connection'] == f'starburst_prod_{env}'
+        assert region_model['explores'][0]['from'] == f'bre_dashboard_{env}'
+        region_fields = {name for member in region_model['explores'][0]['fields'] for name in sets[member.split('.')[1][:-1]]}
+        for tile in region_dashboard['elements']:
+            assert tile['model'] == f'bre_{env}' and tile['explore'] == 'bre_dashboard'
+            for ref in tile['fields'] + list(tile['filters']) + list(tile['listen'].values()):
+                assert ref.removeprefix('bre_dashboard.') in region_fields, (env, ref)
+        assert all(control['model'] == f'bre_{env}' for control in region_dashboard['filters'])
         helper = next(e for e in region_model['explores'] if e['name'] == 'bre_invoice_filters')
         source = views[helper['view_name']]
         source_fields = {d['name']: d for d in source['dimensions']}
@@ -239,10 +254,11 @@ def main():
         assert run('SELECT '+expression('invoice_is_previous_period',start=start,end=end)+" FROM (VALUES (DATE '2026-09-01')) q(reporting_date)")[0][0] is False
         checks += 1
     result = dict(result='PASS',dashboard='bre_ca_disagg',confirmed_tiles=len(tiles),rendered_invoice_sql_cases=fixtures,
+                  dashboards=['bre_ca_disagg', 'bre_eu_disagg'],regional_parity='PASS',
                   rendered_quality_sql_cases=quality_fixtures,rendered_failure_sql_cases=failure_fixtures,
                   rendered_suggestion_sql_cases=suggestion_fixtures,dashboard_controls=len(controls),
                   synthetic_checks=checks,no_pdts=base.check_no_pdts(),source_data_read=False,
-                  looker_validation='PENDING USER WEB UI',limitations='Local SQL renderer and translated DuckDB fixtures do not replace native Looker validation or Trino execution.')
+                  looker_validation={'ca': 'USER ACCEPTED', 'eu': 'PENDING USER WEB UI'},limitations='Local SQL renderer and translated DuckDB fixtures do not replace native Looker validation or Trino execution.')
     (args.output_dir/'results.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2))
 

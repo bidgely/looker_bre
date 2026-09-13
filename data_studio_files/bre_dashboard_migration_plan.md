@@ -8,7 +8,8 @@ Updated: 2026-09-13.
 - Shared LookML views and separate `bre_ca` / `bre_eu` models are implemented, using `starburst_prod_ca` / `starburst_prod_eu`. Derived tables remain query-time only; no PDTs are allowed.
 - [CA Ingestion](bre_ca_ingestion_dashboard_design.md) is implemented. The user accepted the dashboard structure; data correctness remains unvalidated.
 - [EU Ingestion](bre_eu_ingestion_dashboard_design.md) is implemented from the approved CA design. Missing Pilot ID / Pilot Name dropdown values remain an open issue; investigation is deferred at the user's request.
-- Current dashboard work: [CA Disagg](bre_ca_disagg_dashboard_design.md) has eight implemented tiles and seven controls, ready for native Looker review. Create EU Disagg only after the user confirms that CA passes native LookML validation and the dashboard runs without query errors in Looker. This gate is separate from the deferred data-correctness checks below.
+- [CA Disagg](bre_ca_disagg_dashboard_design.md) has eight implemented tiles and seven controls. The user accepted the CA version and requested EU, satisfying the CA-first delivery gate.
+- [EU Disagg](bre_eu_disagg_dashboard_design.md) is implemented with the same tiles and controls using shared views and model `bre_eu`. Local parity and SQL checks pass; EU native Looker validation and execution remain for user review. Data correctness remains deferred for both regions.
 - Remaining dashboard construction after Disagg: CA Email, HER and NBI; EU Email. Continue tile-by-tile agreement on sources, metrics, filters and presentation.
 
 ## Data readiness prerequisite

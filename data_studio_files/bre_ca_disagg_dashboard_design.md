@@ -1,6 +1,6 @@
 # CA Disagg dashboard design
 
-Status: CA implementation ready for native Looker review on 2026-09-13. `dashboards/bre_ca_disagg.dashboard.lookml` contains all eight query tiles: UUID, invoice Average/Median, T-7/T-2 success, the invoice/disagg combo chart, the Disagg Quality line chart, and stacked failure reasons, with seven dashboard controls, included only in `bre_ca`. Native Looker validation and execution remain pending.
+Status: the user accepted the CA version on 2026-09-13 and requested the same dashboard for EU. `dashboards/bre_ca_disagg.dashboard.lookml` contains all eight query tiles: UUID, invoice Average/Median, T-7/T-2 success, the invoice/disagg combo chart, the Disagg Quality line chart, and stacked failure reasons, with seven dashboard controls, included only in `bre_ca`. The [EU version](bre_eu_disagg_dashboard_design.md) is now implemented. Warehouse data correctness remains deferred.
 
 ## Delivery sequence
 
@@ -8,7 +8,7 @@ Agree on each CA tile, implement with model `bre_ca` and the existing `bre_dashb
 
 ## Structure export
 
-The [CA structure export](bre_dashboard_structure_ca.txt) lists the following tiles. It does not establish their aggregations, comparisons, date bindings or additional filters. Source families below are candidates based on the existing [source mapping](bre_source_view_mapping.md), pending tile-by-tile confirmation.
+The [CA structure export](bre_dashboard_structure_ca.txt) lists the following tiles. It does not establish their aggregations, comparisons, date bindings or additional filters. Source families below follow the existing [source mapping](bre_source_view_mapping.md) and the user-approved tile definitions.
 
 | Tile | Candidate source family | Definition status |
 |---|---|---|
@@ -50,7 +50,7 @@ Following the Ingestion convention, the implementation uses the immediately prec
 - Median uses the existing Trino sorted-array method: ignore NULLs, retain zeros, average the middle pair for an even row count. Memory use grows with the number of source rows in the filtered window.
 - Dates use typed LookML references (`::date`) throughout. No PDTs were introduced; model-level 12-hour result caching is separate from derived-table persistence.
 
-Validation: `scripts/validate_bre_disagg_dashboard.py` passes fourteen rendered invoice/success/combo SQL cases, six quality SQL cases across CA/EU and all three periods, and 29 synthetic checks, including conflicting analysis/reporting dates, delay/trigger selection, unweighted success averages, zero preservation, invoice AVG/SUM branching, the ADHOC maximum, and daily/Sunday-weekly/monthly bucket boundaries. The model validator passes all 108 cases after the Invoice Statistics suggestion helper was added. The no-PDT audit passes. Results are recorded in `bre_ca_disagg_validation.json`; native Looker validation, execution and later data validation remain pending. Shared EU fields are checked locally, but no EU Disagg dashboard has been created.
+Validation: `scripts/validate_bre_disagg_dashboard.py` passes fourteen rendered invoice/success/combo SQL cases, six quality SQL cases across CA/EU and all three periods, and 29 synthetic checks, including conflicting analysis/reporting dates, delay/trigger selection, unweighted success averages, zero preservation, invoice AVG/SUM branching, the ADHOC maximum, and daily/Sunday-weekly/monthly bucket boundaries. The model validator passes all 108 cases after the Invoice Statistics suggestion helper was added. The no-PDT audit passes. Results are recorded in `bre_ca_disagg_validation.json`. The user accepted CA and the EU version is now implemented with matching definitions. EU native Looker validation/execution and later regional data validation remain pending.
 
 ## Average Success % — T-7 and T-2
 
@@ -107,7 +107,7 @@ The breakdown is `failure_reason` (the source's `_failure_reason_` display label
 
 The only additional chart restriction is source rank <= 3. The tile explicitly saves `failure_scope: Top Three`, which applies `source_rank <= 3` in the shared router and avoids relying on different CA/EU defaults. The source uses ROW_NUMBER ordered by failure_percentage descending within analysis_date, pilot_id and module_name. Ranking and top-three selection occur before reporting-date filtering and Period aggregation, preserving source behavior. Weekly/monthly grouping does not rerank reasons; more than three distinct reasons can appear across dates, pilots and modules.
 
-No extra meter/fuel/module restriction or new LookML field, view or PDT was added. All six local SQL cases for this chart pass across CA/EU and all three Period values, alongside the existing 20 SQL cases and 29 synthetic checks. The no-PDT audit passes. No warehouse data was read, and no EU dashboard is created by that validation. Native Looker validation and execution remain pending.
+No extra meter/fuel/module restriction or new LookML field, view or PDT was added. All six local SQL cases for this chart pass across CA/EU and all three Period values, alongside the existing 20 SQL cases and 29 synthetic checks. The no-PDT audit passes. No warehouse data was read. The user accepted CA; the EU dashboard is now implemented and awaits native Looker review.
 
 ## Existing shared source behavior
 
