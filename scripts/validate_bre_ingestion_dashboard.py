@@ -37,6 +37,13 @@ def main():
     filters = {x['name'] for x in views['bre_dashboard_fields']['filters']}
     params = {x['name'] for x in views['bre_dashboard_fields']['parameters']}
     dashboard = yaml.safe_load((ROOT/'dashboards/bre_ca_ingestion.dashboard.lookml').read_text())[0]
+    eu_dashboard = yaml.safe_load((ROOT/'dashboards/bre_eu_ingestion.dashboard.lookml').read_text())[0]
+    # Both regional dashboards must preserve the approved CA presentation and logic.
+    expected_eu = json.loads(json.dumps(dashboard).replace('bre_ca', 'bre_eu').replace('BRE CA', 'BRE EU').replace('CA ingestion', 'EU ingestion'))
+    assert eu_dashboard == expected_eu, 'Regional Ingestion dashboard definitions differ'
+    for regional in [dashboard, eu_dashboard]:
+        model_name = regional['dashboard'].removesuffix('_ingestion')
+        assert all(control['model'] == model_name and control['explore'] == 'bre_dashboard' for control in regional['filters'])
     controls = {f['name']: f for f in dashboard['filters']}
     assert set(controls) == {'Time Period', 'Period', 'Pilot ID', 'Pilot Name', 'File Type'}
     assert controls['Time Period']['default_value'] == '7 days ago for 7 days'
@@ -75,7 +82,8 @@ def main():
             assert a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1], (a,b)
     for env in ['ca','eu']:
         model = lkml.load((ROOT/f'models/bre_{env}.model.lkml').open())
-        assert ('/dashboards/bre_ca_ingestion.dashboard.lookml' in model['includes']) == (env=='ca')
+        for dashboard_env in ['ca','eu']:
+            assert (f'/dashboards/bre_{dashboard_env}_ingestion.dashboard.lookml' in model['includes']) == (env==dashboard_env)
         available = {item for member in model['explores'][0]['fields'] for item in sets[member.split('.')[1][:-1]]}
         assert all(ref[len(D):] in available for t in tiles.values() for ref in t['fields']+list(t['listen'].values())+list(t['filters']))
     assert dimensions['ingestion_file_type']['sql'] == views['bre_ingestion_filter_values']['dimensions'][1]['sql']
@@ -190,7 +198,7 @@ def main():
     totals=run('SELECT '+expr('post_ingestion_users_receiving_raw_sum','postingestion')+','+expr('post_ingestion_users_receiving_invoice_sum','postingestion')+' FROM '+source)[0]
     assert totals==(50,500),totals
     checks+=3
-    result=dict(result='PASS',dashboard='bre_ca_ingestion',query_tiles=len(tiles),filters=len(controls),
+    result=dict(result='PASS',dashboards=['bre_ca_ingestion','bre_eu_ingestion'],query_tiles_per_dashboard=len(tiles),filters_per_dashboard=len(controls),
                 rendered_tile_sql_cases=len(fixtures),suggestion_sql_cases=2,synthetic_checks=checks,
                 no_pdts=base.check_no_pdts(),source_data_read=False,looker_validation='PENDING USER WEB UI',
                 limitations='Local renderer simulates date tags and typed/untyped date references; DuckDB tests translated expressions, not the Looker compiler or Trino execution engine.')

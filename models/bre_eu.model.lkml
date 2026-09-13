@@ -52,3 +52,5 @@ explore: bre_pilot_filters {
   hidden: yes
   description: "Consistent pilot filter suggestions from the shared pilot directory."
 }
+
+include: "/dashboards/bre_eu_ingestion.dashboard.lookml"
