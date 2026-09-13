@@ -151,4 +151,16 @@ view: bre_her_generation {
     description: "Query-local source row identifier. Preserves duplicate source rows; not a durable business key or a deduplication rule."
     sql: ${TABLE}.row_id ;;
   }
+  dimension: fuel_type {
+    type: string
+    label: "Fuel Type"
+    description: "Fuel Type dropdown values from SRE HER Cluster Specific Generation Stats."
+    sql: ${TABLE}.fuel_type ;;
+  }
+  dimension: cluster_id {
+    type: string
+    label: "Cluster IDs"
+    description: "Cluster ID dropdown values from SRE HER Cluster Specific Generation Stats."
+    sql: ${TABLE}.cluster_id ;;
+  }
 }

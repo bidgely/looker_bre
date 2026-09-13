@@ -55,6 +55,12 @@ explore: bre_dashboard {
 }
 
 # Hidden helpers supply dropdown values for the dashboard Explores.
+explore: bre_her_filters {
+  view_name: bre_her_generation
+  hidden: yes
+  description: "HER Fuel Type and Cluster IDs dropdown values from SRE HER Cluster Specific Generation Stats."
+  fields: [bre_her_generation.fuel_type, bre_her_generation.cluster_id]
+}
 explore: bre_email_type_filters {
   view_name: bre_email_tracker
   hidden: yes
@@ -87,6 +93,7 @@ explore: bre_pilot_filters {
 include: "/dashboards/bre_ca_ingestion.dashboard.lookml"
 include: "/dashboards/bre_ca_disagg.dashboard.lookml"
 include: "/dashboards/bre_ca_email.dashboard.lookml"
+include: "/dashboards/bre_ca_her.dashboard.lookml"
 
 include: "/views/bre/bre_email_delivery.view.lkml"
 explore: bre_email_delivery {

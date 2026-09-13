@@ -112,7 +112,7 @@ def reference_sql(match, sql, fields):
     return f"({sql})"
 
 
-def render(text, env, family, period, scope, date_start="2026-09-06", date_end="2026-09-13"):
+def render(text, env, family, period, scope, date_start="2026-09-06", date_end="2026-09-13", her_chart_period=None):
     # Fixed fixture boundaries simulate Looker tags; this is not its filter parser.
     for tag, boundary in (("date_start", date_start), ("date_end", date_end)):
         literal = "NULL" if boundary is None else f"DATE '{boundary}'"
@@ -124,7 +124,8 @@ def render(text, env, family, period, scope, date_start="2026-09-06", date_end="
         if date_end: clauses.append(f"({value}) < DATE '{date_end}'")
         return "(" + " AND ".join(clauses or ["TRUE"]) + ")"
     text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email)_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
-    values = {"source_family": family, "period": period, "failure_scope": scope}
+    values = {"source_family": family, "period": period, "failure_scope": scope,
+              "her_generation_chart_period": her_chart_period or period}
     def parameter(match):
         value = values[match.group(1).removeprefix("bre_dashboard.")]
         return "'" + value.replace("'", "''") + "'"
@@ -162,7 +163,12 @@ def main():
         explore = model["explores"][0]
         assert explore["name"] == "bre_dashboard"
         helpers = {e["name"]: e for e in model["explores"][1:] if e["name"] != "bre_email_delivery"}
-        assert set(helpers) == {"bre_ingestion_filter_values", "bre_pilot_filters", "bre_invoice_filters", "bre_email_type_filters", "bre_email_week_filters"}
+        expected_helpers = {"bre_ingestion_filter_values", "bre_pilot_filters", "bre_invoice_filters", "bre_email_type_filters", "bre_email_week_filters"}
+        if env == "ca":
+            expected_helpers.add("bre_her_filters")
+            assert helpers["bre_her_filters"]["view_name"] == "bre_her_generation"
+            assert helpers["bre_her_filters"]["fields"] == ["bre_her_generation.fuel_type", "bre_her_generation.cluster_id"]
+        assert set(helpers) == expected_helpers
         assert all(e.get("hidden") == "yes" for e in helpers.values())
         assert helpers["bre_pilot_filters"]["view_name"] == "bre_pilots"
         assert helpers["bre_invoice_filters"]["view_name"] == "bre_invoice_statistics"

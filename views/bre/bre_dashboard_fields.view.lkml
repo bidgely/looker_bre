@@ -1661,6 +1661,30 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "#,##0.00"
   }
+  parameter: her_generation_chart_period {
+    type: string
+    label: "HER Generation Chart Period"
+    group_label: "HER Generation"
+    description: "Groups Daily source rows for HER generation, quality and failure charts independently of the source Period selection. Keep source Period set to Daily for these charts."
+    default_value: "Daily"
+    allowed_value: { label: "Daily" value: "Daily" }
+    allowed_value: { label: "Weekly" value: "Weekly" }
+    allowed_value: { label: "Monthly" value: "Monthly" }
+  }
+  dimension: her_generation_chart_date {
+    type: date
+    label: "Analysis Date"
+    group_label: "HER Generation"
+    description: "Daily source analysis date grouped by HER Generation Chart Period. Weeks begin Sunday; months begin on the first. Date filtering remains on the original daily analysis date."
+    convert_tz: no
+    sql:
+      {% if her_generation_chart_period._parameter_value == "'Weekly'" %}
+        CAST(date_add('day', -1, CAST(date_trunc('week', date_add('day', 1, ${analysis_date::date})) AS DATE)) AS DATE)
+      {% elsif her_generation_chart_period._parameter_value == "'Monthly'" %}
+        CAST(date_trunc('month', ${analysis_date::date}) AS DATE)
+      {% else %} ${analysis_date::date}
+      {% endif %} ;;
+  }
   dimension: her_generation_expected_eligible_users {
     type: number
     label: "Expected Eligible Users"
@@ -1717,6 +1741,26 @@ view: bre_dashboard_fields {
       {% else %} CAST(NULL AS BIGINT)
       {% endif %} ;;
     value_format: "#,##0"
+  }
+  dimension: her_generation_success_pct {
+    type: number
+    label: "Success %"
+    group_label: "HER Generation"
+    description: "Row-level 100 * actual_generation_count / actual_eligible_users for the selected source period. Zero or NULL eligibility returns NULL."
+    sql: 100.0 * CAST(${her_generation_actual_generation_count} AS DOUBLE) / NULLIF(${her_generation_actual_eligible_users}, 0) ;;
+    value_format: "0.00\"%\""
+  }
+  measure: her_generation_success_pct_average {
+    type: number
+    label: "Success % (Average)"
+    group_label: "HER Generation"
+    description: "Unweighted average of row-level HER generation success percentages in the selected source period. NULL ratios are omitted; zero generation with nonzero eligibility is retained."
+    sql:
+      {% if source_family._parameter_value == "'hergeneration'" %}
+        AVG(${her_generation_success_pct})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.00\"%\""
   }
   dimension: her_generation_weekly_actual_failure_count {
     type: number
@@ -1888,6 +1932,14 @@ view: bre_dashboard_fields {
       {% else %} CAST(NULL AS BIGINT)
       {% endif %} ;;
     value_format: "#,##0"
+  }
+  dimension: her_failures_chart_date {
+    type: date
+    label: "Analysis Date"
+    group_label: "HER Generation Failures"
+    description: "Daily failure analysis date grouped by the shared HER chart period: Daily, Sunday-start Weekly or Monthly. Date-range filtering stays on the original analysis date."
+    convert_tz: no
+    sql: ${her_generation_chart_date::date} ;;
   }
   dimension: her_failures_failure_count {
     type: number
@@ -2256,6 +2308,14 @@ view: bre_dashboard_fields {
       {% else %} CAST(NULL AS BIGINT)
       {% endif %} ;;
     value_format: "#,##0"
+  }
+  dimension: her_quality_chart_date {
+    type: date
+    label: "Analysis Date"
+    group_label: "HER Automation Quality"
+    description: "Daily quality analysis date grouped by the shared HER chart period: Daily, Sunday-start Weekly or Monthly. Reporting-date filtering is independent."
+    convert_tz: no
+    sql: ${her_generation_chart_date::date} ;;
   }
   dimension: her_automation_quality_low_bc_duration_cnt {
     type: number
@@ -3700,12 +3760,16 @@ view: bre_dashboard_fields {
   }
   set: her_generation {
     fields: [
+      her_generation_chart_period,
+      her_generation_chart_date,
       her_generation_expected_eligible_users,
       her_generation_expected_eligible_users_sum,
       her_generation_actual_eligible_users,
       her_generation_actual_eligible_users_sum,
       her_generation_actual_generation_count,
       her_generation_actual_generation_count_sum,
+      her_generation_success_pct,
+      her_generation_success_pct_average,
       her_generation_weekly_actual_failure_count,
       her_generation_weekly_actual_failure_count_sum
     ]
@@ -3732,6 +3796,7 @@ view: bre_dashboard_fields {
   }
   set: her_failures {
     fields: [
+      her_failures_chart_date,
       her_failures_failure_count,
       her_failures_failure_count_sum,
       her_failures_total_failure_count,
@@ -3779,6 +3844,7 @@ view: bre_dashboard_fields {
   }
   set: her_automation_quality {
     fields: [
+      her_quality_chart_date,
       her_automation_quality_low_bc_duration_cnt,
       her_automation_quality_low_bc_duration_cnt_sum,
       her_automation_quality_high_bc_duration_cnt,
