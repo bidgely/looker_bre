@@ -74,6 +74,7 @@ explore: bre_pilot_filters {
 
 include: "/dashboards/bre_eu_ingestion.dashboard.lookml"
 include: "/dashboards/bre_eu_disagg.dashboard.lookml"
+include: "/dashboards/bre_eu_email.dashboard.lookml"
 
 include: "/views/bre/bre_email_delivery.view.lkml"
 explore: bre_email_delivery {

@@ -7,6 +7,8 @@
   },
   "result": "PASS",
   "dashboard": "bre_ca_email",
+  "eu_dashboard": "bre_eu_email",
+  "regional_parity": "PASS",
   "implemented_tiles": 8,
   "rendered_sql_cases": 14,
   "synthetic_checks": 33,

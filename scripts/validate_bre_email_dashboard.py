@@ -25,6 +25,9 @@ def main():
     views, _, dimensions, measures, sets = base.parse_project()
     fields = dimensions | measures
     dashboard = yaml.safe_load((base.ROOT/'dashboards/bre_ca_email.dashboard.lookml').read_text())[0]
+    eu_dashboard = yaml.safe_load((base.ROOT/'dashboards/bre_eu_email.dashboard.lookml').read_text())[0]
+    normalized_eu = json.loads(json.dumps(eu_dashboard).replace('bre_eu', 'bre_ca').replace('BRE EU', 'BRE CA').replace('EU email monitoring.', 'CA email monitoring.'))
+    assert normalized_eu == dashboard, 'EU Email dashboard differs from CA beyond regional identifiers'
     reference = yaml.safe_load((base.ROOT/'dashboards/bre_ca_disagg.dashboard.lookml').read_text())[0]
     uuid = dashboard['elements'][0]
     assert uuid['listen'] == {}
@@ -41,6 +44,15 @@ def main():
     assert controls['BC End Week#']['field'] == 'bre_email_statistics.bc_end_week_number'
     for env in ('ca', 'eu'):
         regional = lkml.load((base.ROOT/f'models/bre_{env}.model.lkml').read_text())
+        assert regional['connection'] == 'starburst_prod_'+env
+        assert f'/dashboards/bre_{env}_email.dashboard.lookml' in regional['includes']
+        other_env = 'eu' if env == 'ca' else 'ca'
+        assert f'/dashboards/bre_{other_env}_email.dashboard.lookml' not in regional['includes']
+        regional_fields = {name for member in regional['explores'][0]['fields'] for name in sets[member.split('.')[1][:-1]]}
+        for tile in dashboard['elements']:
+            if tile['explore'] == 'bre_dashboard':
+                for ref in tile['fields'] + list(tile['filters']) + list(tile['listen'].values()):
+                    assert ref.removeprefix('bre_dashboard.') in regional_fields, (env, ref)
         helpers = {e['name']: e for e in regional['explores']}
         for helper, view, field in (
             ('bre_email_type_filters', 'bre_email_tracker', 'email_type'),
@@ -195,7 +207,7 @@ def main():
             checks += 1
     from validate_bre_email_delivery import validate_delivery
     blend_result = validate_delivery(args.output_dir)
-    result = dict(delivery_blend=blend_result, result='PASS', dashboard='bre_ca_email', implemented_tiles=len(dashboard['elements']),
+    result = dict(delivery_blend=blend_result, result='PASS', dashboard='bre_ca_email', eu_dashboard='bre_eu_email', regional_parity='PASS', implemented_tiles=len(dashboard['elements']),
                   rendered_sql_cases=fixtures, synthetic_checks=checks, no_pdts=base.check_no_pdts(),
                   source_data_read=False, looker_validation='PENDING USER WEB UI',
                   limitations='Local rendering, Trino parsing and translated DuckDB fixtures do not replace native Looker validation or Trino execution.')
