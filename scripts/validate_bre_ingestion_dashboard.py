@@ -83,7 +83,7 @@ def main():
     def compile_field(name, family='ingestionaudit', period='Daily', env='ca', start='2026-09-06', end='2026-09-13', stack=()):
         assert name not in stack
         raw = base.render(fields[name]['sql'], env, family, period, 'All', start, end).replace('${TABLE}', 'q')
-        return base.FIELD_REF.sub(lambda m: '('+compile_field(m.group(1),family,period,env,start,end,stack+(name,))+')',raw)
+        return base.FIELD_REF.sub(lambda m: base.reference_sql(m,compile_field(m.group(1),family,period,env,start,end,stack+(name,)),fields),raw)
 
     fixtures = []
     for env in ['ca','eu']:
@@ -92,7 +92,7 @@ def main():
                 family=tile['filters'][D+'source_family']
                 names=[x[len(D):] for x in tile['fields']]
                 group=[n for n in names if n in dimensions]
-                select=',\n'.join(compile_field(n,family,period,env)+' AS '+n for n in names)
+                select=',\n'.join(("date_format(("+compile_field(n,family,period,env)+"), '%Y-%m-%d')" if fields[n].get('type')=='date' else compile_field(n,family,period,env))+' AS '+n for n in names)
                 route=base.expand('bre_dashboard_'+env,views,env,family,period,'All')
                 if tile['name']=='active_uuid': where='TRUE'
                 elif tile['name'].startswith('files_'): where=compile_field('ingestion_in_comparison_window',family,period,env)
@@ -115,6 +115,20 @@ def main():
         return db.execute(sqlglot.transpile(sql,read='trino',write='duckdb')[0]).fetchall()
     def expr(name, family='ingestionaudit', period='Daily', start='2026-09-06',end='2026-09-13'):
         return compile_field(name,family,period,'ca',start,end)
+    # Regression: all date references used by calculations must suppress display formatting.
+    for field in fields.values():
+        for ref in base.FIELD_REF.finditer(field['sql']):
+            if fields[ref.group(1)].get('type') == 'date':
+                assert ref.group(2) in {'date','datetime'}, (field['name'],ref.group(0))
+    # Demonstrate why the old untyped reference fails even when source SQL uses DATE.
+    untyped=base.reference_sql(base.FIELD_REF.fullmatch('${analysis_date}'),"DATE '2026-09-06'",fields)
+    for bad_sql in [f"SELECT date_format({untyped}, '%Y-%m-%d')",f"SELECT {untyped} <= TIMESTAMP '2026-09-13 00:00:00'"]:
+        try:
+            run(bad_sql)
+        except duckdb.Error:
+            checks+=1
+        else:
+            raise AssertionError('Untyped date reference should fail type checking')
     # Exact median: odd/even counts, duplicates, NULLs, zeros and no valid values.
     for values in [[1],[1,2],[1,2,99],[1,2,99,100],[0,0,9,None],[None],[]]:
         vals=values or [None]
@@ -179,7 +193,7 @@ def main():
     result=dict(result='PASS',dashboard='bre_ca_ingestion',query_tiles=len(tiles),filters=len(controls),
                 rendered_tile_sql_cases=len(fixtures),suggestion_sql_cases=2,synthetic_checks=checks,
                 no_pdts=base.check_no_pdts(),source_data_read=False,looker_validation='PENDING USER WEB UI',
-                limitations='Local renderer simulates bounded date tags; DuckDB tests translated expressions, not the Trino execution engine.')
+                limitations='Local renderer simulates date tags and typed/untyped date references; DuckDB tests translated expressions, not the Looker compiler or Trino execution engine.')
     (args.output_dir/'results.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2))
 

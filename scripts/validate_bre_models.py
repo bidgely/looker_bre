@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PERIOD_FAMILIES = {"hergeneration", "herfailures", "herautomationquality"}
 LIQUID = Environment(undefined=StrictUndefined)
 TABLE_REF = re.compile(r"\$\{([a-z_]+)\.SQL_TABLE_NAME\}")
-FIELD_REF = re.compile(r"\$\{([a-z_][a-z0-9_]*)\}")
+FIELD_REF = re.compile(r"\$\{([a-z_][a-z0-9_]*)(?:::(date|datetime|string))?\}")
 COMMON_FIELDS = {
     "pilot_id", "pilot_name", "pilot_id_name", "analysis_date", "reporting_date",
     "last_updated_timestamp", "source_rank", "source_period", "period_date",
@@ -94,6 +94,22 @@ def parse_project():
     for members in sets.values():
         assert set(members) <= set(all_names)
     return views, paths, dimensions, measures, sets
+
+
+def reference_sql(match, sql, fields):
+    """Simulate typed references and Looker's default DATE display formatting.
+
+    Looker returns a formatted VARCHAR for untyped references to date dimensions.
+    Omitting this behavior previously hid nested date_format and comparison errors.
+    This is still a focused simulator, not the full Looker SQL compiler.
+    """
+    kind = match.group(2)
+    if kind:
+        datatype = {"date": "DATE", "datetime": "TIMESTAMP", "string": "VARCHAR"}[kind]
+        return f"CAST(({sql}) AS {datatype})"
+    if fields[match.group(1)].get("type") == "date":
+        return f"date_format(({sql}), '%Y-%m-%d')"
+    return f"({sql})"
 
 
 def render(text, env, family, period, scope, date_start="2026-09-06", date_end="2026-09-13"):
@@ -202,11 +218,11 @@ def main():
                     def dimension_sql(name):
                         if name not in cache:
                             sql = render(dimensions[name]["sql"], env, family, period, scope).replace("${TABLE}", "q")
-                            cache[name] = FIELD_REF.sub(lambda m: "(" + dimension_sql(m.group(1)) + ")", sql)
+                            cache[name] = FIELD_REF.sub(lambda m: reference_sql(m, dimension_sql(m.group(1)), dimensions), sql)
                         return cache[name]
                     def measure_sql(name):
                         sql = render(measures[name]["sql"], env, family, period, scope)
-                        return FIELD_REF.sub(lambda m: "(" + (measure_sql(m.group(1)) if m.group(1) in measures else dimension_sql(m.group(1))) + ")", sql)
+                        return FIELD_REF.sub(lambda m: reference_sql(m, measure_sql(m.group(1)) if m.group(1) in measures else dimension_sql(m.group(1)), dimensions | measures), sql)
                     select_fields = []
                     for name in dimensions:
                         if name in allowed_fields:

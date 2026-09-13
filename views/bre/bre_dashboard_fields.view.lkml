@@ -260,6 +260,7 @@ view: bre_dashboard_fields {
     description: "Istou for the selected family; NULL when not supplied by that source."
     sql: ${TABLE}.istou ;;
   }
+  # Typed references prevent Looker from passing formatted VARCHAR dates into Trino date functions.
   dimension: period_date {
     type: date
     label: "Period Date"
@@ -267,9 +268,9 @@ view: bre_dashboard_fields {
     description: "Analysis date grouped to the selected period. Week starts on Monday."
     convert_tz: no
     sql:
-      {% if period._parameter_value == "'Weekly'" %} CAST(date_trunc('week', ${analysis_date}) AS DATE)
-      {% elsif period._parameter_value == "'Monthly'" %} CAST(date_trunc('month', ${analysis_date}) AS DATE)
-      {% else %} ${analysis_date}
+      {% if period._parameter_value == "'Weekly'" %} CAST(date_trunc('week', ${analysis_date::date}) AS DATE)
+      {% elsif period._parameter_value == "'Monthly'" %} CAST(date_trunc('month', ${analysis_date::date}) AS DATE)
+      {% else %} ${analysis_date::date}
       {% endif %} ;;
   }
   measure: source_row_count {
@@ -2762,10 +2763,10 @@ view: bre_dashboard_fields {
     label: "Period"
     convert_tz: no
     sql: {% if period._parameter_value == "'Weekly'" %}
-        CAST(date_add('day', -1, CAST(date_trunc('week', date_add('day', 1, ${analysis_date})) AS DATE)) AS DATE)
+        CAST(date_add('day', -1, CAST(date_trunc('week', date_add('day', 1, ${analysis_date::date})) AS DATE)) AS DATE)
       {% elsif period._parameter_value == "'Monthly'" %}
-        CAST(date_trunc('month', ${analysis_date}) AS DATE)
-      {% else %} ${analysis_date}
+        CAST(date_trunc('month', ${analysis_date::date}) AS DATE)
+      {% else %} ${analysis_date::date}
       {% endif %} ;;
   }
   filter: ingestion_comparison_date_range {
@@ -2789,12 +2790,13 @@ view: bre_dashboard_fields {
     convert_tz: no
     sql: CAST({% date_end ingestion_comparison_date_range %} AS DATE) ;;
   }
+  # A templated date condition must compare DATE/TIMESTAMP values, not display strings.
   dimension: ingestion_is_selected_period {
     type: yesno
     description: "Matches the selected date filter, without removing prior rows from comparison queries."
     group_label: "Ingestion Dashboard"
     hidden: yes
-    sql: {% condition ingestion_comparison_date_range %} ${analysis_date} {% endcondition %} ;;
+    sql: {% condition ingestion_comparison_date_range %} ${analysis_date::date} {% endcondition %} ;;
   }
   dimension: ingestion_is_previous_period {
     type: yesno
@@ -2802,9 +2804,9 @@ view: bre_dashboard_fields {
     group_label: "Ingestion Dashboard"
     hidden: yes
     sql: COALESCE(
-      ${ingestion_comparison_end} > ${ingestion_comparison_start}
-      AND ${analysis_date} >= date_add('day', -date_diff('day', ${ingestion_comparison_start}, ${ingestion_comparison_end}), ${ingestion_comparison_start})
-      AND ${analysis_date} < ${ingestion_comparison_start}, FALSE) ;;
+      ${ingestion_comparison_end::date} > ${ingestion_comparison_start::date}
+      AND ${analysis_date::date} >= date_add('day', -date_diff('day', ${ingestion_comparison_start::date}, ${ingestion_comparison_end::date}), ${ingestion_comparison_start::date})
+      AND ${analysis_date::date} < ${ingestion_comparison_start::date}, FALSE) ;;
   }
   dimension: ingestion_in_comparison_window {
     type: yesno
