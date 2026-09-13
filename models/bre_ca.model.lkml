@@ -54,7 +54,19 @@ explore: bre_dashboard {
   ]
 }
 
-# Hidden helpers supply dropdown values; all dashboard tiles use bre_dashboard.
+# Hidden helpers supply dropdown values for the dashboard Explores.
+explore: bre_email_type_filters {
+  view_name: bre_email_tracker
+  hidden: yes
+  description: "Email Type dropdown values from SRE Email Daily Tracker."
+  fields: [bre_email_tracker.email_type]
+}
+explore: bre_email_week_filters {
+  view_name: bre_email_statistics
+  hidden: yes
+  description: "BC End Week# dropdown values from SRE Email Statistics."
+  fields: [bre_email_statistics.bc_end_week_number]
+}
 explore: bre_invoice_filters {
   view_name: bre_invoice_statistics
   hidden: yes
@@ -74,3 +86,29 @@ explore: bre_pilot_filters {
 
 include: "/dashboards/bre_ca_ingestion.dashboard.lookml"
 include: "/dashboards/bre_ca_disagg.dashboard.lookml"
+include: "/dashboards/bre_ca_email.dashboard.lookml"
+
+include: "/views/bre/bre_email_delivery.view.lkml"
+explore: bre_email_delivery {
+  label: "BRE CA Email Delivery Blend"
+  description: "Full outer blend of Email Statistics and Daily Tracker on email type and analysis date; sources aggregate independently before joining."
+  fields: [
+    bre_email_delivery.row_id,
+    bre_email_delivery.analysis_date,
+    bre_email_delivery.email_type,
+    bre_email_delivery.period,
+    bre_email_delivery.email_period_date,
+    bre_email_delivery.blend_date_range,
+    bre_email_delivery.blend_pilot_id,
+    bre_email_delivery.blend_pilot_name,
+    bre_email_delivery.blend_bc_end_week_number,
+    bre_email_delivery.daily_eligible,
+    bre_email_delivery.daily_generated,
+    bre_email_delivery.daily_sent,
+    bre_email_delivery.weekly_expected,
+    bre_email_delivery.weekly_eligible,
+    bre_email_delivery.weekly_sent,
+    bre_email_delivery.weekly_sent_vs_eligible,
+    bre_email_delivery.weekly_sent_vs_expected
+  ]
+}

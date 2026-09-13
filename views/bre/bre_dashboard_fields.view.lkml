@@ -1323,6 +1323,26 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "#,##0.00"
   }
+  dimension: email_statistics_email_sent_pct_vs_expected {
+    type: number
+    hidden: yes
+    label: "Email Sent Percentage vs Expected"
+    group_label: "Email Statistics"
+    description: "Row-level cnt_bills_emails_sent / cnt_expected_invoices * 100. Floating-point division preserves fractions; zero or NULL expected counts produce NULL."
+    sql: CAST(${email_statistics_cnt_bills_emails_sent} AS DOUBLE) / NULLIF(${email_statistics_cnt_expected_invoices}, 0) * 100.0 ;;
+  }
+  measure: email_statistics_email_sent_pct_vs_expected_average {
+    type: number
+    label: "Email Sent Percentage vs Expected (Average)"
+    group_label: "Email Statistics"
+    description: "Unweighted average of row-level sent percentages versus expected invoices. NULL ratios are omitted; zero sent counts are retained when the denominator is nonzero. NULL for other families."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        AVG(${email_statistics_email_sent_pct_vs_expected})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.00\"%\""
+  }
   dimension: email_statistics_email_not_sent_pct {
     type: number
     label: "Email Not Sent Percentage"
@@ -1400,6 +1420,42 @@ view: bre_dashboard_fields {
     group_label: "Email Statistics"
     description: "Email Statistics: source field cnt_bills_emails_delivered_source_text. Original email-quality rows by pilot, dates, email type and billing-cycle end week. NULL for other families."
     sql: ${TABLE}.email_statistics_cnt_bills_emails_delivered_source_text ;;
+  }
+  measure: email_statistics_cnt_expected_invoices_average {
+    type: number
+    label: "Expected Invoices (Average)"
+    group_label: "Email Statistics"
+    description: "Unweighted arithmetic average of source cnt_expected_invoices rows. NULLs omitted and zeros retained; no preliminary weekly aggregation. NULL for other families."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        AVG(${email_statistics_cnt_expected_invoices})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: email_statistics_cnt_bills_item_available_average {
+    type: number
+    label: "Eligible Users (Average)"
+    group_label: "Email Statistics"
+    description: "Unweighted arithmetic average of source cnt_bills_item_available rows. NULLs omitted and zeros retained; no preliminary weekly aggregation. NULL for other families."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        AVG(${email_statistics_cnt_bills_item_available})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: email_statistics_cnt_bills_emails_sent_average {
+    type: number
+    label: "Emails Sent (Average)"
+    group_label: "Email Statistics"
+    description: "Unweighted arithmetic average of source cnt_bills_emails_sent rows. NULLs omitted and zeros retained; no preliminary weekly aggregation. NULL for other families."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        AVG(${email_statistics_cnt_bills_emails_sent})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
   }
   dimension: email_tracker_delivered_notification_id {
     type: number
@@ -1566,6 +1622,18 @@ view: bre_dashboard_fields {
       {% else %} CAST(NULL AS BIGINT)
       {% endif %} ;;
     value_format: "#,##0"
+  }
+  measure: email_failures_failure_count_average {
+    type: number
+    label: "Failure Count (Average)"
+    group_label: "Email Failures"
+    description: "Arithmetic average of source failure_count over selected Email Failures rows. Rank filters retain the source ranking by analysis date, pilot and email type before Period grouping. NULL for other families."
+    sql:
+      {% if source_family._parameter_value == "'emailfailures'" %}
+        AVG(${email_failures_failure_count})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
   }
   dimension: email_failures_total_failure_count {
     type: number
@@ -2848,6 +2916,14 @@ view: bre_dashboard_fields {
     convert_tz: no
     sql: ${ingestion_period_date::date} ;;
   }
+  dimension: email_period_date {
+    type: date
+    label: "Analysis Date"
+    group_label: "Email Dashboard"
+    description: "Analysis date grouped by the selected Daily, Weekly or Monthly Period. Reuses the shared Sunday-start calendar."
+    convert_tz: no
+    sql: ${ingestion_period_date::date} ;;
+  }
   filter: ingestion_comparison_date_range {
     type: date
     label: "Files Comparison Date Range"
@@ -3124,6 +3200,144 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "0.0%"
   }
+  filter: email_comparison_date_range {
+    type: date
+    label: "Emails Sent Comparison Date Range"
+    description: "Selected calendar-date range. Emails Sent measures retain the preceding equal-length range. Open-ended ranges have no previous-period comparison."
+  }
+  dimension: email_comparison_start {
+    type: date
+    description: "Inclusive selected range start; NULL for an unbounded start."
+    group_label: "Email Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_start email_comparison_date_range %} AS DATE) ;;
+  }
+  dimension: email_comparison_end {
+    type: date
+    description: "Exclusive selected range end; NULL for an unbounded end."
+    group_label: "Email Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_end email_comparison_date_range %} AS DATE) ;;
+  }
+  # A templated date condition must compare DATE/TIMESTAMP values, not display strings.
+  dimension: email_is_selected_period {
+    type: yesno
+    description: "Matches the selected date filter, without removing prior rows from comparison queries."
+    group_label: "Email Dashboard"
+    hidden: yes
+    sql: {% condition email_comparison_date_range %} ${reporting_date::date} {% endcondition %} ;;
+  }
+  dimension: email_is_previous_period {
+    type: yesno
+    description: "Immediately preceding equal-length calendar range; false if either boundary is absent."
+    group_label: "Email Dashboard"
+    hidden: yes
+    sql: COALESCE(
+      ${email_comparison_end::date} > ${email_comparison_start::date}
+      AND ${reporting_date::date} >= date_add('day', -date_diff('day', ${email_comparison_start::date}, ${email_comparison_end::date}), ${email_comparison_start::date})
+      AND ${reporting_date::date} < ${email_comparison_start::date}, FALSE) ;;
+  }
+  dimension: email_in_comparison_window {
+    type: yesno
+    description: "Keep current and previous rows before calculating the two email statistics."
+    group_label: "Email Dashboard"
+    hidden: yes
+    sql: ${email_is_selected_period} OR ${email_is_previous_period} ;;
+  }
+  dimension: email_statistics_emails_selected {
+    type: number
+    description: "Emails-sent count for the selected comparison period; other rows are NULL."
+    group_label: "Email Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${email_is_selected_period} THEN ${email_statistics_cnt_bills_emails_sent} END ;;
+  }
+  measure: email_statistics_emails_selected_average {
+    type: number
+    label: "Emails Sent — Selected Average"
+    group_label: "Email Dashboard"
+    description: "Unweighted average of source cnt_bills_emails_sent within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        AVG(${email_statistics_emails_selected})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: email_statistics_emails_selected_median {
+    type: number
+    label: "Emails Sent — Selected Median"
+    group_label: "Email Dashboard"
+    description: "Exact median of source emails-sent counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        CASE WHEN COUNT(${email_statistics_emails_selected}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${email_statistics_emails_selected} AS DOUBLE)) FILTER (WHERE ${email_statistics_emails_selected} IS NOT NULL)), CAST(floor((COUNT(${email_statistics_emails_selected}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${email_statistics_emails_selected} AS DOUBLE)) FILTER (WHERE ${email_statistics_emails_selected} IS NOT NULL)), CAST(floor((COUNT(${email_statistics_emails_selected}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  dimension: email_statistics_emails_previous {
+    type: number
+    description: "Emails-sent count for the previous comparison period; other rows are NULL."
+    group_label: "Email Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${email_is_previous_period} THEN ${email_statistics_cnt_bills_emails_sent} END ;;
+  }
+  measure: email_statistics_emails_previous_average {
+    type: number
+    label: "Emails Sent — Previous Average"
+    group_label: "Email Dashboard"
+    description: "Unweighted average of source cnt_bills_emails_sent within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        AVG(${email_statistics_emails_previous})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: email_statistics_emails_previous_median {
+    type: number
+    label: "Emails Sent — Previous Median"
+    group_label: "Email Dashboard"
+    description: "Exact median of source emails-sent counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        CASE WHEN COUNT(${email_statistics_emails_previous}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${email_statistics_emails_previous} AS DOUBLE)) FILTER (WHERE ${email_statistics_emails_previous} IS NOT NULL)), CAST(floor((COUNT(${email_statistics_emails_previous}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${email_statistics_emails_previous} AS DOUBLE)) FILTER (WHERE ${email_statistics_emails_previous} IS NOT NULL)), CAST(floor((COUNT(${email_statistics_emails_previous}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: email_statistics_emails_average_change {
+    type: number
+    label: "Emails Sent Average Change"
+    group_label: "Email Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        (${email_statistics_emails_selected_average} - ${email_statistics_emails_previous_average}) / NULLIF(${email_statistics_emails_previous_average}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
+  measure: email_statistics_emails_median_change {
+    type: number
+    label: "Emails Sent Median Change"
+    group_label: "Email Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'emailstatistics'" %}
+        (${email_statistics_emails_selected_median} - ${email_statistics_emails_previous_median}) / NULLIF(${email_statistics_emails_previous_median}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
   dimension: post_ingestion_users_receiving_raw {
     type: number
     description: "Row-level raw bucket sum. Any zero or NULL bucket makes this total NULL; no day denominator."
@@ -3198,6 +3412,7 @@ view: bre_dashboard_fields {
   set: common {
     fields: [
       disagg_period_date,
+      email_period_date,
       ingestion_file_type,
       ingestion_period_date,
       ingestion_comparison_date_range,
@@ -3411,20 +3626,39 @@ view: bre_dashboard_fields {
   }
   set: email_statistics {
     fields: [
+      email_comparison_date_range,
+      email_comparison_start,
+      email_comparison_end,
+      email_is_selected_period,
+      email_is_previous_period,
+      email_in_comparison_window,
+      email_statistics_emails_selected,
+      email_statistics_emails_selected_average,
+      email_statistics_emails_selected_median,
+      email_statistics_emails_previous,
+      email_statistics_emails_previous_average,
+      email_statistics_emails_previous_median,
+      email_statistics_emails_average_change,
+      email_statistics_emails_median_change,
       email_statistics_cnt_bills_ingested,
       email_statistics_cnt_bills_ingested_sum,
       email_statistics_cnt_bills_emails_sent,
       email_statistics_cnt_bills_emails_sent_sum,
+      email_statistics_cnt_bills_emails_sent_average,
       email_statistics_cnt_bills_emails_delivered,
       email_statistics_cnt_bills_emails_delivered_sum,
       email_statistics_email_sent_pct,
       email_statistics_email_sent_pct_average,
+      email_statistics_email_sent_pct_vs_expected,
+      email_statistics_email_sent_pct_vs_expected_average,
       email_statistics_email_not_sent_pct,
       email_statistics_email_not_sent_pct_average,
       email_statistics_cnt_expected_invoices,
       email_statistics_cnt_expected_invoices_sum,
+      email_statistics_cnt_expected_invoices_average,
       email_statistics_cnt_bills_item_available,
       email_statistics_cnt_bills_item_available_sum,
+      email_statistics_cnt_bills_item_available_average,
       email_statistics_cnt_bills_ingested_source_text,
       email_statistics_cnt_bills_emails_sent_source_text,
       email_statistics_cnt_bills_emails_delivered_source_text
@@ -3458,6 +3692,7 @@ view: bre_dashboard_fields {
     fields: [
       email_failures_failure_count,
       email_failures_failure_count_sum,
+      email_failures_failure_count_average,
       email_failures_total_failure_count,
       email_failures_failure_pct,
       email_failures_failure_pct_average

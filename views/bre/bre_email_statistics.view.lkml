@@ -74,4 +74,9 @@ view: bre_email_statistics {
     description: "Query-local source row identifier. Preserves duplicate source rows; not a durable business key or a deduplication rule."
     sql: ${TABLE}.row_id ;;
   }
+  dimension: bc_end_week_number {
+    type: string
+    description: "BC End Week# dropdown values from the SRE Email Statistics source."
+    sql: ${TABLE}.bc_end_week_number ;;
+  }
 }

@@ -10,7 +10,8 @@ Updated: 2026-09-13.
 - [EU Ingestion](bre_eu_ingestion_dashboard_design.md) is implemented from the approved CA design. Missing Pilot ID / Pilot Name dropdown values remain an open issue; investigation is deferred at the user's request.
 - [CA Disagg](bre_ca_disagg_dashboard_design.md) has eight implemented tiles and seven controls. The user accepted the CA version and requested EU, satisfying the CA-first delivery gate.
 - [EU Disagg](bre_eu_disagg_dashboard_design.md) is implemented with the same tiles and controls using shared views and model `bre_eu`. Local parity and SQL checks pass; EU native Looker validation and execution remain for user review. Data correctness remains deferred for both regions.
-- Remaining dashboard construction after Disagg: CA Email, HER and NBI; EU Email. Continue tile-by-tile agreement on sources, metrics, filters and presentation.
+- [CA Email](bre_ca_email_dashboard_design.md) is in progress: eight tiles are implemented—Active UUID / Total UUID, Emails Sent Average/Median with previous-period comparisons, Averages Sent % versus Expected/Eligible without comparisons, the full-outer Email Delivery Statistics blend, Weekly Email Reco Quality Report, and Weekly Top Email Failure Reasons (average failure count by reason, source rank <= 3)—with six controls. Email Type filters seven email-specific tiles using Daily Tracker suggestions; BC End Week# filters six complete tiles using Email Statistics suggestions. Active UUID has no dashboard filter listeners; BC End Week# also filters the five Statistics series in the Delivery blend while leaving its three Tracker series unaffected; failure-chart stacked columns are assumed pending preference. Create EU Email after CA acceptance in Looker.
+- Remaining dashboard construction: finish CA Email, then CA HER and NBI; EU Email.
 
 ## Data readiness prerequisite
 

@@ -1,0 +1,22 @@
+{
+  "delivery_blend": {
+    "result": "PASS",
+    "rendered_sql_cases": 8,
+    "synthetic_checks": 15,
+    "warehouse_data_read": false
+  },
+  "result": "PASS",
+  "dashboard": "bre_ca_email",
+  "implemented_tiles": 8,
+  "rendered_sql_cases": 14,
+  "synthetic_checks": 33,
+  "no_pdts": {
+    "models": 4,
+    "views": 39,
+    "derived_tables": 38,
+    "result": "PASS"
+  },
+  "source_data_read": false,
+  "looker_validation": "PENDING USER WEB UI",
+  "limitations": "Local rendering, Trino parsing and translated DuckDB fixtures do not replace native Looker validation or Trino execution."
+}

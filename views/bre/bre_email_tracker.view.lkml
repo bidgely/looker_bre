@@ -63,4 +63,9 @@ view: bre_email_tracker {
     description: "Query-local source row identifier. Preserves duplicate source rows; not a durable business key or a deduplication rule."
     sql: ${TABLE}.row_id ;;
   }
+  dimension: email_type {
+    type: string
+    description: "Email Type dropdown values from the migrated SRE Email Daily Tracker source."
+    sql: ${TABLE}.email_type ;;
+  }
 }

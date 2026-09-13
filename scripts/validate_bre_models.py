@@ -72,7 +72,7 @@ def parse_project():
                 assert parent in views, f"Missing parent view: {parent}"
                 parent_path = "/" + str(paths[parent].relative_to(ROOT))
                 assert parent_path in includes, f"Missing direct include of {parent} in {paths[name]}"
-    assert len(views) == 25, f"Expected 25 views, got {len(views)}"
+    assert len(views) == 26, f"Expected 26 views, got {len(views)}"
     base = views["bre_dashboard_fields"]
     dimensions = {f["name"]: f for f in base["dimensions"]}
     measures = {f["name"]: f for f in base["measures"]}
@@ -116,14 +116,14 @@ def render(text, env, family, period, scope, date_start="2026-09-06", date_end="
     # Fixed fixture boundaries simulate Looker tags; this is not its filter parser.
     for tag, boundary in (("date_start", date_start), ("date_end", date_end)):
         literal = "NULL" if boundary is None else f"DATE '{boundary}'"
-        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?(?:ingestion|invoice)_comparison_date_range\s*%\}", literal, text)
+        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email)_comparison_date_range\s*%\}", literal, text)
     def date_condition(match):
         value = match.group(1).strip()
         clauses = []
         if date_start: clauses.append(f"({value}) >= DATE '{date_start}'")
         if date_end: clauses.append(f"({value}) < DATE '{date_end}'")
         return "(" + " AND ".join(clauses or ["TRUE"]) + ")"
-    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?(?:ingestion|invoice)_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
+    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email)_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
     values = {"source_family": family, "period": period, "failure_scope": scope}
     def parameter(match):
         value = values[match.group(1).removeprefix("bre_dashboard.")]
@@ -161,8 +161,8 @@ def main():
         assert model["week_start_day"] == "monday"
         explore = model["explores"][0]
         assert explore["name"] == "bre_dashboard"
-        helpers = {e["name"]: e for e in model["explores"][1:]}
-        assert set(helpers) == {"bre_ingestion_filter_values", "bre_pilot_filters", "bre_invoice_filters"}
+        helpers = {e["name"]: e for e in model["explores"][1:] if e["name"] != "bre_email_delivery"}
+        assert set(helpers) == {"bre_ingestion_filter_values", "bre_pilot_filters", "bre_invoice_filters", "bre_email_type_filters", "bre_email_week_filters"}
         assert all(e.get("hidden") == "yes" for e in helpers.values())
         assert helpers["bre_pilot_filters"]["view_name"] == "bre_pilots"
         assert helpers["bre_invoice_filters"]["view_name"] == "bre_invoice_statistics"
