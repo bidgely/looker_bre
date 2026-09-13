@@ -1,5 +1,7 @@
 # EU Ingestion dashboard
 
+Status as of 2026-09-13: implemented; data validation is deferred until the user completes data transfer and EMR updates. The reported missing Pilot ID / Pilot Name dropdown values remain unresolved and will be revisited during EU data validation. See the [migration plan](bre_dashboard_migration_plan.md).
+
 Implemented in `dashboards/bre_eu_ingestion.dashboard.lookml`, included only by `models/bre_eu.model.lkml`. All eight query tiles and five filter controls use model `bre_eu`, Explore `bre_dashboard`, on connection `starburst_prod_eu`. Existing shared views select the `delta_prodeu` catalog.
 
 On 2026-09-13 the user accepted the CA dashboard structure and requested the same dashboard for EU. The [CA design](bre_ca_ingestion_dashboard_design.md) defines the shared metrics, filters, visualizations and layout. CA data review is deferred until the tables are fully populated; EU data correctness has not been assessed here.

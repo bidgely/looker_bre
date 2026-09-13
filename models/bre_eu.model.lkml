@@ -1,4 +1,5 @@
 connection: "starburst_prod_eu"
+persist_for: "12 hours"
 label: "BRE EU"
 week_start_day: monday
 
@@ -42,6 +43,12 @@ explore: bre_dashboard {
 }
 
 # Hidden helpers supply dropdown values; all dashboard tiles use bre_dashboard.
+explore: bre_invoice_filters {
+  view_name: bre_invoice_statistics
+  hidden: yes
+  description: "Disagg filter suggestions from Invoice Statistics, preserving its source selection."
+  fields: [bre_invoice_statistics.meter_type, bre_invoice_statistics.fuel_type, bre_invoice_statistics.module_name]
+}
 include: "/views/bre/bre_ingestion_filter_values.view.lkml"
 explore: bre_ingestion_filter_values {
   hidden: yes

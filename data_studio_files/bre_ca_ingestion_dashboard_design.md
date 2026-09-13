@@ -1,6 +1,6 @@
 # CA Ingestion dashboard design and implementation
 
-Status: implemented in `dashboards/bre_ca_ingestion.dashboard.lookml`; local validation passes. Native LookML validation and visual review of this new dashboard remain with the user in the Looker web UI.
+Status: implemented in `dashboards/bre_ca_ingestion.dashboard.lookml`; local validation passes. On 2026-09-13 the user accepted the dashboard structure. Data validation is deferred until the user completes data transfer and EMR updates; see the [migration plan](bre_dashboard_migration_plan.md).
 
 ## Scope and evidence
 

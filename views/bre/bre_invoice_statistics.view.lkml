@@ -97,4 +97,22 @@ view: bre_invoice_statistics {
     description: "Query-local source row identifier. Preserves duplicate source rows; not a durable business key or a deduplication rule."
     sql: ${TABLE}.row_id ;;
   }
+  dimension: meter_type {
+    type: string
+    label: "Meter Type"
+    description: "Raw Meter Type choices from the Invoice Statistics source for Disagg dashboard controls."
+    sql: ${TABLE}.meter_type ;;
+  }
+  dimension: fuel_type {
+    type: string
+    label: "Fuel Type"
+    description: "Raw Fuel Type choices from the Invoice Statistics source for Disagg dashboard controls."
+    sql: ${TABLE}.fuel_type ;;
+  }
+  dimension: module_name {
+    type: string
+    label: "Module Name"
+    description: "Raw Module Name choices from the Invoice Statistics source for Disagg dashboard controls."
+    sql: ${TABLE}.module_name ;;
+  }
 }

@@ -116,14 +116,14 @@ def render(text, env, family, period, scope, date_start="2026-09-06", date_end="
     # Fixed fixture boundaries simulate Looker tags; this is not its filter parser.
     for tag, boundary in (("date_start", date_start), ("date_end", date_end)):
         literal = "NULL" if boundary is None else f"DATE '{boundary}'"
-        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?ingestion_comparison_date_range\s*%\}", literal, text)
+        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?(?:ingestion|invoice)_comparison_date_range\s*%\}", literal, text)
     def date_condition(match):
         value = match.group(1).strip()
         clauses = []
         if date_start: clauses.append(f"({value}) >= DATE '{date_start}'")
         if date_end: clauses.append(f"({value}) < DATE '{date_end}'")
         return "(" + " AND ".join(clauses or ["TRUE"]) + ")"
-    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?ingestion_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
+    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?(?:ingestion|invoice)_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
     values = {"source_family": family, "period": period, "failure_scope": scope}
     def parameter(match):
         value = values[match.group(1).removeprefix("bre_dashboard.")]
@@ -162,9 +162,10 @@ def main():
         explore = model["explores"][0]
         assert explore["name"] == "bre_dashboard"
         helpers = {e["name"]: e for e in model["explores"][1:]}
-        assert set(helpers) == {"bre_ingestion_filter_values", "bre_pilot_filters"}
+        assert set(helpers) == {"bre_ingestion_filter_values", "bre_pilot_filters", "bre_invoice_filters"}
         assert all(e.get("hidden") == "yes" for e in helpers.values())
         assert helpers["bre_pilot_filters"]["view_name"] == "bre_pilots"
+        assert helpers["bre_invoice_filters"]["view_name"] == "bre_invoice_statistics"
         assert explore["from"] == f"bre_dashboard_{env}"
         assert not explore.get("joins"), "Fact joins are outside this model's contract"
         includes = set(model["includes"])

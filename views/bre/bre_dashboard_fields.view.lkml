@@ -865,6 +865,77 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "#,##0.00"
   }
+  dimension: invoice_statistics_successful_itemisation_t_7_pct {
+    type: number
+    hidden: yes
+    group_label: "Disagg Dashboard"
+    description: "Source success percentage for SCHEDULED rows with delay_in_days = 7; all other rows are NULL. T-7 denotes source delay, not a shifted date filter."
+    sql: CASE WHEN ${delay_in_days} = 7 AND ${trigger_flag} = 'SCHEDULED' THEN ${invoice_statistics_successful_itemisation_pct} ELSE NULL END ;;
+  }
+  measure: invoice_statistics_successful_itemisation_t_7_pct_average {
+    type: number
+    label: "Success % — T-7 Day"
+    group_label: "Disagg Dashboard"
+    description: "Unweighted average of success percentages for SCHEDULED T-7 rows within the selected reporting-date range. Retains source percentage scale and zero values."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        AVG(${invoice_statistics_successful_itemisation_t_7_pct})
+      {% else %} CAST(NULL AS DECIMAL(5, 2))
+      {% endif %} ;;
+    value_format: "0.00\"%\""
+  }
+  dimension: invoice_statistics_successful_itemisation_t_2_pct {
+    type: number
+    hidden: yes
+    group_label: "Disagg Dashboard"
+    description: "Source success percentage for SCHEDULED rows with delay_in_days = 2; all other rows are NULL. T-2 denotes source delay, not a shifted date filter."
+    sql: CASE WHEN ${delay_in_days} = 2 AND ${trigger_flag} = 'SCHEDULED' THEN ${invoice_statistics_successful_itemisation_pct} ELSE NULL END ;;
+  }
+  measure: invoice_statistics_successful_itemisation_t_2_pct_average {
+    type: number
+    label: "Success % — T-2 Day"
+    group_label: "Disagg Dashboard"
+    description: "Unweighted average of success percentages for SCHEDULED T-2 rows within the selected reporting-date range. Retains source percentage scale and zero values."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        AVG(${invoice_statistics_successful_itemisation_t_2_pct})
+      {% else %} CAST(NULL AS DECIMAL(5, 2))
+      {% endif %} ;;
+    value_format: "0.00\"%\""
+  }
+  measure: invoice_statistics_daily_total_invoices {
+    type: number
+    label: "Daily Total Invoices"
+    group_label: "Disagg Dashboard"
+    description: "Per displayed group: average total_invoices when exactly one distinct analysis_date is present; otherwise sum total_invoices. Reporting-date filtering is applied independently."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        CASE WHEN COUNT(DISTINCT ${analysis_date::date}) = 1
+          THEN AVG(${invoice_statistics_total_invoices})
+          ELSE SUM(${invoice_statistics_total_invoices}) END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  dimension: invoice_statistics_successful_itemisation_correction_pct {
+    type: number
+    hidden: yes
+    group_label: "Disagg Dashboard"
+    description: "Source success percentage for ADHOC rows; all other rows are NULL."
+    sql: CASE WHEN ${trigger_flag} = 'ADHOC' THEN ${invoice_statistics_successful_itemisation_pct} ELSE NULL END ;;
+  }
+  measure: invoice_statistics_successful_itemisation_correction_pct_max {
+    type: number
+    label: "Correction Line"
+    group_label: "Disagg Dashboard"
+    description: "Maximum source success percentage among ADHOC rows in each displayed group. Retains source percentage scale."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        MAX(${invoice_statistics_successful_itemisation_correction_pct})
+      {% else %} CAST(NULL AS DECIMAL(5, 2))
+      {% endif %} ;;
+    value_format: "0.00\"%\""
+  }
   dimension: disagg_quality_appliances_kwh_variance_pct_1 {
     type: number
     label: "Appliances Kwh Variance Percentage 1"
@@ -2769,6 +2840,14 @@ view: bre_dashboard_fields {
       {% else %} ${analysis_date::date}
       {% endif %} ;;
   }
+  dimension: disagg_period_date {
+    type: date
+    label: "Analysis Date"
+    group_label: "Disagg Dashboard"
+    description: "Analysis date grouped by the Daily, Weekly or Monthly Period selection. Reuses the shared Sunday-start calendar; reporting-date filtering is independent."
+    convert_tz: no
+    sql: ${ingestion_period_date::date} ;;
+  }
   filter: ingestion_comparison_date_range {
     type: date
     label: "Files Comparison Date Range"
@@ -2907,6 +2986,144 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "0.0%"
   }
+  filter: invoice_comparison_date_range {
+    type: date
+    label: "Invoices Comparison Date Range"
+    description: "Selected calendar-date range. Invoices measures retain the preceding equal-length range. Open-ended ranges have no previous-period comparison."
+  }
+  dimension: invoice_comparison_start {
+    type: date
+    description: "Inclusive selected range start; NULL for an unbounded start."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_start invoice_comparison_date_range %} AS DATE) ;;
+  }
+  dimension: invoice_comparison_end {
+    type: date
+    description: "Exclusive selected range end; NULL for an unbounded end."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_end invoice_comparison_date_range %} AS DATE) ;;
+  }
+  # A templated date condition must compare DATE/TIMESTAMP values, not display strings.
+  dimension: invoice_is_selected_period {
+    type: yesno
+    description: "Matches the selected date filter, without removing prior rows from comparison queries."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    sql: {% condition invoice_comparison_date_range %} ${reporting_date::date} {% endcondition %} ;;
+  }
+  dimension: invoice_is_previous_period {
+    type: yesno
+    description: "Immediately preceding equal-length calendar range; false if either boundary is absent."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    sql: COALESCE(
+      ${invoice_comparison_end::date} > ${invoice_comparison_start::date}
+      AND ${reporting_date::date} >= date_add('day', -date_diff('day', ${invoice_comparison_start::date}, ${invoice_comparison_end::date}), ${invoice_comparison_start::date})
+      AND ${reporting_date::date} < ${invoice_comparison_start::date}, FALSE) ;;
+  }
+  dimension: invoice_in_comparison_window {
+    type: yesno
+    description: "Keep current and previous rows before calculating the two invoice statistics."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    sql: ${invoice_is_selected_period} OR ${invoice_is_previous_period} ;;
+  }
+  dimension: invoice_statistics_invoices_selected {
+    type: number
+    description: "Invoice count for the selected comparison period; other rows are NULL."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${invoice_is_selected_period} THEN ${invoice_statistics_total_invoices} END ;;
+  }
+  measure: invoice_statistics_invoices_selected_average {
+    type: number
+    label: "Invoices — Selected Average"
+    group_label: "Disagg Dashboard"
+    description: "Unweighted average of source total_invoices within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        AVG(${invoice_statistics_invoices_selected})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: invoice_statistics_invoices_selected_median {
+    type: number
+    label: "Invoices — Selected Median"
+    group_label: "Disagg Dashboard"
+    description: "Exact median of source invoice counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        CASE WHEN COUNT(${invoice_statistics_invoices_selected}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${invoice_statistics_invoices_selected} AS DOUBLE)) FILTER (WHERE ${invoice_statistics_invoices_selected} IS NOT NULL)), CAST(floor((COUNT(${invoice_statistics_invoices_selected}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${invoice_statistics_invoices_selected} AS DOUBLE)) FILTER (WHERE ${invoice_statistics_invoices_selected} IS NOT NULL)), CAST(floor((COUNT(${invoice_statistics_invoices_selected}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  dimension: invoice_statistics_invoices_previous {
+    type: number
+    description: "Invoice count for the previous comparison period; other rows are NULL."
+    group_label: "Disagg Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${invoice_is_previous_period} THEN ${invoice_statistics_total_invoices} END ;;
+  }
+  measure: invoice_statistics_invoices_previous_average {
+    type: number
+    label: "Invoices — Previous Average"
+    group_label: "Disagg Dashboard"
+    description: "Unweighted average of source total_invoices within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        AVG(${invoice_statistics_invoices_previous})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: invoice_statistics_invoices_previous_median {
+    type: number
+    label: "Invoices — Previous Median"
+    group_label: "Disagg Dashboard"
+    description: "Exact median of source invoice counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        CASE WHEN COUNT(${invoice_statistics_invoices_previous}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${invoice_statistics_invoices_previous} AS DOUBLE)) FILTER (WHERE ${invoice_statistics_invoices_previous} IS NOT NULL)), CAST(floor((COUNT(${invoice_statistics_invoices_previous}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${invoice_statistics_invoices_previous} AS DOUBLE)) FILTER (WHERE ${invoice_statistics_invoices_previous} IS NOT NULL)), CAST(floor((COUNT(${invoice_statistics_invoices_previous}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: invoice_statistics_invoices_average_change {
+    type: number
+    label: "Invoices Average Change"
+    group_label: "Disagg Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        (${invoice_statistics_invoices_selected_average} - ${invoice_statistics_invoices_previous_average}) / NULLIF(${invoice_statistics_invoices_previous_average}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
+  measure: invoice_statistics_invoices_median_change {
+    type: number
+    label: "Invoices Median Change"
+    group_label: "Disagg Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'invoicestatistics'" %}
+        (${invoice_statistics_invoices_selected_median} - ${invoice_statistics_invoices_previous_median}) / NULLIF(${invoice_statistics_invoices_previous_median}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
   dimension: post_ingestion_users_receiving_raw {
     type: number
     description: "Row-level raw bucket sum. Any zero or NULL bucket makes this total NULL; no day denominator."
@@ -2980,6 +3197,7 @@ view: bre_dashboard_fields {
 
   set: common {
     fields: [
+      disagg_period_date,
       ingestion_file_type,
       ingestion_period_date,
       ingestion_comparison_date_range,
@@ -3120,6 +3338,28 @@ view: bre_dashboard_fields {
   }
   set: invoice_statistics {
     fields: [
+      invoice_statistics_daily_total_invoices,
+      invoice_statistics_successful_itemisation_correction_pct,
+      invoice_statistics_successful_itemisation_correction_pct_max,
+      invoice_statistics_successful_itemisation_t_7_pct,
+      invoice_statistics_successful_itemisation_t_7_pct_average,
+      invoice_statistics_successful_itemisation_t_2_pct,
+      invoice_statistics_successful_itemisation_t_2_pct_average,
+      invoice_comparison_date_range,
+      invoice_comparison_start,
+      invoice_comparison_end,
+      invoice_is_selected_period,
+      invoice_is_previous_period,
+      invoice_in_comparison_window,
+      invoice_statistics_invoices_selected,
+      invoice_statistics_invoices_selected_average,
+      invoice_statistics_invoices_selected_median,
+      invoice_statistics_invoices_previous,
+      invoice_statistics_invoices_previous_average,
+      invoice_statistics_invoices_previous_median,
+      invoice_statistics_invoices_average_change,
+      invoice_statistics_invoices_median_change,
+
       invoice_statistics_total_invoices,
       invoice_statistics_total_invoices_sum,
       invoice_statistics_failed_itemisation_pct,
