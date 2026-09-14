@@ -116,14 +116,14 @@ def render(text, env, family, period, scope, date_start="2026-09-06", date_end="
     # Fixed fixture boundaries simulate Looker tags; this is not its filter parser.
     for tag, boundary in (("date_start", date_start), ("date_end", date_end)):
         literal = "NULL" if boundary is None else f"DATE '{boundary}'"
-        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email)_comparison_date_range\s*%\}", literal, text)
+        text = re.sub(r"\{%\s*" + tag + r"\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email|nbi)_comparison_date_range\s*%\}", literal, text)
     def date_condition(match):
         value = match.group(1).strip()
         clauses = []
         if date_start: clauses.append(f"({value}) >= DATE '{date_start}'")
         if date_end: clauses.append(f"({value}) < DATE '{date_end}'")
         return "(" + " AND ".join(clauses or ["TRUE"]) + ")"
-    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email)_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
+    text = re.sub(r"\{%\s*condition\s+(?:bre_dashboard\.)?(?:ingestion|invoice|email|nbi)_comparison_date_range\s*%\}(.*?)\{%\s*endcondition\s*%\}", date_condition, text, flags=re.S)
     values = {"source_family": family, "period": period, "failure_scope": scope,
               "her_generation_chart_period": her_chart_period or period}
     def parameter(match):

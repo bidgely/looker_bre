@@ -94,6 +94,7 @@ include: "/dashboards/bre_ca_ingestion.dashboard.lookml"
 include: "/dashboards/bre_ca_disagg.dashboard.lookml"
 include: "/dashboards/bre_ca_email.dashboard.lookml"
 include: "/dashboards/bre_ca_her.dashboard.lookml"
+include: "/dashboards/bre_ca_nbi.dashboard.lookml"
 
 include: "/views/bre/bre_email_delivery.view.lkml"
 explore: bre_email_delivery {

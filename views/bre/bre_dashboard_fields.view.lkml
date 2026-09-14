@@ -2735,6 +2735,138 @@ view: bre_dashboard_fields {
       {% endif %} ;;
     value_format: "#,##0"
   }
+  dimension: nbi_period_date {
+    type: date
+    label: "Analysis Date"
+    group_label: "NBI Dashboard"
+    description: "Analysis date grouped by Daily, Sunday-start Weekly or Monthly Period selection, reusing the shared chart calendar."
+    convert_tz: no
+    sql: ${ingestion_period_date::date} ;;
+  }
+  dimension: nbi_generation_total_users_nbi_generated {
+    type: number
+    label: "Total Users NBI Generated"
+    group_label: "NBI Generation"
+    description: "Row-level total_users_successful + total_users_with_200_errorcode + total_users_with_300_errorcode, as defined in Data Studio. Preserves source NULLs."
+    sql: ${nbi_generation_total_users_successful} + ${nbi_generation_failure_count} ;;
+    value_format: "#,##0"
+  }
+  dimension: nbi_generation_nbi_success_pc {
+    type: number
+    label: "NBI Success %"
+    group_label: "NBI Generation"
+    description: "Row-level 100 minus source nbi_error_pct. Preserves source NULLs and percentage-point scale without clamping or recalculating from user counts."
+    sql: 100.0 - ${nbi_generation_nbi_error_pct} ;;
+    value_format: "0.00\"%\""
+  }
+  measure: nbi_generation_total_users_nbi_generated_average {
+    type: number
+    label: "Total Users NBI Generated (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of each source row's successful plus 200/300-error user counts. NULL totals omitted; zeros retained. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_total_users_nbi_generated})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: nbi_generation_total_users_successful_average {
+    type: number
+    label: "Successful Generation # (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of source total_users_successful within the selected analysis-date bucket. NULLs omitted; zeros retained. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_total_users_successful})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: nbi_generation_nbi_success_pc_average {
+    type: number
+    label: "NBI Success % (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of 100 minus each source row's nbi_error_pct. Displayed on the existing percentage-point scale; NULLs omitted. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_nbi_success_pc})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.00\"%\""
+  }
+  measure: nbi_generation_total_users_with_200_errorcode_average {
+    type: number
+    label: "NBI_FORMAT_ERROR (200) (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of source total_users_with_200_errorcode within the selected analysis-date bucket. NULLs omitted; zeros retained. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_total_users_with_200_errorcode})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: nbi_generation_total_users_with_300_errorcode_average {
+    type: number
+    label: "NBI_VALUE_ERROR (300) (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of source total_users_with_300_errorcode within the selected analysis-date bucket. NULLs omitted; zeros retained. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_total_users_with_300_errorcode})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  dimension: nbi_generation_failure_count {
+    type: number
+    label: "NBI Failure Count"
+    group_label: "NBI Generation"
+    description: "Row-level total_users_with_200_errorcode + total_users_with_300_errorcode. Preserves source NULLs; denominator for the two failure-distribution ratios."
+    sql: ${nbi_generation_total_users_with_200_errorcode} + ${nbi_generation_total_users_with_300_errorcode} ;;
+    value_format: "#,##0"
+  }
+  dimension: nbi_generation_nbi_200_error_pct {
+    type: number
+    label: "Format Error"
+    group_label: "NBI Generation"
+    description: "Row-level 200-error user count divided by combined 200/300-error user count. Decimal ratio displayed as a percentage; NULL for zero or NULL failure count."
+    sql: CAST(${nbi_generation_total_users_with_200_errorcode} AS DOUBLE) / NULLIF(${nbi_generation_failure_count}, 0) ;;
+    value_format: "0.00%"
+  }
+  dimension: nbi_generation_nbi_300_error_pct {
+    type: number
+    label: "Value Error"
+    group_label: "NBI Generation"
+    description: "Row-level 300-error user count divided by combined 200/300-error user count. Decimal ratio displayed as a percentage; NULL for zero or NULL failure count."
+    sql: CAST(${nbi_generation_total_users_with_300_errorcode} AS DOUBLE) / NULLIF(${nbi_generation_failure_count}, 0) ;;
+    value_format: "0.00%"
+  }
+  measure: nbi_generation_nbi_200_error_pct_average {
+    type: number
+    label: "Format Error (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of the row-level 200-error share of combined 200/300 errors. NULL ratios are omitted; zero ratios are retained. Displayed as a percentage. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_nbi_200_error_pct})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.00%"
+  }
+  measure: nbi_generation_nbi_300_error_pct_average {
+    type: number
+    label: "Value Error (Average)"
+    group_label: "NBI Generation"
+    description: "Unweighted average of the row-level 300-error share of combined 200/300 errors. NULL ratios are omitted; zero ratios are retained. Displayed as a percentage. NULL for other source families."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_nbi_300_error_pct})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.00%"
+  }
   dimension: nbi_generation_nbi_error_pct {
     type: number
     label: "NBI Error Percentage"
@@ -3118,6 +3250,144 @@ view: bre_dashboard_fields {
     sql:
       {% if source_family._parameter_value == "'ingestionaudit'" %}
         (${ingestion_audit_files_selected_median} - ${ingestion_audit_files_previous_median}) / NULLIF(${ingestion_audit_files_previous_median}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
+  filter: nbi_comparison_date_range {
+    type: date
+    label: "NBI Users Comparison Date Range"
+    description: "Selected calendar-date range. NBI Users measures retain the preceding equal-length range. Open-ended ranges have no previous-period comparison."
+  }
+  dimension: nbi_comparison_start {
+    type: date
+    description: "Inclusive selected range start; NULL for an unbounded start."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_start nbi_comparison_date_range %} AS DATE) ;;
+  }
+  dimension: nbi_comparison_end {
+    type: date
+    description: "Exclusive selected range end; NULL for an unbounded end."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    convert_tz: no
+    sql: CAST({% date_end nbi_comparison_date_range %} AS DATE) ;;
+  }
+  # A templated date condition must compare DATE/TIMESTAMP values, not display strings.
+  dimension: nbi_is_selected_period {
+    type: yesno
+    description: "Matches the selected date filter, without removing prior rows from comparison queries."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    sql: {% condition nbi_comparison_date_range %} ${analysis_date::date} {% endcondition %} ;;
+  }
+  dimension: nbi_is_previous_period {
+    type: yesno
+    description: "Immediately preceding equal-length calendar range; false if either boundary is absent."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    sql: COALESCE(
+      ${nbi_comparison_end::date} > ${nbi_comparison_start::date}
+      AND ${analysis_date::date} >= date_add('day', -date_diff('day', ${nbi_comparison_start::date}, ${nbi_comparison_end::date}), ${nbi_comparison_start::date})
+      AND ${analysis_date::date} < ${nbi_comparison_start::date}, FALSE) ;;
+  }
+  dimension: nbi_in_comparison_window {
+    type: yesno
+    description: "Keep current and previous rows before calculating the two successful-user statistics."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    sql: ${nbi_is_selected_period} OR ${nbi_is_previous_period} ;;
+  }
+  dimension: nbi_generation_users_selected {
+    type: number
+    description: "Successful-user count for the selected comparison period; other rows are NULL."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${nbi_is_selected_period} THEN ${nbi_generation_total_users_successful} END ;;
+  }
+  measure: nbi_generation_users_selected_average {
+    type: number
+    label: "NBI Users — Selected Average"
+    group_label: "NBI Dashboard"
+    description: "Unweighted average of source total_users_successful within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_users_selected})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: nbi_generation_users_selected_median {
+    type: number
+    label: "NBI Users — Selected Median"
+    group_label: "NBI Dashboard"
+    description: "Exact median of source successful-user counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        CASE WHEN COUNT(${nbi_generation_users_selected}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${nbi_generation_users_selected} AS DOUBLE)) FILTER (WHERE ${nbi_generation_users_selected} IS NOT NULL)), CAST(floor((COUNT(${nbi_generation_users_selected}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${nbi_generation_users_selected} AS DOUBLE)) FILTER (WHERE ${nbi_generation_users_selected} IS NOT NULL)), CAST(floor((COUNT(${nbi_generation_users_selected}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  dimension: nbi_generation_users_previous {
+    type: number
+    description: "Successful-user count for the previous comparison period; other rows are NULL."
+    group_label: "NBI Dashboard"
+    hidden: yes
+    sql: CASE WHEN ${nbi_is_previous_period} THEN ${nbi_generation_total_users_successful} END ;;
+  }
+  measure: nbi_generation_users_previous_average {
+    type: number
+    label: "NBI Users — Previous Average"
+    group_label: "NBI Dashboard"
+    description: "Unweighted average of source total_users_successful within this comparison range."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        AVG(${nbi_generation_users_previous})
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: nbi_generation_users_previous_median {
+    type: number
+    label: "NBI Users — Previous Median"
+    group_label: "NBI Dashboard"
+    description: "Exact median of source successful-user counts. NULLs omitted; even row counts average the central pair. Uses a query-time sorted array."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        CASE WHEN COUNT(${nbi_generation_users_previous}) > 0 THEN (
+          element_at(array_sort(array_agg(CAST(${nbi_generation_users_previous} AS DOUBLE)) FILTER (WHERE ${nbi_generation_users_previous} IS NOT NULL)), CAST(floor((COUNT(${nbi_generation_users_previous}) + 1) / 2.0) AS BIGINT))
+          + element_at(array_sort(array_agg(CAST(${nbi_generation_users_previous} AS DOUBLE)) FILTER (WHERE ${nbi_generation_users_previous} IS NOT NULL)), CAST(floor((COUNT(${nbi_generation_users_previous}) + 2) / 2.0) AS BIGINT))
+        ) / 2.0 END
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "#,##0.00"
+  }
+  measure: nbi_generation_users_average_change {
+    type: number
+    label: "NBI Users Average Change"
+    group_label: "NBI Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        (${nbi_generation_users_selected_average} - ${nbi_generation_users_previous_average}) / NULLIF(${nbi_generation_users_previous_average}, 0)
+      {% else %} CAST(NULL AS DOUBLE)
+      {% endif %} ;;
+    value_format: "0.0%"
+  }
+  measure: nbi_generation_users_median_change {
+    type: number
+    label: "NBI Users Median Change"
+    group_label: "NBI Dashboard"
+    description: "Relative change versus the preceding equal-length range. NULL if prior value is zero or absent."
+    sql:
+      {% if source_family._parameter_value == "'nbigeneration'" %}
+        (${nbi_generation_users_selected_median} - ${nbi_generation_users_previous_median}) / NULLIF(${nbi_generation_users_previous_median}, 0)
       {% else %} CAST(NULL AS DOUBLE)
       {% endif %} ;;
     value_format: "0.0%"
@@ -3887,12 +4157,39 @@ view: bre_dashboard_fields {
   }
   set: nbi_generation {
     fields: [
+      nbi_period_date,
+      nbi_generation_total_users_nbi_generated,
+      nbi_generation_nbi_success_pc,
+      nbi_generation_total_users_nbi_generated_average,
+      nbi_generation_total_users_successful_average,
+      nbi_generation_nbi_success_pc_average,
+      nbi_generation_failure_count,
+      nbi_generation_nbi_200_error_pct,
+      nbi_generation_nbi_200_error_pct_average,
+      nbi_generation_nbi_300_error_pct,
+      nbi_generation_nbi_300_error_pct_average,
+      nbi_comparison_date_range,
+      nbi_comparison_start,
+      nbi_comparison_end,
+      nbi_is_selected_period,
+      nbi_is_previous_period,
+      nbi_in_comparison_window,
+      nbi_generation_users_selected,
+      nbi_generation_users_selected_average,
+      nbi_generation_users_selected_median,
+      nbi_generation_users_previous,
+      nbi_generation_users_previous_average,
+      nbi_generation_users_previous_median,
+      nbi_generation_users_average_change,
+      nbi_generation_users_median_change,
       nbi_generation_total_users_successful,
       nbi_generation_total_users_successful_sum,
       nbi_generation_total_users_with_200_errorcode,
       nbi_generation_total_users_with_200_errorcode_sum,
+      nbi_generation_total_users_with_200_errorcode_average,
       nbi_generation_total_users_with_300_errorcode,
       nbi_generation_total_users_with_300_errorcode_sum,
+      nbi_generation_total_users_with_300_errorcode_average,
       nbi_generation_nbi_error_pct,
       nbi_generation_nbi_error_pct_average
     ]
