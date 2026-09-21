@@ -4,11 +4,11 @@ view: itron_config_confirmation {
           select meter_id, pilot_id
           from (
             select
-              SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) AS meter_id,
+              SUBSTRING(e.token FROM 7 FOR GREATEST(POSITION('_AMI' IN e.token) - 7, 0)) AS meter_id,
               um.pilot_id,
               ROW_NUMBER() OVER (
-                PARTITION BY SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0))
-                ORDER BY event_timestamp DESC
+                PARTITION BY SUBSTRING(e.token FROM 7 FOR GREATEST(POSITION('_AMI' IN e.token) - 7, 0))
+                ORDER BY e.event_timestamp DESC
               ) AS rn
             from public.enrollment_events e
             left join public.user_meta_data um on e.uuid = um.uuid
