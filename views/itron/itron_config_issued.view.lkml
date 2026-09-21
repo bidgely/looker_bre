@@ -3,13 +3,15 @@ view: itron_config_issued {
     sql:  with typed_requests as (
             -- UAT can expose numeric values as varchar; cast before aggregation.
             select
-              uuid,
-              CAST(start_date_for_config_generation AS bigint) as start_date_for_config_generation,
-              CAST(end_date_for_config_generation AS bigint) as end_date_for_config_generation,
-              status,
-              CAST(last_updated_timestamp AS bigint) as last_updated_timestamp,
-              CAST(retry_count AS bigint) as retry_count
-            from meter_config_update_request
+              m.uuid,
+              CAST(m.start_date_for_config_generation AS bigint) as start_date_for_config_generation,
+              CAST(m.end_date_for_config_generation AS bigint) as end_date_for_config_generation,
+              m.status,
+              CAST(m.last_updated_timestamp AS bigint) as last_updated_timestamp,
+              CAST(m.retry_count AS bigint) as retry_count
+            from meter_config_update_request m
+            left join public.user_meta_data um on m.uuid = um.uuid
+            where {%condition itron_enrollment_files.pilot_id%} um.pilot_id {%endcondition%}
           ),
           base as (
             select

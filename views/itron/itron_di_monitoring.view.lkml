@@ -12,7 +12,7 @@ view: itron_di_monitoring {
                             from public.itron_feature_messages
                             group by 1,2,3,4,5,6
                          )
-                    where {%condition itron_di_monitoring.pilot_id%} pilot_id {%endcondition%}
+                    where {%condition itron_enrollment_files.pilot_id%} CAST(pilot_id AS BIGINT) {%endcondition%}
                             and {%condition date_series.continous_date%} start_date {%endcondition%}
                  )
             group by 1,2,3 ;;

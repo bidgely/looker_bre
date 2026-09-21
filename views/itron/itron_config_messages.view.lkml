@@ -1,9 +1,27 @@
 view: itron_config_messages {
   derived_table: {
-    sql: select meterid as meter_id, bidgelymeterid as bidgely_meter_id, evmin, evmax, duration, checkforev, interference, evlicence, lastdatatimestamp, from_unixtime(lastdatatimestamp/1000) AS update_date
+    sql: with meter_pilot_map as (
+          select meter_id, pilot_id
+          from (
+            select
+              SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) AS meter_id,
+              um.pilot_id,
+              ROW_NUMBER() OVER (
+                PARTITION BY SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0))
+                ORDER BY event_timestamp DESC
+              ) AS rn
+            from public.enrollment_events e
+            left join public.user_meta_data um on e.uuid = um.uuid
+            where e.event_type like 'METER%' and e.meter_ordinal > 0
+          )
+          where rn = 1
+        )
+        select meterid as meter_id, bidgelymeterid as bidgely_meter_id, evmin, evmax, duration, checkforev, interference, evlicence, lastdatatimestamp, from_unixtime(lastdatatimestamp/1000) AS update_date
       from (
-        select *, row_number() over (partition by meterid order by lastdatatimestamp desc) as rid
-        from public.itron_config_messages
+        select icm.*, row_number() over (partition by icm.meterid order by icm.lastdatatimestamp desc) as rid
+        from public.itron_config_messages icm
+        left join meter_pilot_map mp on icm.meterid = mp.meter_id
+        where {%condition itron_enrollment_files.pilot_id%} mp.pilot_id {%endcondition%}
         --where meterid = '2.16.840.1.114416.15.80.1000416353'
         )
       where rid = 1;;

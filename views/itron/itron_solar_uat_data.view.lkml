@@ -16,6 +16,8 @@ view: itron_solar_uat_data {
             ORDER BY loaded_at DESC
           ) AS rn
         FROM reporting.itron_uat_solar_data
+        WHERE {%condition itron_enrollment_files.pilot_id%} pilot_id {%endcondition%}
+          AND {%condition date_series.continous_date%} "date" {%endcondition%}
       )
       SELECT
         uuid,

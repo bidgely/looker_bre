@@ -1,9 +1,28 @@
 view: itron_config_confirmation {
   derived_table: {
-    sql: select *, date(from_unixtime(lastdatatimestamp / 1000)) as update_date
+    sql: with meter_pilot_map as (
+          select meter_id, pilot_id
+          from (
+            select
+              SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0)) AS meter_id,
+              um.pilot_id,
+              ROW_NUMBER() OVER (
+                PARTITION BY SUBSTRING(token FROM 7 FOR GREATEST(POSITION('_AMI' IN token) - 7, 0))
+                ORDER BY event_timestamp DESC
+              ) AS rn
+            from public.enrollment_events e
+            left join public.user_meta_data um on e.uuid = um.uuid
+            where e.event_type like 'METER%' and e.meter_ordinal > 0
+          )
+          where rn = 1
+        )
+        select *, date(from_unixtime(lastdatatimestamp / 1000)) as update_date
       from (
-      select meterid, lastdatatimestamp
-      from public.itron_config_messages
+      select icm.meterid, icm.lastdatatimestamp
+      from public.itron_config_messages icm
+      left join meter_pilot_map mp on icm.meterid = mp.meter_id
+      where {%condition itron_enrollment_files.pilot_id%} mp.pilot_id {%endcondition%}
+        and {%condition date_series.continous_date%} from_unixtime(icm.lastdatatimestamp / 1000, 'US/Eastern') {%endcondition%}
       --where meterid = '2.16.840.1.114416.15.80.1000169669'
       group by 1,2) ;;
   }
