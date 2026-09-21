@@ -14,6 +14,7 @@ include: "/dashboards/itron_di_monitoring_dashboard_v2__uat_pilots.dashboard.loo
 
 explore: itron_enrollment_files {
   view_name: itron_enrollment_files
+  persist_for: "8 hours"
   join: date_series {
     view_label: "User Created Date Series"
     type: full_outer

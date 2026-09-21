@@ -1,0 +1,308 @@
+{
+  "checked_at": "2026-09-13",
+  "scope": "Date-reference runtime fix in shared CA/EU fields; local regression tests, Trino planning checks, and authorized aggregate-only Starburst diagnostics.",
+  "result": "PASS",
+  "dashboard": "bre_ca_ingestion",
+  "query_tiles": 8,
+  "filters": 5,
+  "rendered_tile_sql_cases": 48,
+  "suggestion_sql_cases": 2,
+  "synthetic_checks": 25,
+  "no_pdts": {
+    "models": 4,
+    "views": 38,
+    "derived_tables": 37,
+    "result": "PASS"
+  },
+  "source_data_read": true,
+  "looker_validation": "PENDING USER WEB UI",
+  "limitations": "Local renderer simulates date tags and typed/untyped date references; DuckDB tests translated expressions, not the Looker compiler or Trino execution engine.",
+  "source_data_read_scope": "COUNT and MAX aggregates only on the six listed CA tables; no Redshift queries.",
+  "model_validation": {
+    "result": "PASS",
+    "rendered_cases": 108,
+    "source_families": 20,
+    "router_columns": 168,
+    "lookml_files": 27
+  },
+  "root_cause": "Untyped references to LookML date dimensions can render as VARCHAR. Explicit ::date references keep period grouping and templated comparison predicates date-typed.",
+  "native_looker_validation": {
+    "before_fix": "User reported no LookML validation errors, but dashboard queries failed.",
+    "after_fix": "PENDING USER WEB UI"
+  },
+  "starburst": {
+    "statement": "EXPLAIN (TYPE VALIDATE)",
+    "validated_cases": 14,
+    "no_source_data_read": true,
+    "checks": [
+      {
+        "case": "ca_files_average_daily",
+        "result": "PASS",
+        "query_id": "20260912_223650_16505_f92w6"
+      },
+      {
+        "case": "ca_files_median_daily",
+        "result": "PASS",
+        "query_id": "20260912_223648_18412_6aiit"
+      },
+      {
+        "case": "ca_daily_ingestion_statistics_daily",
+        "result": "PASS",
+        "query_id": "20260912_223651_16520_f92w6"
+      },
+      {
+        "case": "ca_post_ingestion_quality_daily",
+        "result": "PASS",
+        "query_id": "20260912_223652_64981_pdizt"
+      },
+      {
+        "case": "ca_ingestion_failure_reasons_daily",
+        "result": "PASS",
+        "query_id": "20260913_085201_42705_z5czz"
+      },
+      {
+        "case": "ca_daily_ingestion_statistics_weekly",
+        "result": "PASS",
+        "query_id": "20260913_085201_83825_3xuu7"
+      },
+      {
+        "case": "ca_daily_ingestion_statistics_monthly",
+        "result": "PASS",
+        "query_id": "20260913_085202_07020_estru"
+      },
+      {
+        "case": "eu_files_average_daily",
+        "result": "PASS",
+        "query_id": "20260913_085203_09846_y52ff"
+      },
+      {
+        "case": "eu_files_median_daily",
+        "result": "PASS",
+        "query_id": "20260913_085409_20057_6i6fk"
+      },
+      {
+        "case": "eu_daily_ingestion_statistics_daily",
+        "result": "PASS",
+        "query_id": "20260913_085409_20048_6i6fk"
+      },
+      {
+        "case": "eu_post_ingestion_quality_daily",
+        "result": "PASS",
+        "query_id": "20260913_085410_20076_6i6fk"
+      },
+      {
+        "case": "eu_ingestion_failure_reasons_daily",
+        "result": "PASS",
+        "query_id": "20260913_085410_06564_2h55b"
+      },
+      {
+        "case": "eu_daily_ingestion_statistics_weekly",
+        "result": "PASS",
+        "query_id": "20260913_085413_85196_3xuu7"
+      },
+      {
+        "case": "eu_daily_ingestion_statistics_monthly",
+        "result": "PASS",
+        "query_id": "20260913_085413_10403_y52ff"
+      }
+    ]
+  },
+  "source_diagnostics": {
+    "checked_at": "2026-09-12 UTC (2026-09-13 Europe/Berlin)",
+    "catalog": "delta_prodca",
+    "schema": "reporting",
+    "queries": [
+      {
+        "query_id": "20260912_223441_15649_f92w6",
+        "tables": [
+          {
+            "name": "sre_total_active_users",
+            "rows": 0
+          },
+          {
+            "name": "sre_ingestion_audit",
+            "rows": 0
+          },
+          {
+            "name": "pilot_consolidated_product_type_events",
+            "rows": 5
+          }
+        ]
+      },
+      {
+        "query_id": "20260912_223511_64919_z5czz",
+        "tables": [
+          {
+            "name": "sre_raw_consumption_delay",
+            "rows": 0
+          },
+          {
+            "name": "sre_invoice_delay_tracker",
+            "rows": 0
+          },
+          {
+            "name": "sre_ingestion_errors_statistic",
+            "rows": 0
+          }
+        ]
+      }
+    ],
+    "conclusion": "At diagnosis the five CA fact tables were empty, explaining NULL scorecards independently of the date-type errors. Preserve NULL semantics; population is owned separately."
+  },
+  "web_ui_review": [
+    "Run LookML validation for the new dashboard and fields.",
+    "Inspect UUID sentence, average/median percentage comparisons and Success % axis.",
+    "Check separate pilot filters, dynamic File Type choices and Billing including OPOWER.",
+    "Check Daily/Weekly/Monthly charts and source-rank <= 20 behavior."
+  ],
+  "initial_implementation_validation": {
+    "checked_at": "2026-09-13",
+    "scope": "CA Ingestion dashboard and shared CA/EU fields. Local rendering and synthetic fixtures; Starburst EXPLAIN (TYPE VALIDATE) only.",
+    "result": "PASS",
+    "dashboard": "bre_ca_ingestion",
+    "query_tiles": 8,
+    "filters": 5,
+    "rendered_tile_sql_cases": 48,
+    "suggestion_sql_cases": 2,
+    "synthetic_checks": 23,
+    "no_pdts": {
+      "models": 4,
+      "views": 38,
+      "derived_tables": 37,
+      "result": "PASS"
+    },
+    "source_data_read": false,
+    "looker_validation": "PENDING USER WEB UI",
+    "limitations": "Local renderer simulates bounded date tags; DuckDB tests translated expressions, not the Trino execution engine.",
+    "model_validation": {
+      "result": "PASS",
+      "rendered_cases": 108,
+      "source_families": 20,
+      "router_columns": 168,
+      "lookml_files": 27
+    },
+    "starburst": {
+      "statement": "EXPLAIN (TYPE VALIDATE)",
+      "validated_cases": 22,
+      "no_source_data_read": true,
+      "checks": [
+        {
+          "case": "ca_files_median_daily",
+          "result": "PASS",
+          "query_id": "20260912_221754_25158_6i6fk"
+        },
+        {
+          "case": "eu_files_median_daily",
+          "result": "PASS",
+          "query_id": "20260912_221754_59856_pdizt"
+        },
+        {
+          "case": "ca_active_uuid_daily",
+          "result": "PASS",
+          "query_id": "20260912_221815_12234_f92w6"
+        },
+        {
+          "case": "ca_files_average_daily",
+          "result": "PASS",
+          "query_id": "20260912_221816_12241_f92w6"
+        },
+        {
+          "case": "ca_daily_users_daily",
+          "result": "PASS",
+          "query_id": "20260912_221817_35635_upv6f"
+        },
+        {
+          "case": "ca_daily_success_daily",
+          "result": "PASS",
+          "query_id": "20260912_221818_35642_upv6f"
+        },
+        {
+          "case": "ca_daily_ingestion_statistics_daily",
+          "result": "PASS",
+          "query_id": "20260912_221819_88071_estru"
+        },
+        {
+          "case": "ca_post_ingestion_quality_daily",
+          "result": "PASS",
+          "query_id": "20260912_221820_12258_f92w6"
+        },
+        {
+          "case": "ca_ingestion_failure_reasons_daily",
+          "result": "PASS",
+          "query_id": "20260912_221820_79231_3xuu7"
+        },
+        {
+          "case": "ca_daily_ingestion_statistics_weekly",
+          "result": "PASS",
+          "query_id": "20260912_221821_25258_6i6fk"
+        },
+        {
+          "case": "ca_daily_ingestion_statistics_monthly",
+          "result": "PASS",
+          "query_id": "20260912_221822_12279_f92w6"
+        },
+        {
+          "case": "ca_filter_suggestions",
+          "result": "PASS",
+          "query_id": "20260912_221823_59903_pdizt"
+        },
+        {
+          "case": "eu_active_uuid_daily",
+          "result": "PASS",
+          "query_id": "20260912_221824_25272_6i6fk"
+        },
+        {
+          "case": "eu_files_average_daily",
+          "result": "PASS",
+          "query_id": "20260912_221824_58656_z5czz"
+        },
+        {
+          "case": "eu_daily_users_daily",
+          "result": "PASS",
+          "query_id": "20260912_221826_25294_6i6fk"
+        },
+        {
+          "case": "eu_daily_success_daily",
+          "result": "PASS",
+          "query_id": "20260912_221827_12321_f92w6"
+        },
+        {
+          "case": "eu_daily_ingestion_statistics_daily",
+          "result": "PASS",
+          "query_id": "20260912_221827_88106_estru"
+        },
+        {
+          "case": "eu_post_ingestion_quality_daily",
+          "result": "PASS",
+          "query_id": "20260912_221828_79279_3xuu7"
+        },
+        {
+          "case": "eu_ingestion_failure_reasons_daily",
+          "result": "PASS",
+          "query_id": "20260912_221830_12340_f92w6"
+        },
+        {
+          "case": "eu_daily_ingestion_statistics_weekly",
+          "result": "PASS",
+          "query_id": "20260912_221830_25316_6i6fk"
+        },
+        {
+          "case": "eu_daily_ingestion_statistics_monthly",
+          "result": "PASS",
+          "query_id": "20260912_221831_58701_z5czz"
+        },
+        {
+          "case": "eu_filter_suggestions",
+          "result": "PASS",
+          "query_id": "20260912_221832_25327_6i6fk"
+        }
+      ]
+    },
+    "web_ui_review": [
+      "Run LookML validation for the new dashboard and fields.",
+      "Inspect UUID sentence, average/median percentage comparisons and Success % axis.",
+      "Check separate pilot filters, dynamic File Type choices and Billing including OPOWER.",
+      "Check Daily/Weekly/Monthly charts and source-rank <= 20 behavior."
+    ]
+  }
+}

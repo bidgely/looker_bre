@@ -1,0 +1,911 @@
+{
+  "checked_at": "2026-09-12",
+  "scope": "Local LookML parsing and locally rendered full-field Trino EXPLAIN (TYPE VALIDATE); no source data read.",
+  "local": {
+    "lookml_files": 26,
+    "source_families": 20,
+    "rendered_cases": 108,
+    "router_columns": 168,
+    "result": "PASS",
+    "dependencies": {
+      "lkml": "1.3.7",
+      "python-liquid": "2.3.1",
+      "sqlglot": "30.18.0"
+    },
+    "invocation": "uv run scripts/validate_bre_models.py --output-dir /private/tmp/bre-validation"
+  },
+  "source_mapping": {
+    "document": "bre_source_view_mapping.md",
+    "source_entries_checked": 55,
+    "active_source_entries": 44,
+    "field_mappings_checked": 269,
+    "duplicate_source_entries": 0,
+    "relative_links": "PASS",
+    "result": "PASS"
+  },
+  "looker_validator": {
+    "status": "USER_REPORTED_CLEAN",
+    "reason": "After the inheritance and parameter-alias fixes, the user reported that the code is clean and requested the next migration stage. This records user confirmation; the agent has not independently run Looker's validator.",
+    "reported_errors": [
+      "Variable not found source_family in both regional routing views",
+      "Could not find bre_dashboard_fields to extend in both regional routing views"
+    ]
+  },
+  "validation_error_fix": {
+    "local_rendered_cases": 108,
+    "sql_fixtures_unchanged_from_prior_starburst_validation": 108,
+    "no_source_data_read": true,
+    "no_pdts": {
+      "models_checked": 4,
+      "views_checked": 37,
+      "query_time_derived_tables": 36,
+      "result": "PASS"
+    }
+  },
+  "starburst": [
+    {
+      "env": "ca",
+      "family": "activeusers",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165551_61983_pdizt"
+    },
+    {
+      "env": "ca",
+      "family": "activeusers",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165551_21702_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "activeusers",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165550_55444_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "pilotreporting",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165552_55450_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "pilotreporting",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165553_49436_upv6f"
+    },
+    {
+      "env": "ca",
+      "family": "pilotreporting",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165553_55462_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "ingestionaudit",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165554_55464_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "ingestionaudit",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165554_88297_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "ingestionaudit",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165555_25514_6aiit"
+    },
+    {
+      "env": "ca",
+      "family": "ingestionfailures",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165555_55472_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "ingestionfailures",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165556_25524_6aiit"
+    },
+    {
+      "env": "ca",
+      "family": "ingestionfailures",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165556_88306_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "postingestion",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165557_80705_3xuu7"
+    },
+    {
+      "env": "ca",
+      "family": "postingestion",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165558_21747_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "postingestion",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165558_55477_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "invoicestatistics",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165557_21741_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "invoicestatistics",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165559_80711_3xuu7"
+    },
+    {
+      "env": "ca",
+      "family": "invoicestatistics",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165600_21765_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "disaggquality",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165600_88323_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "disaggquality",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165600_55486_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "disaggquality",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165601_21779_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "processingfailures",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165602_55494_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "processingfailures",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165602_88329_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "processingfailures",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165602_73957_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "processingfailures",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165603_88332_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "processingfailures",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165604_73969_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "processingfailures",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165604_62040_pdizt"
+    },
+    {
+      "env": "ca",
+      "family": "emailstatistics",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165604_62041_pdizt"
+    },
+    {
+      "env": "ca",
+      "family": "emailstatistics",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165605_21809_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "emailstatistics",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165606_25581_6aiit"
+    },
+    {
+      "env": "ca",
+      "family": "emailtracker",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165606_88340_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "emailtracker",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165606_73986_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "emailtracker",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165607_55522_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "emailrecommendations",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165608_88348_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "emailrecommendations",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165608_88352_2h55b"
+    },
+    {
+      "env": "ca",
+      "family": "emailrecommendations",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165608_49546_upv6f"
+    },
+    {
+      "env": "ca",
+      "family": "emailfailures",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165609_73991_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "emailfailures",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165610_73993_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "emailfailures",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165610_73995_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "hergeneration",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165610_73996_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "hergeneration",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165611_55538_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "hergeneration",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165612_80745_3xuu7"
+    },
+    {
+      "env": "ca",
+      "family": "herschedules",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165612_49558_upv6f"
+    },
+    {
+      "env": "ca",
+      "family": "herschedules",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165613_21828_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "herschedules",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165613_49563_upv6f"
+    },
+    {
+      "env": "ca",
+      "family": "herfailures",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165614_62084_pdizt"
+    },
+    {
+      "env": "ca",
+      "family": "herfailures",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165614_55558_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "herfailures",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165614_74012_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "hernonpsegquality",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165615_74018_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "hernonpsegquality",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165616_62092_pdizt"
+    },
+    {
+      "env": "ca",
+      "family": "hernonpsegquality",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165616_21835_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "herautomationquality",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165616_74020_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "herautomationquality",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165617_49581_upv6f"
+    },
+    {
+      "env": "ca",
+      "family": "herautomationquality",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165618_74028_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "nbigeneration",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165618_74031_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "nbigeneration",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165619_21841_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "nbigeneration",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165620_21842_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "nbigenerictags",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165620_55596_z5czz"
+    },
+    {
+      "env": "ca",
+      "family": "nbigenerictags",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165620_74043_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "nbigenerictags",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165621_74046_y52ff"
+    },
+    {
+      "env": "ca",
+      "family": "invalidfamily",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165622_21852_6i6fk"
+    },
+    {
+      "env": "ca",
+      "family": "invalidfamily",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165622_62133_pdizt"
+    },
+    {
+      "env": "ca",
+      "family": "invalidfamily",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165622_80786_3xuu7"
+    },
+    {
+      "env": "eu",
+      "family": "activeusers",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165623_21860_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "activeusers",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165630_62189_pdizt"
+    },
+    {
+      "env": "eu",
+      "family": "activeusers",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165631_88392_2h55b"
+    },
+    {
+      "env": "eu",
+      "family": "pilotreporting",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165632_25708_6aiit"
+    },
+    {
+      "env": "eu",
+      "family": "pilotreporting",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165632_25715_6aiit"
+    },
+    {
+      "env": "eu",
+      "family": "pilotreporting",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165636_49637_upv6f"
+    },
+    {
+      "env": "eu",
+      "family": "ingestionaudit",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165637_49639_upv6f"
+    },
+    {
+      "env": "eu",
+      "family": "ingestionaudit",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165637_74115_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "ingestionaudit",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165638_21916_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "ingestionfailures",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165639_74127_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "ingestionfailures",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165640_55718_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "ingestionfailures",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165639_74131_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "postingestion",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165640_21940_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "postingestion",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165643_25778_6aiit"
+    },
+    {
+      "env": "eu",
+      "family": "postingestion",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165643_55742_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "invoicestatistics",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165644_55748_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "invoicestatistics",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165644_62279_pdizt"
+    },
+    {
+      "env": "eu",
+      "family": "invoicestatistics",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165645_25798_6aiit"
+    },
+    {
+      "env": "eu",
+      "family": "disaggquality",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165646_62291_pdizt"
+    },
+    {
+      "env": "eu",
+      "family": "disaggquality",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165646_55764_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "disaggquality",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165647_21966_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "processingfailures",
+      "period": "Daily",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165648_88460_2h55b"
+    },
+    {
+      "env": "eu",
+      "family": "processingfailures",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165648_74198_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "processingfailures",
+      "period": "Weekly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165649_74202_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "processingfailures",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165649_74206_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "processingfailures",
+      "period": "Monthly",
+      "scope": "All",
+      "ok": true,
+      "queryId": "20260912_165651_62336_pdizt"
+    },
+    {
+      "env": "eu",
+      "family": "processingfailures",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165651_74219_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "emailstatistics",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165651_49716_upv6f"
+    },
+    {
+      "env": "eu",
+      "family": "emailstatistics",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165652_74229_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "emailstatistics",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165653_26506_f92w6"
+    },
+    {
+      "env": "eu",
+      "family": "emailtracker",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165654_55793_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "emailtracker",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165654_26509_f92w6"
+    },
+    {
+      "env": "eu",
+      "family": "emailtracker",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165655_55797_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "emailrecommendations",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165656_22003_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "emailrecommendations",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165656_74267_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "emailrecommendations",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165657_55807_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "emailfailures",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165657_22013_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "emailfailures",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165659_55814_z5czz"
+    },
+    {
+      "env": "eu",
+      "family": "emailfailures",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165659_22024_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "billinglength",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165700_74290_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "billinglength",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165700_74294_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "billinglength",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165701_22028_6i6fk"
+    },
+    {
+      "env": "eu",
+      "family": "invalidfamily",
+      "period": "Daily",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165702_62408_pdizt"
+    },
+    {
+      "env": "eu",
+      "family": "invalidfamily",
+      "period": "Weekly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165702_74300_y52ff"
+    },
+    {
+      "env": "eu",
+      "family": "invalidfamily",
+      "period": "Monthly",
+      "scope": "Top Three",
+      "ok": true,
+      "queryId": "20260912_165703_74302_y52ff"
+    }
+  ]
+}

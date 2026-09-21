@@ -1,12 +1,17 @@
 view: itron_meter_config_update_request {
   derived_table: {
     sql:
-      WITH last_event AS (
+      WITH filtered_requests AS (
+        SELECT *
+        FROM public.meter_config_update_request
+        WHERE {%condition itron_enrollment_files.pilot_id%} pilot_id {%endcondition%}
+      ),
+      last_event AS (
         SELECT
           request_id,
           status,
           ROW_NUMBER() OVER (PARTITION BY request_id ORDER BY last_updated_timestamp DESC) AS rn
-        FROM public.meter_config_update_request
+        FROM filtered_requests
       )
       SELECT
         m.request_id,
@@ -36,7 +41,7 @@ view: itron_meter_config_update_request {
             END) AS failure_reason,
         MAX(CASE WHEN m.status = 'COMPLETED' THEN 1 ELSE 0 END) AS is_completed,
         MIN(CASE WHEN m.status = 'COMPLETED' THEN m.last_updated_timestamp END) AS completed_at_ms
-      FROM public.meter_config_update_request m
+      FROM filtered_requests m
       JOIN last_event le ON le.request_id = m.request_id AND le.rn = 1
       GROUP BY m.request_id
      ;;

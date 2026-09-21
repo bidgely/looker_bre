@@ -12,6 +12,7 @@ view: itron_appliance_data {
                     metadata.voltage AS voltage,
                     row_number() over (partition by utilityid, meterid, applianceid, eventtype, eventtime, eventcapturetime order by lastdatatimestamp desc) as rid
                     FROM public.itron_appliance_data
+                    WHERE {%condition itron_enrollment_files.pilot_id%} CAST(utilityid AS BIGINT) {%endcondition%}
                     --where meterid = '2.16.840.1.114416.15.80.1000332688'
                     )
             where rid = 1 ),

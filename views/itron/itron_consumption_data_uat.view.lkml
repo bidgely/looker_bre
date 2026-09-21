@@ -15,6 +15,8 @@ view: itron_consumption_data_uat{
             10112, 10014, 10117, 10118, 10126, 10223,
             {% if _model._name == 'bre_itron_uat' %} 10015 {% else %} 10224 {% endif %}
           )
+          AND {%condition itron_enrollment_files.pilot_id%} pilot_id {%endcondition%}
+          AND {%condition date_series.continous_date%} data_date {%endcondition%}
           GROUP BY uuid, pilot_id, data_date
       )
       SELECT

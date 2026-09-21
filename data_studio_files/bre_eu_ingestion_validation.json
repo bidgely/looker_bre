@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "dashboards": [
+    "bre_ca_ingestion",
+    "bre_eu_ingestion"
+  ],
+  "query_tiles_per_dashboard": 8,
+  "filters_per_dashboard": 5,
+  "rendered_tile_sql_cases": 48,
+  "suggestion_sql_cases": 2,
+  "synthetic_checks": 25,
+  "no_pdts": {
+    "models": 4,
+    "views": 38,
+    "derived_tables": 37,
+    "result": "PASS"
+  },
+  "source_data_read": false,
+  "looker_validation": "PENDING USER WEB UI",
+  "limitations": "Local renderer simulates date tags and typed/untyped date references; DuckDB tests translated expressions, not the Looker compiler or Trino execution engine."
+}

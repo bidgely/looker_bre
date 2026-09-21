@@ -1,0 +1,28 @@
+{
+  "result": "PASS",
+  "dashboard": "bre_ca_disagg",
+  "confirmed_tiles": 8,
+  "rendered_invoice_sql_cases": 14,
+  "dashboards": [
+    "bre_ca_disagg",
+    "bre_eu_disagg"
+  ],
+  "regional_parity": "PASS",
+  "rendered_quality_sql_cases": 6,
+  "rendered_failure_sql_cases": 6,
+  "rendered_suggestion_sql_cases": 6,
+  "dashboard_controls": 7,
+  "synthetic_checks": 29,
+  "no_pdts": {
+    "models": 4,
+    "views": 38,
+    "derived_tables": 37,
+    "result": "PASS"
+  },
+  "source_data_read": false,
+  "looker_validation": {
+    "ca": "USER ACCEPTED",
+    "eu": "PENDING USER WEB UI"
+  },
+  "limitations": "Local SQL renderer and translated DuckDB fixtures do not replace native Looker validation or Trino execution."
+}

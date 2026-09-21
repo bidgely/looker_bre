@@ -7,7 +7,7 @@ view: itron_feature_message {
             date(from_unixtime(CAST(lastdatatimestamp AS bigint) / 1000, 'US/Eastern')) as last_data_update_date,
             timevaluelist, ROW_NUMBER() OVER (PARTITION BY meterid, starttime ORDER BY lastdatatimestamp DESC) as rid
             from public.itron_feature_messages
-            where {%condition itron_di_monitoring.pilot_id%} pilot_id {%endcondition%}
+            where {%condition itron_enrollment_files.pilot_id%} CAST(pilot_id AS BIGINT) {%endcondition%}
                             and {%condition date_series.continous_date%} start_date {%endcondition%}
             )
           where rid = 1 ;;
