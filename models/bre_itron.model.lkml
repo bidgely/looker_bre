@@ -18,6 +18,7 @@ include: "/dashboards/itron_di_monitoring_dashboard_v2__production_pilots.dashbo
 
 explore: itron_enrollment_files {
   view_name: itron_enrollment_files
+  persist_for: "8 hours"
 
   join: date_series {
     view_label: "User Created Date Series"
