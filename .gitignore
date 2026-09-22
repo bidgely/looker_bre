@@ -7,3 +7,4 @@ frontend/dist/
 bundle.js.map
 bundle.js.LICENSE.txt
 .DS_Store
+.agents/
