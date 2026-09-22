@@ -17,16 +17,28 @@ const AppWrapper = styled.div`
   overflow: hidden;
 `
 
+const REGION_DEFAULT_FILTERS: Record<Region, Record<string, string>> = {
+  CA: { 'Pilot ID': '40001', 'Pilot Name': 'HONI' },
+  EU: { 'Pilot ID': '20006', 'Pilot Name': 'Repsol' },
+}
+
 export const App: React.FC = () => {
   const [currentRegion, setCurrentRegion] = useState<Region>('CA')
   const [currentDashboardId, setCurrentDashboardId] = useState<string>(CA_DASHBOARDS[0].id)
-  const [sharedFilters, setSharedFilters] = useState<Record<string, string>>({})
+  const [sharedFilters, setSharedFilters] = useState<Record<string, string>>(REGION_DEFAULT_FILTERS.CA)
 
   // Find the current dashboard metadata
   const activeDashboard = useMemo(() => {
     const list = REGION_DASHBOARDS[currentRegion]
     return list.find((d) => d.id === currentDashboardId) || list[0]
   }, [currentRegion, currentDashboardId])
+
+  const handleRegionChange = (newRegion: Region) => {
+    if (newRegion !== currentRegion) {
+      setCurrentRegion(newRegion)
+      setSharedFilters(REGION_DEFAULT_FILTERS[newRegion])
+    }
+  }
 
   const handleFiltersChanged = (newFilters: Record<string, string>) => {
     setSharedFilters((prev) => ({
@@ -44,7 +56,7 @@ export const App: React.FC = () => {
       <TabBar
         currentRegion={currentRegion}
         currentDashboardId={currentDashboardId}
-        onSelectRegion={setCurrentRegion}
+        onSelectRegion={handleRegionChange}
         onSelectDashboard={setCurrentDashboardId}
       />
       <DashboardEmbed

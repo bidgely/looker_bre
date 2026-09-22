@@ -35,42 +35,80 @@ view: bre_dashboard_ca {
       WITH selected_family AS (
         {% if bre_dashboard.source_family._parameter_value == "'activeusers'" %}
           SELECT * FROM ${bre_active_users.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'pilotreporting'" %}
           SELECT * FROM ${bre_pilot_reporting.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'ingestionaudit'" %}
           SELECT * FROM ${bre_ingestion_audit.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'ingestionfailures'" %}
           SELECT * FROM ${bre_ingestion_failures.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'postingestion'" %}
           SELECT * FROM ${bre_post_ingestion.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'invoicestatistics'" %}
           SELECT * FROM ${bre_invoice_statistics.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'disaggquality'" %}
           SELECT * FROM ${bre_disagg_quality.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'processingfailures'" %}
           SELECT * FROM ${bre_processing_failures.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'emailstatistics'" %}
           SELECT * FROM ${bre_email_statistics.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'emailtracker'" %}
           SELECT * FROM ${bre_email_tracker.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'emailrecommendations'" %}
           SELECT * FROM ${bre_email_recommendations.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'emailfailures'" %}
           SELECT * FROM ${bre_email_failures.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'hergeneration'" %}
           SELECT * FROM ${bre_her_generation.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'herschedules'" %}
           SELECT * FROM ${bre_her_schedules.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'herfailures'" %}
           SELECT * FROM ${bre_her_failures.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'hernonpsegquality'" %}
           SELECT * FROM ${bre_her_non_pseg_quality.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'herautomationquality'" %}
           SELECT * FROM ${bre_her_automation_quality.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'nbigeneration'" %}
           SELECT * FROM ${bre_nbi_generation.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% elsif bre_dashboard.source_family._parameter_value == "'nbigenerictags'" %}
           SELECT * FROM ${bre_nbi_generic_tags.SQL_TABLE_NAME}
+          WHERE {% condition bre_dashboard.pilot_id %} pilot_id {% endcondition %}
+            AND {% condition bre_dashboard.pilot_name %} pilot_name {% endcondition %}
         {% else %}
           SELECT CAST(NULL AS BIGINT) AS row_id,
             CAST(NULL AS VARCHAR) AS pilot_id,
@@ -460,6 +498,8 @@ view: bre_dashboard_ca {
           CAST(NULL AS BIGINT) AS billing_length_bc_gt_90_count
       FROM selected_family f
       WHERE TRUE
+        AND {% condition bre_dashboard.pilot_id %} f.pilot_id {% endcondition %}
+        AND {% condition bre_dashboard.pilot_name %} f.pilot_name {% endcondition %}
       {% if bre_dashboard.source_family._parameter_value == "'herautomationquality'" %}
         AND f.source_period = {% parameter bre_dashboard.period %}
       {% endif %}
