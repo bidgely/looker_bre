@@ -107,12 +107,13 @@ view: bre_na_her_failures {
     description: "Source failure-count rank before dashboard filtering. No top-N cutoff was supplied."
     sql: ${TABLE}.rank ;;
   }
+  # Use underscore-free selector values; Looker parameter defaults do not safely handle underscores.
   parameter: metric {
     type: string
-    default_value: "failure_percentage"
+    default_value: "percentage"
     description: "Select the documented percentage or count calculation. Percentage is the initial display choice."
-    allowed_value: { value: "failure_percentage" label: "% Failure" }
-    allowed_value: { value: "failure_count" label: "Failure Count" }
+    allowed_value: { value: "percentage" label: "% Failure" }
+    allowed_value: { value: "count" label: "Failure Count" }
   }
   measure: calc_failure_perc {
     type: number
@@ -125,7 +126,7 @@ view: bre_na_her_failures {
     label_from_parameter: metric
     description: "Documented Metric Toggle: calculated failure percentage or sum of failure_count."
     value_format: "#,##0.00"
-    sql: {% if metric._parameter_value == "'failure_count'" %}
+    sql: {% if metric._parameter_value == "'count'" %}
       ${failure_count_sum} {% else %} ${calc_failure_perc} {% endif %} ;;
   }
 }

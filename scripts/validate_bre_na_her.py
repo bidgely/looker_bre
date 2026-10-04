@@ -85,7 +85,7 @@ def run(output):
         raw=REF.sub(ref,raw)
         if f['kind']=='measures' and f['type'] in ['sum','average','max','min']:raw={'sum':'SUM','average':'AVG','max':'MAX','min':'MIN'}[f['type']]+'('+raw+')'
         return raw
-    selected_metric='failure_percentage'
+    selected_metric='percentage'
     dashboards=[];cases=[]
     for suffix,count in [('governance',7),('queue_metrics',10)]:
         ident='bre_na_her_'+suffix;path='/dashboards/'+ident+'.dashboard.lookml'
@@ -110,7 +110,7 @@ def run(output):
                 assert cfg['plotOptions']['solidgauge']['dataLabels']['enabled'];assert 'data' not in cfg['series'][0]
                 assert fs[t['fields'][1].split('.')[1]]['type']=='number'
             comparison='comparison_date_range' in str(t['filters'])
-            for period,selected_metric in itertools.product(['Daily','Weekly','Monthly'] if 'Period' in t['listen'] else ['Daily'], ['failure_percentage','failure_count'] if t['name']=='na_7a_t07' else ['failure_percentage']):
+            for period,selected_metric in itertools.product(['Daily','Weekly','Monthly'] if 'Period' in t['listen'] else ['Daily'], ['percentage','count'] if t['name']=='na_7a_t07' else ['percentage']):
                 select=[];group=[]
                 for ref in t['fields']:
                     n=ref.split('.')[1];select.append(expr(view,n,period,comparison)+' AS '+n)
@@ -131,6 +131,15 @@ def run(output):
                 path=output/(t['name']+'_'+period.lower()+('_'+selected_metric if t['name']=='na_7a_t07' else '')+'.sql');path.write_text('EXPLAIN (TYPE VALIDATE)\n'+sql+'\n')
                 cases.append(dict(tile=t['name'],period=period,metric=selected_metric if t['name']=='na_7a_t07' else None,path=str(path)))
         assert used==controls;dashboards.append(d)
+    selector=fields('bre_na_her_failures')['metric']
+    allowed={v['value'] for v in selector['allowed_values']}
+    assert all('_' not in v for v in allowed)
+    control=next(f for f in dashboards[0]['filters'] if f['name']=='Failure Metric')
+    assert control['default_value']==selector['default_value']
+    assert selector['default_value'] in allowed
+    for tile in dashboards[0]['elements']:
+        value=tile.get('filters',{}).get('bre_na_her_failures.metric')
+        if value is not None: assert value in allowed
     db=duckdb.connect()
     def execute(sql):return db.execute(sqlglot.transpile(sql,read='trino',write='duckdb')[0]).fetchall()
     specification=(ROOT/'data_studio_files/bre_na_model_base_data.md').read_text()
@@ -152,9 +161,9 @@ def run(output):
     failure='bre_na_her_failures'
     def fs(period='Daily',conditions=None):return source(failure,period,conditions=conditions).replace('delta_prodna.reporting.sre_her_schedule_errors',facts).replace('delta_prodna.reporting.pilot_consolidated_product_type_events',pilots)
     assert execute('SELECT SUM(failure_count),SUM(total_failure_count) FROM ('+fs()+')')==[(120,240)]
-    selected_metric='failure_percentage'
+    selected_metric='percentage'
     assert execute('SELECT '+expr(failure,'metric_toggle')+' FROM ('+fs()+') q')==[(50,)]
-    selected_metric='failure_count'
+    selected_metric='count'
     assert execute('SELECT '+expr(failure,'metric_toggle')+' FROM ('+fs()+') q')==[(120,)]
     assert execute('SELECT '+expr(failure,'calc_failure_reason')+', '+expr(failure,'metric_toggle')+' FROM ('+fs()+') q GROUP BY 1 ORDER BY 1')==[('UNKNOWN',80),('reason',40)]
     assert execute('SELECT COUNT(*),MIN(analysis_date),SUM(failure_count) FROM ('+fs('Weekly')+')')[0]==(2,__import__('datetime').date(2026,9,28),120)

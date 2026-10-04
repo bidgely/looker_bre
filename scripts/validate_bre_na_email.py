@@ -85,7 +85,7 @@ def run(output):
         raw=REF.sub(ref,raw)
         if f['kind']=='measures' and f['type'] in ['sum','average','max','min']:raw={'sum':'SUM','average':'AVG','max':'MAX','min':'MIN'}[f['type']]+'('+raw+')'
         return raw
-    selected_metric='failure_pct'
+    selected_metric='percentage'
     dashboards=[];cases=[]
     for suffix,count in [('governance',8),('queue_metrics',10)]:
         ident='bre_na_email_'+suffix;path='/dashboards/'+ident+'.dashboard.lookml'
@@ -110,7 +110,7 @@ def run(output):
                 assert cfg['plotOptions']['solidgauge']['dataLabels']['enabled'];assert 'data' not in cfg['series'][0]
                 assert fs[t['fields'][1].split('.')[1]]['type']=='number'
             comparison='comparison_date_range' in str(t['filters'])
-            for period,selected_metric in itertools.product(['Daily','Weekly','Monthly'] if 'Period' in t['listen'] else ['Daily'], ['failure_pct','failure_count'] if t['name']=='na_6a_t08' else ['failure_pct']):
+            for period,selected_metric in itertools.product(['Daily','Weekly','Monthly'] if 'Period' in t['listen'] else ['Daily'], ['percentage','count'] if t['name']=='na_6a_t08' else ['percentage']):
                 select=[];group=[]
                 for ref in t['fields']:
                     n=ref.split('.')[1];select.append(expr(view,n,period,comparison)+' AS '+n)
@@ -131,6 +131,15 @@ def run(output):
                 path=output/(t['name']+'_'+period.lower()+('_'+selected_metric if t['name']=='na_6a_t08' else '')+'.sql');path.write_text('EXPLAIN (TYPE VALIDATE)\n'+sql+'\n')
                 cases.append(dict(tile=t['name'],period=period,metric=selected_metric if t['name']=='na_6a_t08' else None,path=str(path)))
         assert used==controls;dashboards.append(d)
+    selector=fields('bre_na_email_failures')['metric']
+    allowed={v['value'] for v in selector['allowed_values']}
+    assert all('_' not in v for v in allowed)
+    control=next(f for f in dashboards[0]['filters'] if f['name']=='Failure Metric')
+    assert control['default_value']==selector['default_value']
+    assert selector['default_value'] in allowed
+    for tile in dashboards[0]['elements']:
+        value=tile.get('filters',{}).get('bre_na_email_failures.metric')
+        if value is not None: assert value in allowed
     db=duckdb.connect()
     def execute(sql):return db.execute(sqlglot.transpile(sql,read='trino',write='duckdb')[0]).fetchall()
     view='bre_na_email_delivery'
@@ -202,9 +211,9 @@ def run(output):
     ff='(SELECT * FROM '+ff+')'
     fsrc=source(failure).replace('delta_prodna.reporting.sre_email_failure_reasons',ff).replace('delta_prodna.reporting.pilot_consolidated_product_type_events',pilots)
     assert execute('SELECT failure_reason,rank FROM ('+fsrc+') ORDER BY rank')==[('C',1),('B',2),('A',3),('D',4)]
-    selected_metric='failure_pct'
+    selected_metric='percentage'
     assert execute('SELECT '+expr(failure,'metric_toggle')+' FROM ('+fsrc+') q')==[(26.25,)]
-    selected_metric='failure_count'
+    selected_metric='count'
     assert execute('SELECT '+expr(failure,'metric_toggle')+' FROM ('+fsrc+') q')==[(105,)]
     assert execute('SELECT '+expr(failure,'period_date','Weekly')+' FROM ('+fsrc+') q LIMIT 1')[0][0].isoformat()[:10]=='2026-09-27'
     # Real queue source formulas must reject other modules and environments.

@@ -343,19 +343,20 @@ view: bre_dashboard_na {
     sql: ${post_ingestion_users_receiving_raw_sum} / 1000000.0 ;;
     value_format: "#,##0.00"
   }
+  # Use underscore-free selector values; Looker parameter defaults do not safely handle underscores.
   parameter: na_failure_metric {
     type: string
     label: "Failure Metric"
     description: "SRC-27 Metric Toggle: average percentage or sum of failed records."
-    default_value: "failure_percentage"
-    allowed_value: { label: "% Failure" value: "failure_percentage" }
-    allowed_value: { label: "Failure Count" value: "failed_record_count" }
+    default_value: "percentage"
+    allowed_value: { label: "% Failure" value: "percentage" }
+    allowed_value: { label: "Failure Count" value: "count" }
   }
   measure: na_failure_metric_value {
     type: number
     label_from_parameter: na_failure_metric
     description: "Average failure percentage or sum of failed record counts after retaining source rank <= 3."
-    sql: {% if na_failure_metric._parameter_value == "'failed_record_count'" %}
+    sql: {% if na_failure_metric._parameter_value == "'count'" %}
       ${ingestion_failures_failed_record_count_sum}
       {% else %} ${ingestion_failures_failure_percentage_average} {% endif %} ;;
     value_format: "#,##0.00"

@@ -296,7 +296,7 @@
     filters:
       bre_na_her_failures.date_range: 7 days ago for 7 days
       bre_na_her_failures.period: Daily
-      bre_na_her_failures.metric: failure_percentage
+      bre_na_her_failures.metric: percentage
     listen:
       Time Period: bre_na_her_failures.date_range
       Pilot ID: bre_na_her_failures.pilot_id
@@ -399,7 +399,7 @@
   - name: Failure Metric
     title: Failure Metric
     type: field_filter
-    default_value: failure_percentage
+    default_value: percentage
     allow_multiple_values: false
     required: true
     model: bre_na

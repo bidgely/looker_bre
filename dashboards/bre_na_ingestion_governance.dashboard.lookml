@@ -694,7 +694,7 @@
   - name: Failure Metric
     title: Failure Metric
     type: field_filter
-    default_value: failure_percentage
+    default_value: percentage
     allow_multiple_values: false
     required: false
     model: bre_na

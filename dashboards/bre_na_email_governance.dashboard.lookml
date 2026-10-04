@@ -339,7 +339,7 @@
     filters:
       bre_na_email_failures.date_range: 7 days ago for 7 days
       bre_na_email_failures.period: Daily
-      bre_na_email_failures.metric: failure_pct
+      bre_na_email_failures.metric: percentage
     listen:
       Time Period: bre_na_email_failures.date_range
       Pilot ID: bre_na_email_failures.pilot_id
@@ -441,7 +441,7 @@
   - name: Failure Metric
     title: Failure Metric
     type: field_filter
-    default_value: failure_pct
+    default_value: percentage
     allow_multiple_values: false
     required: true
     model: bre_na

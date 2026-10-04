@@ -70,19 +70,20 @@ view: bre_na_email_failures {
     description: "Source rank, without rescaling or regrouping."
     sql: ${TABLE}.rank ;;
   }
+  # Use underscore-free selector values; Looker parameter defaults do not safely handle underscores.
   parameter: metric {
     type: string
-    default_value: "failure_pct"
+    default_value: "percentage"
     description: "Choose AVG(failure_pct) or SUM(failure_count). Percentage is the initial display choice; original report default is unconfirmed."
-    allowed_value: { label: "% Failure" value: "failure_pct" }
-    allowed_value: { label: "Failure Count" value: "failure_count" }
+    allowed_value: { label: "% Failure" value: "percentage" }
+    allowed_value: { label: "Failure Count" value: "count" }
   }
   measure: metric_toggle {
     type: number
     label_from_parameter: metric
     description: "User-confirmed Metric Toggle: AVG(failure_pct) or SUM(failure_count). No additional outer average or percentage rescaling."
     value_format: "#,##0.00"
-    sql: {% if metric._parameter_value == "'failure_count'" %}
+    sql: {% if metric._parameter_value == "'count'" %}
       SUM(${failure_count})
       {% else %} AVG(${failure_pct}) {% endif %} ;;
   }

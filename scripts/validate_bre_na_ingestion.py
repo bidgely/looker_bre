@@ -88,7 +88,7 @@ def run(output):
                     assert f[x['name'] if kind!='dimension_groups' else x['name']+'_raw'].get('description'), (name,x['name'])
         for x in v.get('measures',[]): assert '${TABLE}' not in x.get('sql',''), (name,x['name'])
 
-    def render(raw, family='ingestionaudit', period='Daily', metric='failure_percentage', region='na'):
+    def render(raw, family='ingestionaudit', period='Daily', metric='percentage', region='na'):
         raw=re.sub(r'\{%\s*date_start\s+[\w.]+\s*%\}',f"DATE '{START}'",raw)
         raw=re.sub(r'\{%\s*date_end\s+[\w.]+\s*%\}',f"DATE '{END}'",raw)
         def condition(m):
@@ -142,6 +142,11 @@ def run(output):
     controls={f['name']:f for dashboard in dashboards for f in dashboard['filters']}
     assert controls['Pilot ID']['default_value']=='10037'
     assert controls['Pilot Name']['default_value']=='PSEG'
+    selector=fields_for('bre_dashboard_na')['na_failure_metric']
+    allowed={v['value'] for v in selector['allowed_values']}
+    assert all('_' not in v for v in allowed)
+    assert controls['Failure Metric']['default_value']==selector['default_value']
+    assert selector['default_value'] in allowed
     def check_ref(ref, explore):
         alias, field=ref.split('.',1)
         assert alias in (explore,view_for(explore)), ref
@@ -172,7 +177,7 @@ def run(output):
             assert tile['filters'][explore+'.module_name']=='Ingestion'
             assert 'Pilot ID' not in tile['listen'] and 'Time Period' not in tile['listen']
         periods=['Daily','Weekly','Monthly'] if explore in ['bre_dashboard','bre_na_ingestion_rate_comparison'] else ['Daily']
-        metrics=['failure_percentage','failed_record_count'] if tile['name']=='ingestion_failure_reasons' else ['failure_percentage']
+        metrics=['percentage','count'] if tile['name']=='ingestion_failure_reasons' else ['percentage']
         for period in periods:
             for metric in metrics:
                 cache={}
@@ -225,9 +230,9 @@ def run(output):
     # Test actual NA expressions against non-null zeros and zero/null source buckets.
     def execute(sql):
         return duckdb.sql(sqlglot.transpile(sql,read='trino',write='duckdb')[0]).fetchall()
-    post_cache=compiled_fields[('post_ingestion_quality','Daily','failure_percentage')]
+    post_cache=compiled_fields[('post_ingestion_quality','Daily','percentage')]
     assert execute('SELECT '+post_cache['na_raw_delay_0_3_count']+' FROM (VALUES (0), (8), (NULL)) q(post_ingestion_user_raw_with_delay_0_3)')==[(2,)]
-    users=compiled_fields[('daily_users','Daily','failure_percentage')]['na_users_millions_sum']
+    users=compiled_fields[('daily_users','Daily','percentage')]['na_users_millions_sum']
     fixture="""FROM (VALUES ('CONSUMPTION',1000000,1000000,1000000,1000000,0,0,0,0),
       ('CONSUMPTION',0,1000000,1000000,1000000,0,0,0,0),
       ('BILLING',0,0,0,0,1000000,1000000,1000000,1000000),
@@ -237,7 +242,7 @@ def run(output):
         post_ingestion_user_invoice_with_delay_0_7,post_ingestion_user_invoice_with_delay_7_15,
         post_ingestion_user_invoice_with_delay_15_30,post_ingestion_user_invoice_with_delay_gt_30)"""
     assert execute('SELECT '+users+' '+fixture)==[(8.0,)]
-    for metric,expected in [('failure_percentage',20.0),('failed_record_count',8)]:
+    for metric,expected in [('percentage',20.0),('count',8)]:
         raw=compiled_fields[('ingestion_failure_reasons','Daily',metric)]['na_failure_metric_value']
         assert execute('SELECT '+raw+' FROM (VALUES (10,2),(30,6)) q(ingestion_failures_failure_percentage,ingestion_failures_failed_record_count)')==[(expected,)]
     # Exercise original queue aggregation math, including ELSE 0 and zero denominators.
