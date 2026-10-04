@@ -103,7 +103,7 @@ view: bre_active_users {
               PARTITION BY sre_total_active_users.pilot_id
               ORDER BY sre_total_active_users.reporting_date DESC NULLS FIRST
             ) AS rn
-          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.sre_total_active_users AS sre_total_active_users
+          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.sre_total_active_users AS sre_total_active_users
         ) AS t
         WHERE
           t.rn = 1

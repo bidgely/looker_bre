@@ -58,7 +58,7 @@ view: bre_ingestion_audit {
         s.success_percentage AS success_percentage,
         s.failure_percentage AS failure_percentage,
         s.last_updated_timestamp AS last_updated_timestamp
-      FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.sre_ingestion_audit AS s
+      FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.sre_ingestion_audit AS s
       ) s
       INNER JOIN ${bre_pilots.SQL_TABLE_NAME} p
         ON CAST(s.pilot_id AS VARCHAR) = p.pilot_id

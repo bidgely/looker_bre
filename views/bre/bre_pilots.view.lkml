@@ -8,7 +8,7 @@ view: bre_pilots {
              THEN substr(pilot_name, strpos(pilot_name, '('))
              ELSE pilot_name END AS pilot_name,
         time_zone
-      FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.pilot_consolidated_product_type_events
+      FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.pilot_consolidated_product_type_events
     ;;
   }
   dimension: pilot_id {

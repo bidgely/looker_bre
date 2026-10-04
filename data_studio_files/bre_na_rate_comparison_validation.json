@@ -1,0 +1,647 @@
+{
+  "result": "PASS",
+  "tiles": 8,
+  "rendered_query_variants": 13,
+  "semantic_fixtures": 24,
+  "native_looker_validation": "NOT RUN: no connected Looker tools",
+  "queries": [
+    {
+      "tile": "na_5a_t02",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t02_daily.sql"
+    },
+    {
+      "tile": "na_5a_t03",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t03_daily.sql"
+    },
+    {
+      "tile": "na_5a_t04",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t04_daily.sql"
+    },
+    {
+      "tile": "na_5a_t05",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t05_daily.sql"
+    },
+    {
+      "tile": "na_5a_t06",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t06_daily.sql"
+    },
+    {
+      "tile": "na_5a_t06",
+      "period": "Weekly",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t06_weekly.sql"
+    },
+    {
+      "tile": "na_5a_t06",
+      "period": "Monthly",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t06_monthly.sql"
+    },
+    {
+      "tile": "na_5a_t07",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t07_daily.sql"
+    },
+    {
+      "tile": "na_5a_t08",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t08_daily.sql"
+    },
+    {
+      "tile": "na_5a_t08",
+      "period": "Weekly",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t08_weekly.sql"
+    },
+    {
+      "tile": "na_5a_t08",
+      "period": "Monthly",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/na_5a_t08_monthly.sql"
+    },
+    {
+      "tile": "bre_na_rate_comparison",
+      "period": "exclusions",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/bre_na_rate_comparison_exclusions.sql"
+    },
+    {
+      "tile": "bre_na_rate_comparison_triggers",
+      "period": "exclusions",
+      "path": "/private/tmp/bre-na-rate-comparison-validation/bre_na_rate_comparison_triggers_exclusions.sql"
+    }
+  ],
+  "source_contract_checks": 2,
+  "validated_at": "2026-10-04",
+  "starburst_planning": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t02",
+        "period": "Daily",
+        "queryId": "20261004_084305_19706_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t03",
+        "period": "Daily",
+        "queryId": "20261004_084306_19711_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t04",
+        "period": "Daily",
+        "queryId": "20261004_084306_24737_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t05",
+        "period": "Daily",
+        "queryId": "20261004_084306_24741_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t06",
+        "period": "Daily",
+        "queryId": "20261004_084306_08612_nzwg5",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t06",
+        "period": "Weekly",
+        "queryId": "20261004_084306_79228_kr9um",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t06",
+        "period": "Monthly",
+        "queryId": "20261004_084306_09974_3auik",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t07",
+        "period": "Daily",
+        "queryId": "20261004_084306_19709_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t08",
+        "period": "Daily",
+        "queryId": "20261004_084306_24738_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t08",
+        "period": "Weekly",
+        "queryId": "20261004_084306_19712_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t08",
+        "period": "Monthly",
+        "queryId": "20261004_084306_24740_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "bre_na_rate_comparison",
+        "period": "exclusions",
+        "queryId": "20261004_084306_08611_nzwg5",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "bre_na_rate_comparison_triggers",
+        "period": "exclusions",
+        "queryId": "20261004_084306_19708_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    }
+  ],
+  "historical_samples": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t02",
+        "range": "2026-08-16 through 2026-08-22",
+        "pilot_id": "10078",
+        "queryId": "20261004_084317_08723_nzwg5",
+        "columns": [
+          {
+            "columnName": "missing_load_shift_selected_average",
+            "columnType": "double"
+          },
+          {
+            "columnName": "missing_load_shift_average_change",
+            "columnType": "double"
+          },
+          {
+            "columnName": "missing_load_shift_previous_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "0.15789473684210525",
+            "null",
+            "0.0"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t03",
+        "range": "2026-08-16 through 2026-08-22",
+        "pilot_id": "10078",
+        "queryId": "20261004_084317_08722_nzwg5",
+        "columns": [
+          {
+            "columnName": "missing_load_shift_selected_median",
+            "columnType": "double"
+          },
+          {
+            "columnName": "missing_load_shift_median_change",
+            "columnType": "double"
+          },
+          {
+            "columnName": "missing_load_shift_previous_median",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "0.0",
+            "null",
+            "0.0"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t04",
+        "range": "2026-08-16 through 2026-08-22",
+        "pilot_id": "10078",
+        "queryId": "20261004_084317_79313_kr9um",
+        "columns": [
+          {
+            "columnName": "gauge_label",
+            "columnType": "varchar(14)"
+          },
+          {
+            "columnName": "accuracy_perc_average",
+            "columnType": "decimal(28,3)"
+          }
+        ],
+        "rows": [
+          [
+            "Distribution %",
+            "69.579"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t05",
+        "range": "2026-08-16 through 2026-08-22",
+        "pilot_id": "10078",
+        "queryId": "20261004_084317_23156_mktfe",
+        "columns": [
+          {
+            "columnName": "gauge_label",
+            "columnType": "varchar(14)"
+          },
+          {
+            "columnName": "deviation_perc_average",
+            "columnType": "decimal(27,3)"
+          }
+        ],
+        "rows": [
+          [
+            "Distribution %",
+            "30.421"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_5a_t07",
+        "range": "2026-08-16 through 2026-08-22",
+        "pilot_id": "10078",
+        "queryId": "20261004_084317_23158_mktfe",
+        "columns": [
+          {
+            "columnName": "pilot_id_name",
+            "columnType": "varchar"
+          },
+          {
+            "columnName": "total_records_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "missing_tou_count_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "missing_rc_count_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "avg_invoice_to_tou_latency_hrs_average",
+            "columnType": "decimal(21,1)"
+          },
+          {
+            "columnName": "avg_tou_to_rc_latency_hrs_average",
+            "columnType": "decimal(21,1)"
+          }
+        ],
+        "rows": [
+          [
+            "10078 : DESC South Carolina Residential",
+            "14687",
+            "1",
+            "6",
+            "207.9",
+            "6.0"
+          ]
+        ]
+      }
+    }
+  ],
+  "freshness": {
+    "query_id": "20261004_084125_18930_iugtt",
+    "latest_analysis_date": "2026-08-22",
+    "latest_reporting_date": "2026-08-23",
+    "current_range_check": {
+      "query_id": "20261004_083956_23559_k73nx",
+      "start": "2026-09-27",
+      "end_exclusive": "2026-10-04",
+      "rows": []
+    },
+    "historical_source_inventory": {
+      "query_id": "20261004_084141_78356_kr9um",
+      "rows": [
+        [
+          "10078",
+          "BILL_PROJECTION",
+          "35290"
+        ],
+        [
+          "10078",
+          "MONTHLY_SUMMARY",
+          "49926"
+        ]
+      ]
+    }
+  },
+  "regressions": [
+    {
+      "group": "rate_comparison",
+      "result": "PASS",
+      "tiles": 8,
+      "rendered_query_variants": 13,
+      "semantic_fixtures": 24,
+      "source_contract_checks": 2,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "ingestion",
+      "result": "PASS",
+      "tiles": 18,
+      "dashboards": {
+        "bre_na_ingestion_governance": 8,
+        "bre_na_ingestion_queue_metrics": 10
+      },
+      "rendered_tile_queries": 37,
+      "regional_source_regressions": 10,
+      "semantic_fixtures": 10,
+      "gauge_configurations": 2,
+      "lookml_validator": "NOT RUN: Looker connection unavailable",
+      "incomplete": [
+        "NA-1A-T06 original-report input grain and result parity",
+        "NA-1B-T03 chart success-rate aggregation confirmation"
+      ]
+    },
+    {
+      "group": "aggregation",
+      "result": "PASS",
+      "tiles": 8,
+      "rendered_query_variants": 13,
+      "semantic_fixtures": 13,
+      "source_query": "SRC-29",
+      "availability_formula": "user-confirmed: 100 * actual / expected; implementation returns NULL for zero denominator",
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "disaggregation",
+      "result": "PASS",
+      "dashboards": {
+        "bre_na_disaggregation_governance": 8,
+        "bre_na_disaggregation_queue_metrics": 10
+      },
+      "rendered_query_variants": 23,
+      "semantic_fixtures": 18,
+      "source_order_checks": 3,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "tou",
+      "result": "PASS",
+      "tiles": 6,
+      "rendered_query_variants": 7,
+      "semantic_fixtures": 17,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    }
+  ],
+  "gauge_preview": {
+    "result": "PASS",
+    "cases": [
+      {
+        "value": 69.579,
+        "min": 0,
+        "max": 100,
+        "label": "69.58%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.9557039011485511
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "label": "75.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.7853981633974483
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      }
+    ],
+    "browser": "Headless Google Chrome",
+    "renderer": "Highcharts 11.4.8; standalone config preview, not Looker UI",
+    "screenshot": "data_studio_files/bre_na_rate_comparison_gauge_preview.png"
+  }
+}

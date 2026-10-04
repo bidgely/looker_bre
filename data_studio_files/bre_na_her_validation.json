@@ -1,0 +1,1301 @@
+{
+  "result": "PASS",
+  "tiles": 17,
+  "dashboards": {
+    "bre_na_her_governance": 7,
+    "bre_na_her_queue_metrics": 10
+  },
+  "rendered_query_variants": 25,
+  "semantic_fixtures": 25,
+  "source_contract_checks": 4,
+  "native_looker_validation": "NOT RUN: no connected Looker tools",
+  "queries": [
+    {
+      "tile": "na_7a_t02",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t02_daily.sql"
+    },
+    {
+      "tile": "na_7a_t03",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t03_daily.sql"
+    },
+    {
+      "tile": "na_7a_t04",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t04_daily.sql"
+    },
+    {
+      "tile": "na_7a_t05",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t05_daily.sql"
+    },
+    {
+      "tile": "na_7a_t05",
+      "period": "Weekly",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t05_weekly.sql"
+    },
+    {
+      "tile": "na_7a_t05",
+      "period": "Monthly",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t05_monthly.sql"
+    },
+    {
+      "tile": "na_7a_t06",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t06_daily.sql"
+    },
+    {
+      "tile": "na_7a_t06",
+      "period": "Weekly",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t06_weekly.sql"
+    },
+    {
+      "tile": "na_7a_t06",
+      "period": "Monthly",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t06_monthly.sql"
+    },
+    {
+      "tile": "na_7a_t07",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t07_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_7a_t07",
+      "period": "Daily",
+      "metric": "failure_count",
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t07_daily_failure_count.sql"
+    },
+    {
+      "tile": "na_7a_t07",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t07_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "na_7a_t07",
+      "period": "Weekly",
+      "metric": "failure_count",
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t07_weekly_failure_count.sql"
+    },
+    {
+      "tile": "na_7a_t07",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t07_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "na_7a_t07",
+      "period": "Monthly",
+      "metric": "failure_count",
+      "path": "/private/tmp/bre-na-her-validation/na_7a_t07_monthly_failure_count.sql"
+    },
+    {
+      "tile": "na_7b_t01",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t01_daily.sql"
+    },
+    {
+      "tile": "na_7b_t02",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t02_daily.sql"
+    },
+    {
+      "tile": "na_7b_t03",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t03_daily.sql"
+    },
+    {
+      "tile": "na_7b_t04",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t04_daily.sql"
+    },
+    {
+      "tile": "na_7b_t05",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t05_daily.sql"
+    },
+    {
+      "tile": "na_7b_t06",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t06_daily.sql"
+    },
+    {
+      "tile": "na_7b_t07",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t07_daily.sql"
+    },
+    {
+      "tile": "na_7b_t08",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t08_daily.sql"
+    },
+    {
+      "tile": "na_7b_t09",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t09_daily.sql"
+    },
+    {
+      "tile": "na_7b_t10",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-her-validation/na_7b_t10_daily.sql"
+    }
+  ],
+  "validated_at": "2026-10-04",
+  "starburst_planning": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t02",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_092103_40653_mktfe",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t03",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_092103_09707_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t04",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_092103_02104_kr9um",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t06",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_092103_39736_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t06",
+        "period": "Weekly",
+        "metric": null,
+        "queryId": "20261004_092103_09709_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t06",
+        "period": "Monthly",
+        "metric": null,
+        "queryId": "20261004_092103_39735_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "period": "Daily",
+        "metric": "failure_percentage",
+        "queryId": "20261004_092103_20945_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "period": "Daily",
+        "metric": "failure_count",
+        "queryId": "20261004_092103_09713_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "period": "Weekly",
+        "metric": "failure_percentage",
+        "queryId": "20261004_092103_20943_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "period": "Weekly",
+        "metric": "failure_count",
+        "queryId": "20261004_092103_20944_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "period": "Monthly",
+        "metric": "failure_percentage",
+        "queryId": "20261004_092103_27406_3auik",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "period": "Monthly",
+        "metric": "failure_count",
+        "queryId": "20261004_092103_22875_nzwg5",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t05",
+        "period": "Daily",
+        "queryId": "20261004_142457_12918_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t05",
+        "period": "Weekly",
+        "queryId": "20261004_142457_24964_3auik",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t05",
+        "period": "Monthly",
+        "queryId": "20261004_142457_12917_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t01",
+        "period": "Daily",
+        "queryId": "20261004_142545_25154_3auik",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t02",
+        "period": "Daily",
+        "queryId": "20261004_142545_13496_nzwg5",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t03",
+        "period": "Daily",
+        "queryId": "20261004_142545_13079_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t04",
+        "period": "Daily",
+        "queryId": "20261004_142545_34975_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t05",
+        "period": "Daily",
+        "queryId": "20261004_142545_34972_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t06",
+        "period": "Daily",
+        "queryId": "20261004_142545_13497_nzwg5",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t07",
+        "period": "Daily",
+        "queryId": "20261004_142545_34974_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t08",
+        "period": "Daily",
+        "queryId": "20261004_142545_45663_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t09",
+        "period": "Daily",
+        "queryId": "20261004_142545_09966_kr9um",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t10",
+        "period": "Daily",
+        "queryId": "20261004_142545_45662_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    }
+  ],
+  "default_range_samples": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t02",
+        "queryId": "20261004_092125_21194_3qsds",
+        "columns": [
+          {
+            "columnName": "total_eligible_users_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": [
+          [
+            "null"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t03",
+        "queryId": "20261004_092125_02365_kr9um",
+        "columns": [
+          {
+            "columnName": "total_generated_notification_id_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": [
+          [
+            "null"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t04",
+        "queryId": "20261004_092125_09880_pi2vm",
+        "columns": [
+          {
+            "columnName": "schedule_start",
+            "columnType": "date"
+          },
+          {
+            "columnName": "schedule_end",
+            "columnType": "date"
+          },
+          {
+            "columnName": "total_eligible_users_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_generated_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_failed_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_scheduled_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_swept_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_queued_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_printed_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_mailed_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_revoked_notification_id_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t06",
+        "queryId": "20261004_092125_39973_k73nx",
+        "columns": [
+          {
+            "columnName": "analysis_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "low_bc_duration_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "high_bc_duration_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "staleness_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "solar_template_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "solar_consistency_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "solar_generation_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "report_consistency_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "itemization_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "bill_change_consistency_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "ev_itemization_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "tou_template_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_occurence_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_value_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_appliance_itemization_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_non_null_insight_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_unicode_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_extreme_insight_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "nbi_seasonal_appliance_cnt_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "overall_report_count_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "queryId": "20261004_092125_40870_mktfe",
+        "columns": [
+          {
+            "columnName": "analysis_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "calc_failure_reason",
+            "columnType": "varchar"
+          },
+          {
+            "columnName": "metric_toggle",
+            "columnType": "double"
+          }
+        ],
+        "rows": []
+      }
+    }
+  ],
+  "historical_samples": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t02",
+        "range": "2025-09-01 through 2025-09-07",
+        "queryId": "20261004_092229_21746_3qsds",
+        "columns": [
+          {
+            "columnName": "total_eligible_users_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": [
+          [
+            "476968"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t03",
+        "range": "2025-09-01 through 2025-09-07",
+        "queryId": "20261004_092229_40322_k73nx",
+        "columns": [
+          {
+            "columnName": "total_generated_notification_id_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": [
+          [
+            "393504"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t04",
+        "range": "2025-09-01 through 2025-09-07",
+        "queryId": "20261004_092229_02769_kr9um",
+        "columns": [
+          {
+            "columnName": "schedule_start",
+            "columnType": "date"
+          },
+          {
+            "columnName": "schedule_end",
+            "columnType": "date"
+          },
+          {
+            "columnName": "total_eligible_users_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_generated_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_failed_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_scheduled_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_swept_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_queued_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_printed_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_mailed_notification_id_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "total_revoked_notification_id_sum",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": [
+          [
+            "2025-07-01",
+            "2025-09-30",
+            "476968",
+            "393504",
+            "3331",
+            "393490",
+            "253240",
+            "282714",
+            "166329",
+            "145324",
+            "11454"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t07",
+        "range": "2025-09-01 through 2025-09-07",
+        "queryId": "20261004_092229_47976_iugtt",
+        "columns": [
+          {
+            "columnName": "analysis_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "calc_failure_reason",
+            "columnType": "varchar"
+          },
+          {
+            "columnName": "metric_toggle",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "2025-09-01",
+            "DELIVERY_MODE_PAPER_NOT_AVAILABLE",
+            "99.9425711707277"
+          ],
+          [
+            "2025-09-01",
+            "UNKNOWN",
+            "0.7476212052560036"
+          ],
+          [
+            "2025-09-04",
+            "HER_LAYOUT_IS_NOT_GENERATED",
+            "11.882352941176471"
+          ],
+          [
+            "2025-09-02",
+            "UNKNOWN",
+            "0.7323213059729956"
+          ],
+          [
+            "2025-09-03",
+            "HER_LAYOUT_IS_NOT_GENERATED",
+            "9.668989547038327"
+          ],
+          [
+            "2025-09-04",
+            "HER_ELECTRIC_ITEMIZATION_VALIDATION_FAILED",
+            "12.588235294117647"
+          ],
+          [
+            "2025-09-03",
+            "UNKNOWN",
+            "1.0377032168799722"
+          ],
+          [
+            "2025-09-04",
+            "HER_ELECTRIC_ITEMIZATION_PERCENTAGE_SAVINGS_THRESHOLD_NOT_MET",
+            "2.7058823529411766"
+          ],
+          [
+            "2025-09-02",
+            "HER_ELECTRIC_BAR_CHART_VALIDATION_FAILED",
+            "5.089820359281437"
+          ],
+          [
+            "2025-09-03",
+            "HER_ELECTRIC_ITEMIZATION_SHC_VALIDATION_FAILED",
+            "16.72473867595819"
+          ]
+        ]
+      }
+    }
+  ],
+  "freshness": {
+    "query_id": "20261004_092203_10138_pi2vm",
+    "pilot_id": "10037",
+    "latest_analysis_date": {
+      "sre_daily_her_tracker": "2025-09-04",
+      "sre_her_revoked_users": "2025-09-04",
+      "sre_her_schedule_errors": "2025-09-04",
+      "her_automation_query_results": null
+    }
+  },
+  "regressions": [
+    {
+      "group": "ingestion",
+      "result": "PASS",
+      "tiles": 18,
+      "dashboards": {
+        "bre_na_ingestion_governance": 8,
+        "bre_na_ingestion_queue_metrics": 10
+      },
+      "rendered_tile_queries": 37,
+      "regional_source_regressions": 10,
+      "semantic_fixtures": 10,
+      "gauge_configurations": 2,
+      "lookml_validator": "NOT RUN: Looker connection unavailable",
+      "incomplete": [
+        "NA-1A-T06 original-report input grain and result parity",
+        "NA-1B-T03 chart success-rate aggregation confirmation"
+      ]
+    },
+    {
+      "group": "aggregation",
+      "result": "PASS",
+      "tiles": 8,
+      "rendered_query_variants": 13,
+      "semantic_fixtures": 13,
+      "source_query": "SRC-29",
+      "availability_formula": "user-confirmed: 100 * actual / expected; implementation returns NULL for zero denominator",
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "disaggregation",
+      "result": "PASS",
+      "dashboards": {
+        "bre_na_disaggregation_governance": 8,
+        "bre_na_disaggregation_queue_metrics": 10
+      },
+      "rendered_query_variants": 23,
+      "semantic_fixtures": 18,
+      "source_order_checks": 3,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "tou",
+      "result": "PASS",
+      "tiles": 6,
+      "rendered_query_variants": 7,
+      "semantic_fixtures": 17,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "rate_comparison",
+      "result": "PASS",
+      "tiles": 8,
+      "rendered_query_variants": 13,
+      "semantic_fixtures": 24,
+      "source_contract_checks": 2,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "email",
+      "result": "PASS",
+      "tiles": 18,
+      "dashboards": {
+        "bre_na_email_governance": 8,
+        "bre_na_email_queue_metrics": 10
+      },
+      "rendered_query_variants": 24,
+      "semantic_fixtures": 32,
+      "source_contract_checks": 3,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    }
+  ],
+  "generation_samples": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t05",
+        "historical": false,
+        "queryId": "20261004_142458_24967_3auik",
+        "columns": [
+          {
+            "columnName": "analysis_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "expected_eligible_users_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "actual_eligible_users_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "actual_generation_count_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "success_pct",
+            "columnType": "double"
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7a_t05",
+        "historical": true,
+        "queryId": "20261004_142458_45517_iugtt",
+        "columns": [
+          {
+            "columnName": "analysis_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "expected_eligible_users_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "actual_eligible_users_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "actual_generation_count_sum",
+            "columnType": "bigint"
+          },
+          {
+            "columnName": "success_pct",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "2025-09-03",
+            "17417",
+            "17417",
+            "5853",
+            "33.60509846701498"
+          ],
+          [
+            "2025-09-01",
+            "15406",
+            "15406",
+            "2164",
+            "14.046475399195119"
+          ],
+          [
+            "2025-09-04",
+            "9418",
+            "9418",
+            "9",
+            "0.09556169038012317"
+          ],
+          [
+            "2025-09-02",
+            "27622",
+            "27622",
+            "14513",
+            "52.54145246542611"
+          ]
+        ]
+      }
+    }
+  ],
+  "queue_samples": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t01",
+        "queryId": "20261004_142545_34978_k73nx",
+        "columns": [
+          {
+            "columnName": "health_score_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "76.35714285714286"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t03",
+        "queryId": "20261004_142545_45664_iugtt",
+        "columns": [
+          {
+            "columnName": "success_rate_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "98.23005649717514"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_7b_t09",
+        "queryId": "20261004_142545_32311_3qsds",
+        "columns": [
+          {
+            "columnName": "bucket_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "empty_receives_ratio_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "2026-10-03",
+            "30.12"
+          ],
+          [
+            "2026-10-01",
+            "51.019999999999996"
+          ],
+          [
+            "2026-09-29",
+            "34.225"
+          ],
+          [
+            "2026-09-27",
+            "49.91"
+          ],
+          [
+            "2026-10-02",
+            "42.595"
+          ],
+          [
+            "2026-09-30",
+            "42.625"
+          ],
+          [
+            "2026-09-28",
+            "42.864999999999995"
+          ]
+        ]
+      }
+    }
+  ]
+}

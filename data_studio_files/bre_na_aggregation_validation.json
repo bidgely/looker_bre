@@ -1,0 +1,477 @@
+{
+  "result": "PASS",
+  "tiles": 8,
+  "rendered_query_variants": 13,
+  "semantic_fixtures": 13,
+  "source_query": "SRC-29",
+  "availability_formula": "user-confirmed: 100 * actual / expected; implementation returns NULL for zero denominator",
+  "native_looker_validation": "NOT RUN: no connected Looker tools",
+  "queries": [
+    {
+      "tile": "na_2_t02",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t02_daily.sql"
+    },
+    {
+      "tile": "na_2_t03",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t03_daily.sql"
+    },
+    {
+      "tile": "na_2_t04",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t04_daily.sql"
+    },
+    {
+      "tile": "na_2_t05",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t05_daily.sql"
+    },
+    {
+      "tile": "na_2_t06",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t06_daily.sql"
+    },
+    {
+      "tile": "na_2_t06",
+      "period": "Weekly",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t06_weekly.sql"
+    },
+    {
+      "tile": "na_2_t06",
+      "period": "Monthly",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t06_monthly.sql"
+    },
+    {
+      "tile": "na_2_t07",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t07_daily.sql"
+    },
+    {
+      "tile": "na_2_t07",
+      "period": "Weekly",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t07_weekly.sql"
+    },
+    {
+      "tile": "na_2_t07",
+      "period": "Monthly",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t07_monthly.sql"
+    },
+    {
+      "tile": "na_2_t08",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t08_daily.sql"
+    },
+    {
+      "tile": "na_2_t08",
+      "period": "Weekly",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t08_weekly.sql"
+    },
+    {
+      "tile": "na_2_t08",
+      "period": "Monthly",
+      "path": "/private/tmp/bre-na-aggregation-validation/na_2_t08_monthly.sql"
+    }
+  ],
+  "planning": [
+    {
+      "tile": "na_2_t02",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171822_19878_mwky8",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t03",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171821_26812_k73nx",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t04",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171822_19877_mwky8",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t07",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171822_86546_msuxa",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t07",
+      "period": "Weekly",
+      "status": "fulfilled",
+      "queryId": "20261003_171821_40960_nzwg5",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t07",
+      "period": "Monthly",
+      "status": "fulfilled",
+      "queryId": "20261003_171822_40963_nzwg5",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t08",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171821_40959_nzwg5",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t08",
+      "period": "Weekly",
+      "status": "fulfilled",
+      "queryId": "20261003_171821_19876_mwky8",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t08",
+      "period": "Monthly",
+      "status": "fulfilled",
+      "queryId": "20261003_171822_37195_mktfe",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t05",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171939_59684_pi2vm",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t06",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_171939_27062_k73nx",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t06",
+      "period": "Weekly",
+      "status": "fulfilled",
+      "queryId": "20261003_171940_41420_nzwg5",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t06",
+      "period": "Monthly",
+      "status": "fulfilled",
+      "queryId": "20261003_171939_41417_nzwg5",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "tile": "na_2_t02",
+      "status": "fulfilled",
+      "queryId": "20261003_171914_59634_pi2vm",
+      "columns": [
+        {
+          "columnName": "datapoints_selected_average",
+          "columnType": "double"
+        },
+        {
+          "columnName": "datapoints_average_change",
+          "columnType": "double"
+        },
+        {
+          "columnName": "datapoints_previous_average",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "9.8008762E7",
+          "4.6321388816049884E-4",
+          "9.7963384E7"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t03",
+      "status": "fulfilled",
+      "queryId": "20261003_171914_20094_mwky8",
+      "columns": [
+        {
+          "columnName": "datapoints_selected_median",
+          "columnType": "double"
+        },
+        {
+          "columnName": "datapoints_median_change",
+          "columnType": "double"
+        },
+        {
+          "columnName": "datapoints_previous_median",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "9.8018202E7",
+          "3.064247261832897E-4",
+          "9.7988176E7"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t04",
+      "status": "fulfilled",
+      "queryId": "20261003_171914_24825_3qsds",
+      "columns": [
+        {
+          "columnName": "gauge_label",
+          "columnType": "varchar(7)"
+        },
+        {
+          "columnName": "total_meters_average",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "Average",
+          "1020963.4285714285"
+        ]
+      ]
+    },
+    {
+      "tile": "na_2_t05",
+      "status": "fulfilled",
+      "queryId": "20261003_171941_64347_3auik",
+      "columns": [
+        {
+          "columnName": "gauge_label",
+          "columnType": "varchar(7)"
+        },
+        {
+          "columnName": "success_perc_average",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "Average",
+          "99.99619715887476"
+        ]
+      ]
+    }
+  ],
+  "gauge_rendering": {
+    "result": "PASS",
+    "cases": [
+      {
+        "value": 1020963.43,
+        "min": 0,
+        "max": 1500000,
+        "label": "1 020 963.43",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -1.0032918460752351
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "label": "75.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.7853981633974483
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 1500000,
+        "label": "0.00",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 1500000,
+        "min": 0,
+        "max": 1500000,
+        "label": "1 500 000.00",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 2000000,
+        "min": 0,
+        "max": 1500000,
+        "label": "2 000 000.00",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      }
+    ],
+    "browser": "Headless Google Chrome",
+    "renderer": "Highcharts 11.4.8; standalone config preview, not Looker UI",
+    "screenshot": "bre_na_aggregation_gauge_preview.png"
+  },
+  "ingestion_regression": "PASS: 18 tiles, 37 query variants, 10 semantic fixtures, 10 CA/EU route regressions",
+  "validation_date": "2026-10-03"
+}
