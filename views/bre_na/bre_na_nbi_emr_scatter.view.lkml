@@ -1,4 +1,4 @@
-include: "/views/bre_na/bre_na_nbi_emr_blend.view.lkml"
+include: "/views/bre_na/bre_na_nbi_emr_blend_source.view.lkml"
 
 view: bre_na_nbi_emr_scatter {
   derived_table: {
@@ -6,10 +6,10 @@ view: bre_na_nbi_emr_scatter {
       SELECT ROW_NUMBER() OVER () AS row_id, q.analysis_date,
         SUM(q.is_failed) AS failed_jobs, SUM(q.stages_present) AS total_runs,
         AVG(q.nbi_error_pct) AS nbi_error_pct
-      FROM ${bre_na_nbi_emr_blend.SQL_TABLE_NAME} q
-      WHERE {% condition date_range %} q.analysis_date {% endcondition %}
-        AND {% condition pilot_id %} q.pilot_id {% endcondition %}
-        AND {% condition pilot_name %} q.pilot_name {% endcondition %}
+      FROM ${bre_na_nbi_emr_blend_source.SQL_TABLE_NAME} q
+      WHERE {% condition bre_na_nbi_emr_scatter.date_range %} q.analysis_date {% endcondition %}
+        AND {% condition bre_na_nbi_emr_scatter.pilot_id %} q.pilot_id {% endcondition %}
+        AND {% condition bre_na_nbi_emr_scatter.pilot_name %} q.pilot_name {% endcondition %}
       GROUP BY q.analysis_date
     ;;
   }

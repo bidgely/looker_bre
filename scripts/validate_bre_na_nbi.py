@@ -97,6 +97,20 @@ def run(output):
         for target in TABLE.findall(sql):assert_parameter_scope(target,available,seen)
     for view in ['bre_na_nbi_emr_blend','bre_na_nbi_emr_scatter']:
         assert_parameter_scope(view,set(resolve(view).get('parameters',{})))
+    # The common SQL must be independent of every consuming Explore's Liquid
+    # scope: parameters AND templated filters. Only root consumer SQL has filters.
+    def assert_filter_free_dependencies(view,seen=None):
+        seen=set() if seen is None else seen
+        if view in seen:return
+        seen.add(view)
+        for target in TABLE.findall(views[view]['derived_table']['sql']):
+            sql=views[target]['derived_table']['sql']
+            assert '{%' not in sql and '{{' not in sql,(target,'Liquid in shared SQL dependency')
+            assert_filter_free_dependencies(target,seen)
+    for view in ['bre_na_nbi_emr_blend','bre_na_nbi_emr_scatter']:
+        assert_filter_free_dependencies(view)
+        conditions=re.findall(r'{%\s*condition\s+([\w.]+)\s*%}',views[view]['derived_table']['sql'])
+        assert set(conditions)=={view+'.'+name for name in ['date_range','pilot_id','pilot_name']}
     dashboards=[];cases=[]
     for suffix,count in [('nbi_governance',8),('nbi_emr_metrics',8)]:
         ident='bre_na_'+suffix;path='/dashboards/'+ident+'.dashboard.lookml'
@@ -260,8 +274,11 @@ def run(output):
     assert str(execute('SELECT DISTINCT '+expr(blend,'period_date',period='Monthly')+' FROM ('+blend_fixture(period='Monthly')+') q')[0][0])[:10]=='2026-09-01'
     point=blend_fixture(scatter)
     assert execute('SELECT failed_jobs,total_runs,nbi_error_pct FROM ('+point+')')==[(6,6,10)]
+    assert execute('SELECT COUNT(*) FROM ('+blend_fixture(scatter,conditions={'pilot_id':"{value} = '10038'"})+')')==[(0,)]
+    assert execute('SELECT COUNT(*) FROM ('+blend_fixture(scatter,conditions={'pilot_name':"{value} = 'OTHER'"})+')')==[(0,)]
+    assert execute('SELECT COUNT(*) FROM ('+blend_fixture(scatter,conditions={'date_range':"{value} = DATE '2026-09-29'"})+')')==[(0,)]
     # Every input SQL copy remains identical to the independently source-contracted view.
-    raw_tree=sqlglot.parse_one(render(views[blend]['derived_table']['sql']),read='trino')
+    raw_tree=sqlglot.parse_one(views['bre_na_nbi_emr_blend_source']['derived_table']['sql'],read='trino')
     ctes={c.alias_or_name:c.this for c in raw_tree.find_all(exp.CTE)}
     for suffix in ['generation','emr','failed_jobs']:
         original=views['bre_na_nbi_'+suffix]['derived_table']['sql'].split('FROM (',1)[1].rsplit(') q',1)[0]
@@ -269,7 +286,7 @@ def run(output):
     t7=next(t for t in dashboards[1]['elements'] if t['name']=='na_8b_t07')
     assert t7['hidden_fields']==[scatter+'.analysis_date'] and t7['size_by_field']==scatter+'.nbi_error_pct_value'
     assert not t7['plot_size_by_field'] and t7['fields'][1]==scatter+'.failed_jobs'
-    report=dict(result='PASS',tiles=16,rendered_query_variants=len(cases),semantic_fixtures=44,source_contract_checks=7,liquid_scope_checks=2,native_looker_validation='NOT RUN: no connected Looker tools',queries=cases)
+    report=dict(result='PASS',tiles=16,rendered_query_variants=len(cases),semantic_fixtures=47,source_contract_checks=7,liquid_scope_checks=6,native_looker_validation='NOT RUN: no connected Looker tools',queries=cases)
     (output/'validation.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({k:v for k,v in report.items() if k!='queries'},indent=2))
 

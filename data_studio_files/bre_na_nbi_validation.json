@@ -3,9 +3,9 @@
     "result": "PASS",
     "tiles": 16,
     "rendered_query_variants": 27,
-    "semantic_fixtures": 44,
+    "semantic_fixtures": 47,
     "source_contract_checks": 7,
-    "liquid_scope_checks": 2,
+    "liquid_scope_checks": 6,
     "native_looker_validation": "NOT RUN: no connected Looker tools",
     "queries": [
       {
@@ -2460,5 +2460,425 @@
     "historical_result_parity": "PASS: identical rows for T05, T06, T07 ignoring row order",
     "negative_scope_regression": "PASS: new checker rejects the previously committed missing-period dependency",
     "native_looker_validation": "Prior commit: user reported Variable not found period. Fixed commit: web UI rerun pending."
+  },
+  "liquid_filter_fix_2026_10_04": {
+    "planning": [
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t05",
+          "period": "Daily",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_23625_k73nx, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_23625_k73nx",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t05",
+          "period": "Weekly",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_23626_k73nx, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_23626_k73nx",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t05",
+          "period": "Monthly",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_02829_nzwg5, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_02829_nzwg5",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t06",
+          "period": "Daily",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_02036_pi2vm, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_02036_pi2vm",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t06",
+          "period": "Weekly",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_41966_mktfe, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_41966_mktfe",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t06",
+          "period": "Monthly",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_02830_nzwg5, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_02830_nzwg5",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t07",
+          "period": "Daily",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194843_23624_k73nx, columns=[ColumnNameAndType[columnName=Valid, columnType=boolean]], rows=[[true]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194843_23624_k73nx",
+              "columns": [
+                {
+                  "columnName": "Valid",
+                  "columnType": "boolean"
+                }
+              ],
+              "rows": [
+                [
+                  "true"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      }
+    ],
+    "samples": [
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t05",
+          "range": "2026-02-26 through 2026-03-04",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194844_30216_iugtt, columns=[ColumnNameAndType[columnName=period_date, columnType=date], ColumnNameAndType[columnName=cluster_type, columnType=varchar], ColumnNameAndType[columnName=duration_seconds_average, columnType=double]], rows=[[2026-03-01, stage 3, 2600.0], [2026-03-03, stage 3, 2603.0], [2026-03-03, stage 1, 723.0], [2026-03-04, stage 3, 2595.0], [2026-03-04, stage 2, 6035.0], [2026-03-04, stage 1, 790.0], [2026-03-03, stage 2, 6784.0], [2026-03-01, stage 2, 5969.0], [2026-03-01, stage 1, 731.0]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194844_30216_iugtt",
+              "columns": [
+                {
+                  "columnName": "period_date",
+                  "columnType": "date"
+                },
+                {
+                  "columnName": "cluster_type",
+                  "columnType": "varchar"
+                },
+                {
+                  "columnName": "duration_seconds_average",
+                  "columnType": "double"
+                }
+              ],
+              "rows": [
+                [
+                  "2026-03-01",
+                  "stage 3",
+                  "2600.0"
+                ],
+                [
+                  "2026-03-03",
+                  "stage 3",
+                  "2603.0"
+                ],
+                [
+                  "2026-03-03",
+                  "stage 1",
+                  "723.0"
+                ],
+                [
+                  "2026-03-04",
+                  "stage 3",
+                  "2595.0"
+                ],
+                [
+                  "2026-03-04",
+                  "stage 2",
+                  "6035.0"
+                ],
+                [
+                  "2026-03-04",
+                  "stage 1",
+                  "790.0"
+                ],
+                [
+                  "2026-03-03",
+                  "stage 2",
+                  "6784.0"
+                ],
+                [
+                  "2026-03-01",
+                  "stage 2",
+                  "5969.0"
+                ],
+                [
+                  "2026-03-01",
+                  "stage 1",
+                  "731.0"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t06",
+          "range": "2026-02-26 through 2026-03-04",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194844_23634_k73nx, columns=[ColumnNameAndType[columnName=analysis_date, columnType=date], ColumnNameAndType[columnName=failure_count_sum, columnType=bigint], ColumnNameAndType[columnName=nbi_error_pct_average, columnType=decimal(26,2)], ColumnNameAndType[columnName=is_failed_sum, columnType=bigint], ColumnNameAndType[columnName=failure_rate_perc_average, columnType=double]], rows=[[2026-03-04, 6, 0.00, 0, 0.0], [2026-03-01, 6, 0.00, 0, 0.0], [2026-03-03, 6, 0.00, 0, 0.0]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194844_23634_k73nx",
+              "columns": [
+                {
+                  "columnName": "analysis_date",
+                  "columnType": "date"
+                },
+                {
+                  "columnName": "failure_count_sum",
+                  "columnType": "bigint"
+                },
+                {
+                  "columnName": "nbi_error_pct_average",
+                  "columnType": "decimal(26,2)"
+                },
+                {
+                  "columnName": "is_failed_sum",
+                  "columnType": "bigint"
+                },
+                {
+                  "columnName": "failure_rate_perc_average",
+                  "columnType": "double"
+                }
+              ],
+              "rows": [
+                [
+                  "2026-03-04",
+                  "6",
+                  "0.00",
+                  "0",
+                  "0.0"
+                ],
+                [
+                  "2026-03-01",
+                  "6",
+                  "0.00",
+                  "0",
+                  "0.0"
+                ],
+                [
+                  "2026-03-03",
+                  "6",
+                  "0.00",
+                  "0",
+                  "0.0"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_8b_t07",
+          "range": "2026-02-26 through 2026-03-04",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "QueryResults[queryId=20261004_194844_41972_mktfe, columns=[ColumnNameAndType[columnName=analysis_date, columnType=date], ColumnNameAndType[columnName=failed_jobs, columnType=bigint], ColumnNameAndType[columnName=total_runs_value, columnType=bigint], ColumnNameAndType[columnName=nbi_error_pct_value, columnType=decimal(26,2)]], rows=[[2026-03-03, 0, 9, 0.00], [2026-03-04, 0, 9, 0.00], [2026-03-01, 0, 9, 0.00]]]"
+              }
+            ],
+            "structuredContent": {
+              "queryId": "20261004_194844_41972_mktfe",
+              "columns": [
+                {
+                  "columnName": "analysis_date",
+                  "columnType": "date"
+                },
+                {
+                  "columnName": "failed_jobs",
+                  "columnType": "bigint"
+                },
+                {
+                  "columnName": "total_runs_value",
+                  "columnType": "bigint"
+                },
+                {
+                  "columnName": "nbi_error_pct_value",
+                  "columnType": "decimal(26,2)"
+                }
+              ],
+              "rows": [
+                [
+                  "2026-03-03",
+                  "0",
+                  "9",
+                  "0.00"
+                ],
+                [
+                  "2026-03-04",
+                  "0",
+                  "9",
+                  "0.00"
+                ],
+                [
+                  "2026-03-01",
+                  "0",
+                  "9",
+                  "0.00"
+                ]
+              ]
+            },
+            "isError": false
+          }
+        }
+      }
+    ],
+    "historical_result_parity": "PASS: T05\u2013T07 rows unchanged, ignoring order",
+    "negative_scope_regression": "PASS: new dependency guard rejects the prior cross-view templated filters",
+    "native_looker_validation": "User reported date_range inaccessible in prior commit; web UI rerun pending after this correction."
   }
 }
