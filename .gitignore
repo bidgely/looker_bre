@@ -1,2 +1,10 @@
 # Local Looker extension settings contain API credentials.
 /.vscode/settings.json
+
+# Frontend build artifacts and dependencies
+frontend/node_modules/
+frontend/dist/
+bundle.js.map
+bundle.js.LICENSE.txt
+.DS_Store
+.agents/

@@ -350,24 +350,24 @@
   - name: Pilot ID
     title: Pilot ID
     type: field_filter
-    default_value: ''
+    default_value: '40001'
     allow_multiple_values: true
     required: false
     ui_config:
-      type: tag_list
-      display: popover
+      type: dropdown_menu
+      display: inline
     model: bre_ca
-    explore: bre_dashboard
-    field: bre_dashboard.pilot_id
+    explore: bre_pilot_filters
+    field: bre_pilots.pilot_id
   - name: Pilot Name
     title: Pilot Name
     type: field_filter
-    default_value: ''
+    default_value: 'HONI'
     allow_multiple_values: true
     required: false
     ui_config:
-      type: tag_list
-      display: popover
+      type: dropdown_menu
+      display: inline
     model: bre_ca
-    explore: bre_dashboard
-    field: bre_dashboard.pilot_name
+    explore: bre_pilot_filters
+    field: bre_pilots.pilot_name

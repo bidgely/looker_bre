@@ -93,7 +93,7 @@ view: bre_post_ingestion {
             sre_raw_consumption_delay.reporting_date AS reporting_date,
             sre_raw_consumption_delay.last_updated_timestamp AS last_updated_timestamp,
             'CONSUMPTION' AS ingestion_type
-          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.sre_raw_consumption_delay AS sre_raw_consumption_delay
+          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.sre_raw_consumption_delay AS sre_raw_consumption_delay
         ) AS a
         FULL JOIN (
           SELECT
@@ -128,7 +128,7 @@ view: bre_post_ingestion {
               THEN 'OPOWER'
               ELSE 'BILLING'
             END AS ingestion_type
-          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.sre_invoice_delay_tracker AS sre_invoice_delay_tracker
+          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.sre_invoice_delay_tracker AS sre_invoice_delay_tracker
         ) AS b
           ON a.pilot_id = b.pilot_id
           AND a.meter_type = b.meter_type
@@ -163,7 +163,7 @@ view: bre_post_ingestion {
             THEN 'OPOWER'
             ELSE 'BILLING'
           END AS ingestion_type
-        FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.sre_ingestion_errors_statistic AS sre_ingestion_errors_statistic
+        FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.sre_ingestion_errors_statistic AS sre_ingestion_errors_statistic
         WHERE
           sre_ingestion_errors_statistic.application_error_code = 'ERROR_CONFLICTING_INVOICE_DATA'
       ) AS e

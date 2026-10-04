@@ -1,0 +1,343 @@
+{
+  "result": "PASS",
+  "tiles": 6,
+  "rendered_query_variants": 7,
+  "semantic_fixtures": 17,
+  "native_looker_validation": "NOT RUN: no connected Looker tools",
+  "queries": [
+    {
+      "tile": "na_4a_t02",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t02_daily.sql"
+    },
+    {
+      "tile": "na_4a_t03",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t03_daily.sql"
+    },
+    {
+      "tile": "na_4a_t04",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t04_daily.sql"
+    },
+    {
+      "tile": "na_4a_t05",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t05_daily.sql"
+    },
+    {
+      "tile": "na_4a_t06",
+      "period": "Daily",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t06_daily.sql"
+    },
+    {
+      "tile": "na_4a_t06",
+      "period": "Weekly",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t06_weekly.sql"
+    },
+    {
+      "tile": "na_4a_t06",
+      "period": "Monthly",
+      "path": "/private/tmp/bre-na-tou-validation/na_4a_t06_monthly.sql"
+    }
+  ],
+  "planning": [
+    {
+      "tile": "na_4a_t02",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_13430_iugtt",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t03",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_39871_msuxa",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t04",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_39870_msuxa",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t05",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_13429_iugtt",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t06",
+      "period": "Daily",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_39869_msuxa",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t06",
+      "period": "Weekly",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_13431_iugtt",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t06",
+      "period": "Monthly",
+      "status": "fulfilled",
+      "queryId": "20261003_205133_11319_nzwg5",
+      "columns": [
+        {
+          "columnName": "Valid",
+          "columnType": "boolean"
+        }
+      ],
+      "rows": [
+        [
+          "true"
+        ]
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "tile": "na_4a_t02",
+      "status": "fulfilled",
+      "queryId": "20261003_205134_39885_msuxa",
+      "columns": [
+        {
+          "columnName": "successful_invoices_selected_average",
+          "columnType": "double"
+        },
+        {
+          "columnName": "successful_invoices_average_change",
+          "columnType": "double"
+        },
+        {
+          "columnName": "successful_invoices_previous_average",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "5725.208333333333",
+          "-0.43930128345173436",
+          "10210.846153846154"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t03",
+      "status": "fulfilled",
+      "queryId": "20261003_205134_13433_iugtt",
+      "columns": [
+        {
+          "columnName": "successful_invoices_selected_median",
+          "columnType": "double"
+        },
+        {
+          "columnName": "successful_invoices_median_change",
+          "columnType": "double"
+        },
+        {
+          "columnName": "successful_invoices_previous_median",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "8.0",
+          "1.0",
+          "4.0"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t04",
+      "status": "fulfilled",
+      "queryId": "20261003_205134_13708_3auik",
+      "columns": [
+        {
+          "columnName": "gauge_label",
+          "columnType": "varchar(14)"
+        },
+        {
+          "columnName": "tou_success_pct_average",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "Distribution %",
+          "49.48453078558372"
+        ]
+      ]
+    },
+    {
+      "tile": "na_4a_t05",
+      "status": "fulfilled",
+      "queryId": "20261003_205134_13710_3auik",
+      "columns": [
+        {
+          "columnName": "gauge_label",
+          "columnType": "varchar(14)"
+        },
+        {
+          "columnName": "tou_failure_pct_average",
+          "columnType": "double"
+        }
+      ],
+      "rows": [
+        [
+          "Distribution %",
+          "50.51546921441627"
+        ]
+      ]
+    }
+  ],
+  "validation_date": "2026-10-03",
+  "gauge_rendering": {
+    "result": "PASS",
+    "cases": [
+      {
+        "value": 49.48,
+        "min": 0,
+        "max": 100,
+        "label": "49.48%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -1.5871326085935635
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "label": "75.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.7853981633974483
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      }
+    ],
+    "browser": "Headless Google Chrome",
+    "renderer": "Highcharts 11.4.8; standalone config preview, not Looker UI",
+    "screenshot": "bre_na_tou_gauge_preview.png"
+  },
+  "prior_dashboard_regressions": "PASS: Ingestion, Aggregation, Disaggregation, including ten CA/EU source-route regressions"
+}

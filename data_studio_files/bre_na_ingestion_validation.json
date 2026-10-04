@@ -1,0 +1,533 @@
+{
+  "result": "PASS",
+  "tiles": 18,
+  "rendered_tile_queries": 37,
+  "regional_source_regressions": 10,
+  "semantic_fixtures": 10,
+  "lookml_validator": "NOT RUN: Looker connection unavailable",
+  "incomplete": [
+    "NA-1A-T06 original-report input grain and result parity",
+    "NA-1B-T03 chart success-rate aggregation confirmation"
+  ],
+  "validation_date": "2026-10-03",
+  "starburst_source_planning_checks": [
+    {
+      "name": "bre_na_ingestion_queue_health_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132825_66234_msuxa",
+      "valid": true
+    },
+    {
+      "name": "bre_na_ingestion_queue_daily_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132831_17548_k73nx",
+      "valid": true
+    },
+    {
+      "name": "bre_na_ingestion_queue_hourly_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132827_01744_mwky8",
+      "valid": true
+    },
+    {
+      "name": "bre_active_users_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132826_17538_k73nx",
+      "valid": true
+    },
+    {
+      "name": "bre_ingestion_failures_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132827_04361_iugtt",
+      "valid": true
+    },
+    {
+      "name": "bre_post_ingestion_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132827_56182_3auik",
+      "valid": true
+    },
+    {
+      "name": "bre_ingestion_audit_source",
+      "status": "fulfilled",
+      "query_id": "20261003_132826_78561_3qsds",
+      "valid": true
+    },
+    {
+      "name": "bre_na_rate_plan_tracker_source.sql",
+      "valid": true,
+      "query_id": "20261003_151503_71656_k73nx"
+    },
+    {
+      "name": "bre_na_ingestion_rate_comparison_source.sql",
+      "valid": true,
+      "query_id": "20261003_151504_71662_k73nx"
+    }
+  ],
+  "starburst_tile_planning_checks": [
+    {
+      "name": "active_uuid_daily_failure_percentage.sql",
+      "query_id": "20261003_132900_12941_mktfe",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "daily_success_daily_failure_percentage.sql",
+      "query_id": "20261003_152824_57681_mwky8",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "daily_users_daily_failure_percentage.sql",
+      "query_id": "20261003_152825_06762_3auik",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "files_average_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_04942_iugtt",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "files_median_daily_failure_percentage.sql",
+      "query_id": "20261003_132900_78881_3qsds",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "ingestion_failure_reasons_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_56409_3auik",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t01_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_04947_iugtt",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t02_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_04946_iugtt",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t03_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_12958_mktfe",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t04_daily_failure_percentage.sql",
+      "query_id": "20261003_132900_56407_3auik",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t05_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_56410_3auik",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t06_daily_failure_percentage.sql",
+      "query_id": "20261003_133431_81374_3qsds",
+      "valid": true,
+      "retried_after_tool_timeout": true
+    },
+    {
+      "name": "na_1b_t07_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_78891_3qsds",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t08_daily_failure_percentage.sql",
+      "query_id": "20261003_132900_12951_mktfe",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t09_daily_failure_percentage.sql",
+      "query_id": "20261003_132900_59329_pi2vm",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "na_1b_t10_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_78888_3qsds",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "post_ingestion_quality_daily_failure_percentage.sql",
+      "query_id": "20261003_132901_66424_msuxa",
+      "valid": true,
+      "retried_after_tool_timeout": false
+    },
+    {
+      "name": "daily_ingestion_statistics_daily_failure_percentage.sql",
+      "valid": true,
+      "query_id": "20261003_151504_71664_k73nx"
+    }
+  ],
+  "starburst_blend_period_planning_checks": [
+    {
+      "name": "daily_ingestion_statistics_daily_failure_percentage.sql",
+      "valid": true,
+      "query_id": "20261003_151504_71664_k73nx"
+    },
+    {
+      "name": "daily_ingestion_statistics_weekly_failure_percentage.sql",
+      "valid": true,
+      "query_id": "20261003_151504_60992_iugtt"
+    },
+    {
+      "name": "daily_ingestion_statistics_monthly_failure_percentage.sql",
+      "valid": true,
+      "query_id": "20261003_151504_71666_k73nx"
+    }
+  ],
+  "exact_timestamp_match_check": {
+    "pilot_id": "10037",
+    "analysis_date_from": "2026-09-26",
+    "analysis_date_to": "2026-10-02",
+    "audit_rows": 22,
+    "tracker_rows": 22,
+    "audit_keys": 7,
+    "matched_keys": 0,
+    "query_ids": [
+      "20261003_150822_56791_iugtt",
+      "20261003_150843_57144_iugtt"
+    ],
+    "interpretation": "No full timestamp matches in the checked range. RC values remain NULL; no date-only fallback."
+  },
+  "gauge_configurations": 2,
+  "gauge_rendering_checks": {
+    "result": "PASS",
+    "cases": [
+      {
+        "value": 15.4,
+        "min": 0,
+        "max": 20,
+        "label": "15.40 M",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.7225663103256523
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "label": "75.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.7853981633974483
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 20,
+        "label": "0.00 M",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 20,
+        "min": 0,
+        "max": 20,
+        "label": "20.00 M",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 25,
+        "min": 0,
+        "max": 20,
+        "label": "25.00 M",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      }
+    ],
+    "browser": "Headless Google Chrome",
+    "renderer": "Highcharts 11.4.8; standalone config preview, not Looker UI",
+    "screenshot": "bre_na_ingestion_gauge_preview.png"
+  },
+  "users_gauge_range_basis": {
+    "query_id": "20261003_152712_65246_mktfe",
+    "pilot_id": "10037",
+    "pilot_name": "PSEG",
+    "analysis_dates": "2026-09-26 through 2026-10-02",
+    "value_millions": 15.4,
+    "display_maximum_millions": 20,
+    "interpretation": "Display range only, not a target. Above-range values retain the actual numeric label."
+  },
+  "dashboards": {
+    "bre_na_ingestion_governance": 8,
+    "bre_na_ingestion_queue_metrics": 10
+  },
+  "queries": [
+    {
+      "tile": "active_uuid",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/active_uuid_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "active_uuid",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/active_uuid_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "active_uuid",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/active_uuid_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "files_average",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/files_average_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "files_average",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/files_average_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "files_average",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/files_average_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "files_median",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/files_median_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "files_median",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/files_median_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "files_median",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/files_median_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_users",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_users_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_users",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_users_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_users",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_users_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_success",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_success_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_success",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_success_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_success",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_success_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_ingestion_statistics",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_ingestion_statistics_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_ingestion_statistics",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_ingestion_statistics_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "daily_ingestion_statistics",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/daily_ingestion_statistics_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "post_ingestion_quality",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/post_ingestion_quality_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "post_ingestion_quality",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/post_ingestion_quality_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "post_ingestion_quality",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/post_ingestion_quality_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "ingestion_failure_reasons",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/ingestion_failure_reasons_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "ingestion_failure_reasons",
+      "period": "Daily",
+      "metric": "failed_record_count",
+      "path": "/private/tmp/bre-na-ingestion-validation/ingestion_failure_reasons_daily_failed_record_count.sql"
+    },
+    {
+      "tile": "ingestion_failure_reasons",
+      "period": "Weekly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/ingestion_failure_reasons_weekly_failure_percentage.sql"
+    },
+    {
+      "tile": "ingestion_failure_reasons",
+      "period": "Weekly",
+      "metric": "failed_record_count",
+      "path": "/private/tmp/bre-na-ingestion-validation/ingestion_failure_reasons_weekly_failed_record_count.sql"
+    },
+    {
+      "tile": "ingestion_failure_reasons",
+      "period": "Monthly",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/ingestion_failure_reasons_monthly_failure_percentage.sql"
+    },
+    {
+      "tile": "ingestion_failure_reasons",
+      "period": "Monthly",
+      "metric": "failed_record_count",
+      "path": "/private/tmp/bre-na-ingestion-validation/ingestion_failure_reasons_monthly_failed_record_count.sql"
+    },
+    {
+      "tile": "na_1b_t01",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t01_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t02",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t02_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t03",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t03_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t04",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t04_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t05",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t05_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t06",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t06_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t07",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t07_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t08",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t08_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t09",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t09_daily_failure_percentage.sql"
+    },
+    {
+      "tile": "na_1b_t10",
+      "period": "Daily",
+      "metric": "failure_percentage",
+      "path": "/private/tmp/bre-na-ingestion-validation/na_1b_t10_daily_failure_percentage.sql"
+    }
+  ],
+  "dashboard_split_verification": {
+    "result": "PASS",
+    "tiles_preserved": 18,
+    "filter_definitions_preserved": 12,
+    "queue_row_offset_removed": 34,
+    "query_and_visualization_configuration": "unchanged",
+    "prior_starburst_and_gauge_rendering_evidence": "retained; no query or visualization changes in dashboard split"
+  }
+}

@@ -77,7 +77,7 @@ view: bre_ingestion_failures {
             s.total_failed_record_count AS total_failed_record_count,
             s.failure_percentage AS failure_percentage,
             s.last_updated_timestamp AS last_updated_timestamp
-          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% else %}bre_invalid_model{% endif %}.reporting.sre_ingestion_errors_statistic AS s
+          FROM {% if _model._name == 'bre_ca' %}delta_prodca{% elsif _model._name == 'bre_eu' %}delta_prodeu{% elsif _model._name == 'bre_na' %}delta_prodna{% else %}bre_invalid_model{% endif %}.reporting.sre_ingestion_errors_statistic AS s
         ) AS sfs
       ) AS _0
       ) s

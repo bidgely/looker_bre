@@ -1,0 +1,1129 @@
+{
+  "result": "PASS",
+  "tiles": 18,
+  "dashboards": {
+    "bre_na_email_governance": 8,
+    "bre_na_email_queue_metrics": 10
+  },
+  "rendered_query_variants": 24,
+  "semantic_fixtures": 32,
+  "source_contract_checks": 3,
+  "native_looker_validation": "NOT RUN: no connected Looker tools",
+  "queries": [
+    {
+      "tile": "na_6a_t02",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t02_daily.sql"
+    },
+    {
+      "tile": "na_6a_t03",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t03_daily.sql"
+    },
+    {
+      "tile": "na_6a_t04",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t04_daily.sql"
+    },
+    {
+      "tile": "na_6a_t05",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t05_daily.sql"
+    },
+    {
+      "tile": "na_6a_t06",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t06_daily.sql"
+    },
+    {
+      "tile": "na_6a_t06",
+      "period": "Weekly",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t06_weekly.sql"
+    },
+    {
+      "tile": "na_6a_t06",
+      "period": "Monthly",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t06_monthly.sql"
+    },
+    {
+      "tile": "na_6a_t07",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t07_daily.sql"
+    },
+    {
+      "tile": "na_6a_t08",
+      "period": "Daily",
+      "metric": "failure_pct",
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t08_daily_failure_pct.sql"
+    },
+    {
+      "tile": "na_6a_t08",
+      "period": "Daily",
+      "metric": "failure_count",
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t08_daily_failure_count.sql"
+    },
+    {
+      "tile": "na_6a_t08",
+      "period": "Weekly",
+      "metric": "failure_pct",
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t08_weekly_failure_pct.sql"
+    },
+    {
+      "tile": "na_6a_t08",
+      "period": "Weekly",
+      "metric": "failure_count",
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t08_weekly_failure_count.sql"
+    },
+    {
+      "tile": "na_6a_t08",
+      "period": "Monthly",
+      "metric": "failure_pct",
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t08_monthly_failure_pct.sql"
+    },
+    {
+      "tile": "na_6a_t08",
+      "period": "Monthly",
+      "metric": "failure_count",
+      "path": "/private/tmp/bre-na-email-validation/na_6a_t08_monthly_failure_count.sql"
+    },
+    {
+      "tile": "na_6b_t01",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t01_daily.sql"
+    },
+    {
+      "tile": "na_6b_t02",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t02_daily.sql"
+    },
+    {
+      "tile": "na_6b_t03",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t03_daily.sql"
+    },
+    {
+      "tile": "na_6b_t04",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t04_daily.sql"
+    },
+    {
+      "tile": "na_6b_t05",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t05_daily.sql"
+    },
+    {
+      "tile": "na_6b_t06",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t06_daily.sql"
+    },
+    {
+      "tile": "na_6b_t07",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t07_daily.sql"
+    },
+    {
+      "tile": "na_6b_t08",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t08_daily.sql"
+    },
+    {
+      "tile": "na_6b_t09",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t09_daily.sql"
+    },
+    {
+      "tile": "na_6b_t10",
+      "period": "Daily",
+      "metric": null,
+      "path": "/private/tmp/bre-na-email-validation/na_6b_t10_daily.sql"
+    }
+  ],
+  "validated_at": "2026-10-04",
+  "starburst_planning": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t02",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_30322_mwky8",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t03",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14903_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t04",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_38965_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t05",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14905_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t06",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_38964_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t06",
+        "period": "Weekly",
+        "metric": null,
+        "queryId": "20261004_090932_33645_mktfe",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t06",
+        "period": "Monthly",
+        "metric": null,
+        "queryId": "20261004_090932_14907_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t07",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_04456_pi2vm",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "period": "Daily",
+        "metric": "failure_pct",
+        "queryId": "20261004_090932_14904_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "period": "Daily",
+        "metric": "failure_count",
+        "queryId": "20261004_090932_14906_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "period": "Weekly",
+        "metric": "failure_pct",
+        "queryId": "20261004_090932_30324_mwky8",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "period": "Weekly",
+        "metric": "failure_count",
+        "queryId": "20261004_090932_21109_3auik",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "period": "Monthly",
+        "metric": "failure_pct",
+        "queryId": "20261004_090932_30323_mwky8",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "period": "Monthly",
+        "metric": "failure_count",
+        "queryId": "20261004_090932_34385_k73nx",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t01",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14908_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t02",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_33644_mktfe",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t03",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14914_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t04",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_38969_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t05",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14916_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t06",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_21115_3auik",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t07",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_38971_iugtt",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t08",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14921_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t09",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_33648_mktfe",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t10",
+        "period": "Daily",
+        "metric": null,
+        "queryId": "20261004_090932_14919_3qsds",
+        "columns": [
+          {
+            "columnName": "Valid",
+            "columnType": "boolean"
+          }
+        ],
+        "rows": [
+          [
+            "true"
+          ]
+        ]
+      }
+    }
+  ],
+  "delivery_samples": {
+    "pilot_id": "10037",
+    "pilot_name": "PSEG",
+    "delivery_mode": "Daily",
+    "analysis_date_start": "2026-09-27",
+    "analysis_date_end_exclusive": "2026-10-04",
+    "queries": [
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_6a_t02",
+          "queryId": "20261004_085235_12825_nzwg5",
+          "columns": [
+            {
+              "columnName": "emails_delivered_selected_average",
+              "columnType": "double"
+            },
+            {
+              "columnName": "emails_delivered_average_change",
+              "columnType": "double"
+            },
+            {
+              "columnName": "emails_delivered_previous_average",
+              "columnType": "double"
+            }
+          ],
+          "rows": [
+            [
+              "19609.428571428572",
+              "0.27460466325573624",
+              "15384.714285714286"
+            ]
+          ]
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_6a_t03",
+          "queryId": "20261004_085235_03274_3qsds",
+          "columns": [
+            {
+              "columnName": "emails_delivered_selected_median",
+              "columnType": "double"
+            },
+            {
+              "columnName": "emails_delivered_median_change",
+              "columnType": "double"
+            },
+            {
+              "columnName": "emails_delivered_previous_median",
+              "columnType": "double"
+            }
+          ],
+          "rows": [
+            [
+              "72.0",
+              "9.285714285714286",
+              "7.0"
+            ]
+          ]
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_6a_t04",
+          "queryId": "20261004_085235_28354_k73nx",
+          "columns": [
+            {
+              "columnName": "gauge_label",
+              "columnType": "varchar(14)"
+            },
+            {
+              "columnName": "calc_generation_perc",
+              "columnType": "double"
+            }
+          ],
+          "rows": [
+            [
+              "Distribution %",
+              "965.4122706807339"
+            ]
+          ]
+        }
+      },
+      {
+        "status": "fulfilled",
+        "value": {
+          "tile": "na_6a_t05",
+          "queryId": "20261004_085235_13592_3auik",
+          "columns": [
+            {
+              "columnName": "gauge_label",
+              "columnType": "varchar(14)"
+            },
+            {
+              "columnName": "calc_delivery_perc",
+              "columnType": "double"
+            }
+          ],
+          "rows": [
+            [
+              "Distribution %",
+              "95.54721814245839"
+            ]
+          ]
+        }
+      }
+    ],
+    "raw_count_check": {
+      "query_id": "20261004_085259_03576_3qsds",
+      "invoice_ingested": 14881,
+      "generation_cnt": 143663,
+      "delivery_cnt": 137266
+    }
+  },
+  "additional_samples": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t07",
+        "metric": null,
+        "queryId": "20261004_090951_30493_mwky8",
+        "columns": [
+          {
+            "columnName": "analysis_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "metric_name",
+            "columnType": "varchar"
+          },
+          {
+            "columnName": "notification_pct_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "2026-09-27",
+            "ZERO CONSUMPTION APPLIANCES",
+            "0.0"
+          ],
+          [
+            "2026-09-27",
+            "DUPLICATE RECOMMENTATION",
+            "32.2"
+          ],
+          [
+            "2026-09-27",
+            "MISSING HIGH CONSUMPTION APPLIANCES",
+            "27.3"
+          ],
+          [
+            "2026-09-27",
+            "LOW CONSUMPTION APPLIANCES",
+            "0.0"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "metric": "failure_pct",
+        "queryId": "20261004_090951_10125_msuxa",
+        "columns": [
+          {
+            "columnName": "period_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "failure_reason",
+            "columnType": "varchar"
+          },
+          {
+            "columnName": "metric_toggle",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "2026-09-27",
+            "DELIVERY_MODE_EMAIL_NOT_AVAILABLE",
+            "50.85"
+          ],
+          [
+            "2026-09-27",
+            "INVOICE_IS_NOT_AVAILABLE",
+            "0.1"
+          ],
+          [
+            "2026-09-27",
+            "USER_STATUS_IS_DISABLE",
+            "0.22"
+          ],
+          [
+            "2026-09-27",
+            "GENERIC_EVENT_DATA_IS_NULL",
+            "44.99"
+          ],
+          [
+            "2026-09-27",
+            "DELIVERY_MODES_NOT_AVAILABLE",
+            "0.95"
+          ],
+          [
+            "2026-09-27",
+            "UNKNOWN",
+            "2.08"
+          ],
+          [
+            "2026-09-27",
+            "FIRST_TOUCH_POINT_NOT_SENT",
+            "0.46"
+          ],
+          [
+            "2026-09-27",
+            "OUT_OF_SCHEDULE",
+            "0.04"
+          ],
+          [
+            "2026-09-27",
+            "BILLING_CYCLE_NOT_AVAILABLE",
+            "0.31"
+          ],
+          [
+            "2026-09-27",
+            "USER_HAS_SOLAR",
+            "0.01"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6a_t08",
+        "metric": "failure_count",
+        "queryId": "20261004_090951_30495_mwky8",
+        "columns": [
+          {
+            "columnName": "period_date",
+            "columnType": "date"
+          },
+          {
+            "columnName": "failure_reason",
+            "columnType": "varchar"
+          },
+          {
+            "columnName": "metric_toggle",
+            "columnType": "bigint"
+          }
+        ],
+        "rows": [
+          [
+            "2026-09-27",
+            "GENERIC_EVENT_DATA_IS_NULL",
+            "17669"
+          ],
+          [
+            "2026-09-27",
+            "INVOICE_IS_NOT_AVAILABLE",
+            "38"
+          ],
+          [
+            "2026-09-27",
+            "USER_STATUS_IS_DISABLE",
+            "85"
+          ],
+          [
+            "2026-09-27",
+            "USER_HAS_SOLAR",
+            "3"
+          ],
+          [
+            "2026-09-27",
+            "OUT_OF_SCHEDULE",
+            "17"
+          ],
+          [
+            "2026-09-27",
+            "FIRST_TOUCH_POINT_NOT_SENT",
+            "180"
+          ],
+          [
+            "2026-09-27",
+            "BILLING_CYCLE_NOT_AVAILABLE",
+            "122"
+          ],
+          [
+            "2026-09-27",
+            "UNKNOWN",
+            "818"
+          ],
+          [
+            "2026-09-27",
+            "DELIVERY_MODES_NOT_AVAILABLE",
+            "374"
+          ],
+          [
+            "2026-09-27",
+            "DELIVERY_MODE_EMAIL_NOT_AVAILABLE",
+            "19971"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t01",
+        "metric": null,
+        "queryId": "20261004_090951_34466_k73nx",
+        "columns": [
+          {
+            "columnName": "health_score_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "96.0"
+          ]
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "tile": "na_6b_t03",
+        "metric": null,
+        "queryId": "20261004_090951_39237_iugtt",
+        "columns": [
+          {
+            "columnName": "success_rate_average",
+            "columnType": "double"
+          }
+        ],
+        "rows": [
+          [
+            "99.92166666666667"
+          ]
+        ]
+      }
+    }
+  ],
+  "regressions": [
+    {
+      "group": "ingestion",
+      "result": "PASS",
+      "tiles": 18,
+      "dashboards": {
+        "bre_na_ingestion_governance": 8,
+        "bre_na_ingestion_queue_metrics": 10
+      },
+      "rendered_tile_queries": 37,
+      "regional_source_regressions": 10,
+      "semantic_fixtures": 10,
+      "gauge_configurations": 2,
+      "lookml_validator": "NOT RUN: Looker connection unavailable",
+      "incomplete": [
+        "NA-1A-T06 original-report input grain and result parity",
+        "NA-1B-T03 chart success-rate aggregation confirmation"
+      ]
+    },
+    {
+      "group": "aggregation",
+      "result": "PASS",
+      "tiles": 8,
+      "rendered_query_variants": 13,
+      "semantic_fixtures": 13,
+      "source_query": "SRC-29",
+      "availability_formula": "user-confirmed: 100 * actual / expected; implementation returns NULL for zero denominator",
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "disaggregation",
+      "result": "PASS",
+      "dashboards": {
+        "bre_na_disaggregation_governance": 8,
+        "bre_na_disaggregation_queue_metrics": 10
+      },
+      "rendered_query_variants": 23,
+      "semantic_fixtures": 18,
+      "source_order_checks": 3,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "tou",
+      "result": "PASS",
+      "tiles": 6,
+      "rendered_query_variants": 7,
+      "semantic_fixtures": 17,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    },
+    {
+      "group": "rate_comparison",
+      "result": "PASS",
+      "tiles": 8,
+      "rendered_query_variants": 13,
+      "semantic_fixtures": 24,
+      "source_contract_checks": 2,
+      "native_looker_validation": "NOT RUN: no connected Looker tools"
+    }
+  ],
+  "gauge_preview": {
+    "result": "PASS",
+    "cases": [
+      {
+        "value": 965.4122706807339,
+        "min": 0,
+        "max": 100,
+        "label": "965.41%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "label": "75.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -0.7853981633974483
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "label": "0.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": -3.141592653589793
+      },
+      {
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "label": "100.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      },
+      {
+        "value": 120,
+        "min": 0,
+        "max": 100,
+        "label": "120.00%",
+        "visible": true,
+        "start": -3.141592653589793,
+        "end": 0
+      }
+    ],
+    "browser": "Headless Google Chrome",
+    "renderer": "Highcharts 11.4.8; standalone config preview, not Looker UI",
+    "screenshot": "data_studio_files/bre_na_email_gauge_preview.png"
+  }
+}
