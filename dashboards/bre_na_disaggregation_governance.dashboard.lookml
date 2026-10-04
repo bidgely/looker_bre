@@ -1,7 +1,7 @@
 # NA Disaggregation: data_studio_files/bre_na_disaggregation_implementation.md
 ---
 - dashboard: bre_na_disaggregation_governance
-  title: BRE NA — 3a — Data Governance Disaggregation
+  title: BRE NA — Data Governance Disaggregation
   description: NA Disaggregation governance. Draft pending Looker and source-report validation.
   layout: newspaper
   preferred_viewer: dashboards-next

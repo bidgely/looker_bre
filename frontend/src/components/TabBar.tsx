@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Region, DashboardDefinition, REGION_DASHBOARDS } from '../types'
+import { Region, DashboardDefinition, REGION_DASHBOARDS, REGIONS } from '../types'
 
 interface TabBarProps {
   currentRegion: Region
@@ -19,10 +19,13 @@ const RegionRow = styled.div`
   display: flex;
   gap: 16px;
   padding-top: 8px;
+  overflow-x: auto;
   border-bottom: 1px solid #f1f3f4;
 `
 
 const RegionTab = styled.button<{ $active: boolean }>`
+  flex-shrink: 0;
+  white-space: nowrap;
   background: none;
   border: none;
   padding: 10px 16px;
@@ -59,6 +62,7 @@ const DashboardSubTab = styled.button<{ $active: boolean }>`
   cursor: pointer;
   transition: all 0.12s ease-in-out;
   white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     background-color: ${(props) => (props.$active ? '#e8f0fe' : '#f1f3f4')};
@@ -76,40 +80,33 @@ export const TabBar: React.FC<TabBarProps> = ({
   const handleRegionClick = (region: Region) => {
     if (region !== currentRegion) {
       onSelectRegion(region)
-      // Switch to the first dashboard in the newly selected region
-      const targetDashboards = REGION_DASHBOARDS[region]
-      if (targetDashboards.length > 0) {
-        onSelectDashboard(targetDashboards[0].id)
-      }
     }
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer aria-label="Dashboard navigation">
       {/* Tier 1: Region Selection */}
-      <RegionRow>
-        <RegionTab
-          $active={currentRegion === 'CA'}
-          onClick={() => handleRegionClick('CA')}
-        >
-          <span>🇨🇦</span>
-          <span>Canada (CA)</span>
-        </RegionTab>
-        <RegionTab
-          $active={currentRegion === 'EU'}
-          onClick={() => handleRegionClick('EU')}
-        >
-          <span>🇪🇺</span>
-          <span>Europe (EU)</span>
-        </RegionTab>
+      <RegionRow role="group" aria-label="Regions">
+        {REGIONS.map((region) => (
+          <RegionTab
+            key={region.id}
+            $active={currentRegion === region.id}
+            aria-pressed={currentRegion === region.id}
+            onClick={() => handleRegionClick(region.id)}
+          >
+            <span aria-hidden="true">{region.icon}</span>
+            <span>{region.label}</span>
+          </RegionTab>
+        ))}
       </RegionRow>
 
       {/* Tier 2: Dashboard Sub-tabs */}
-      <SubNavRow>
+      <SubNavRow role="group" aria-label="Dashboards">
         {dashboards.map((dash) => (
           <DashboardSubTab
             key={dash.id}
             $active={currentDashboardId === dash.id}
+            aria-pressed={currentDashboardId === dash.id}
             onClick={() => onSelectDashboard(dash.id)}
             title={dash.description}
           >

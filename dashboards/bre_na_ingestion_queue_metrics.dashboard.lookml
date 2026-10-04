@@ -375,4 +375,4 @@
       display: popover
   layout: newspaper
   preferred_viewer: dashboards-next
-  title: BRE NA — 1b — Queue Metrics Ingestion
+  title: BRE NA — Queue Metrics Ingestion

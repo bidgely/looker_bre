@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import styled from 'styled-components'
-import { Region, CA_DASHBOARDS, REGION_DASHBOARDS } from './types'
+import { Region, NA_DASHBOARDS, REGION_DASHBOARDS, COMMON_FILTERS } from './types'
 import { Header } from './components/Header'
 import { TabBar } from './components/TabBar'
 import { DashboardEmbed } from './components/DashboardEmbed'
@@ -18,14 +18,15 @@ const AppWrapper = styled.div`
 `
 
 const REGION_DEFAULT_FILTERS: Record<Region, Record<string, string>> = {
+  NA: { 'Pilot ID': '10037', 'Pilot Name': 'PSEG' },
   CA: { 'Pilot ID': '40001', 'Pilot Name': 'HONI' },
   EU: { 'Pilot ID': '20006', 'Pilot Name': 'Repsol' },
 }
 
 export const App: React.FC = () => {
-  const [currentRegion, setCurrentRegion] = useState<Region>('CA')
-  const [currentDashboardId, setCurrentDashboardId] = useState<string>(CA_DASHBOARDS[0].id)
-  const [sharedFilters, setSharedFilters] = useState<Record<string, string>>(REGION_DEFAULT_FILTERS.CA)
+  const [currentRegion, setCurrentRegion] = useState<Region>('NA')
+  const [currentDashboardId, setCurrentDashboardId] = useState<string>(NA_DASHBOARDS[0].id)
+  const [sharedFilters, setSharedFilters] = useState<Record<string, string>>(REGION_DEFAULT_FILTERS.NA)
 
   // Find the current dashboard metadata
   const activeDashboard = useMemo(() => {
@@ -36,14 +37,26 @@ export const App: React.FC = () => {
   const handleRegionChange = (newRegion: Region) => {
     if (newRegion !== currentRegion) {
       setCurrentRegion(newRegion)
+      setCurrentDashboardId(REGION_DASHBOARDS[newRegion][0].id)
       setSharedFilters(REGION_DEFAULT_FILTERS[newRegion])
     }
   }
 
+  const filterMapping = activeDashboard.sharedFilterMapping || COMMON_FILTERS
+  const dashboardFilters = Object.fromEntries(
+    Object.entries(filterMapping)
+      .filter(([sharedName]) => sharedFilters[sharedName] !== undefined)
+      .map(([sharedName, dashboardName]) => [dashboardName, sharedFilters[sharedName]])
+  )
+
   const handleFiltersChanged = (newFilters: Record<string, string>) => {
     setSharedFilters((prev) => ({
       ...prev,
-      ...newFilters,
+      ...Object.fromEntries(
+        Object.entries(filterMapping)
+          .filter(([, dashboardName]) => newFilters[dashboardName] !== undefined)
+          .map(([sharedName, dashboardName]) => [sharedName, newFilters[dashboardName]])
+      ),
     }))
   }
 
@@ -61,7 +74,7 @@ export const App: React.FC = () => {
       />
       <DashboardEmbed
         dashboardId={currentDashboardId}
-        sharedFilters={sharedFilters}
+        sharedFilters={dashboardFilters}
         onFiltersChanged={handleFiltersChanged}
       />
     </AppWrapper>

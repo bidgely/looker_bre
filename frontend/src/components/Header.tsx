@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Region } from '../types'
+import { Region, REGIONS } from '../types'
 
 interface HeaderProps {
   currentRegion: Region
@@ -75,7 +75,8 @@ export const Header: React.FC<HeaderProps> = ({ currentRegion, activeDashboardTi
         </div>
       </TitleGroup>
       <Badge region={currentRegion}>
-        {currentRegion === 'CA' ? '🇨🇦 Canada Cluster (CA)' : '🇪🇺 Europe Cluster (EU)'}
+        {REGIONS.find((region) => region.id === currentRegion)?.icon}{' '}
+        {REGIONS.find((region) => region.id === currentRegion)?.label}
       </Badge>
     </HeaderContainer>
   )

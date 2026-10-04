@@ -12,7 +12,8 @@ interface DashboardEmbedProps {
 const EmbedContainer = styled.div`
   position: relative;
   width: 100%;
-  height: calc(100vh - 125px);
+  flex: 1;
+  min-height: 0;
   background: #f8f9fa;
   overflow: hidden;
 
@@ -21,6 +22,11 @@ const EmbedContainer = styled.div`
     height: 100%;
     border: none;
   }
+`
+
+const IframeContainer = styled.div`
+  width: 100%;
+  height: 100%;
 `
 
 const LoadingOverlay = styled.div<{ $visible: boolean }>`
@@ -88,6 +94,7 @@ export const DashboardEmbed: React.FC<DashboardEmbedProps> = ({
     containerRef.current.innerHTML = '' // Clear existing iframe container
 
     let activeDashboard: LookerEmbedDashboard | null = null
+    let disposed = false
 
     try {
       const builder = LookerEmbedSDK.createDashboardWithId(dashboardId)
@@ -101,9 +108,10 @@ export const DashboardEmbed: React.FC<DashboardEmbedProps> = ({
 
       builder
         .on('dashboard:loaded', () => {
-          setIsLoading(false)
+          if (!disposed) setIsLoading(false)
         })
         .on('dashboard:filters:changed', (event: any) => {
+          if (disposed) return
           if (event && event.dashboard && event.dashboard.dashboard_filters) {
             const newFilters: Record<string, string> = {}
             for (const [key, val] of Object.entries(event.dashboard.dashboard_filters)) {
@@ -117,10 +125,12 @@ export const DashboardEmbed: React.FC<DashboardEmbedProps> = ({
         .build()
         .connect()
         .then((dashboard) => {
+          if (disposed) return
           activeDashboard = dashboard
           dashboardInstanceRef.current = dashboard
         })
         .catch((error) => {
+          if (disposed) return
           console.error('[BRE Portal] Failed to connect embedded dashboard:', error)
           setIsLoading(false)
         })
@@ -130,12 +140,14 @@ export const DashboardEmbed: React.FC<DashboardEmbedProps> = ({
     }
 
     return () => {
+      disposed = true
       activeDashboard = null
     }
   }, [dashboardId, extensionContext])
 
   return (
-    <EmbedContainer ref={containerRef}>
+    <EmbedContainer>
+      <IframeContainer ref={containerRef} />
       <LoadingOverlay $visible={isLoading}>
         <Spinner />
         <LoadingText>Loading dashboard...</LoadingText>

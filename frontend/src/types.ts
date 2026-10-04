@@ -1,4 +1,18 @@
-export type Region = 'CA' | 'EU'
+export type Region = 'NA' | 'CA' | 'EU'
+
+export const REGIONS: { id: Region; label: string; icon: string }[] = [
+  { id: 'NA', label: 'North America (NA)', icon: '🌎' },
+  { id: 'CA', label: 'Canada (CA)', icon: '🇨🇦' },
+  { id: 'EU', label: 'Europe (EU)', icon: '🇪🇺' },
+]
+
+// Map shared portal filters to the controls available on each dashboard.
+export const COMMON_FILTERS: Record<string, string> = {
+  'Time Period': 'Time Period',
+  Period: 'Period',
+  'Pilot ID': 'Pilot ID',
+  'Pilot Name': 'Pilot Name',
+}
 
 export interface DashboardDefinition {
   id: string // Model-qualified LookML dashboard ID (e.g. 'bre_ca::bre_ca_disagg')
@@ -6,7 +20,106 @@ export interface DashboardDefinition {
   label: string
   description: string
   region: Region
+  sharedFilterMapping?: Record<string, string>
 }
+
+export const NA_DASHBOARDS: DashboardDefinition[] = [
+  {
+    id: 'bre_na::bre_na_ingestion_governance',
+    slug: 'ingestion-governance',
+    label: 'Ingestion Governance',
+    description: 'NA Ingestion Governance',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_ingestion_queue_metrics',
+    slug: 'ingestion-queue-metrics',
+    label: 'Ingestion Queue Metrics',
+    description: 'NA Ingestion Queue Metrics',
+    region: 'NA',
+    sharedFilterMapping: { 'Time Period': 'Queue Time Period' },
+  },
+  {
+    id: 'bre_na::bre_na_aggregation',
+    slug: 'aggregation',
+    label: 'Aggregation',
+    description: 'NA Aggregation',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_disaggregation_governance',
+    slug: 'disaggregation-governance',
+    label: 'Disaggregation Governance',
+    description: 'NA Disaggregation Governance',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_disaggregation_queue_metrics',
+    slug: 'disaggregation-queue-metrics',
+    label: 'Disaggregation Queue Metrics',
+    description: 'NA Disaggregation Queue Metrics',
+    region: 'NA',
+    sharedFilterMapping: { 'Time Period': 'Time Period' },
+  },
+  {
+    id: 'bre_na::bre_na_tou',
+    slug: 'tou',
+    label: 'TOU',
+    description: 'NA TOU',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_rate_comparison',
+    slug: 'rate-comparison',
+    label: 'Rate Comparison',
+    description: 'NA Rate Comparison',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_email_governance',
+    slug: 'email-governance',
+    label: 'Email Governance',
+    description: 'NA Email Governance',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_email_queue_metrics',
+    slug: 'email-queue-metrics',
+    label: 'Email Queue Metrics',
+    description: 'NA Email Queue Metrics',
+    region: 'NA',
+    sharedFilterMapping: { 'Time Period': 'Time Period' },
+  },
+  {
+    id: 'bre_na::bre_na_her_governance',
+    slug: 'her-governance',
+    label: 'HER Governance',
+    description: 'NA HER Governance',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_her_queue_metrics',
+    slug: 'her-queue-metrics',
+    label: 'HER Queue Metrics',
+    description: 'NA HER Queue Metrics',
+    region: 'NA',
+    sharedFilterMapping: { 'Time Period': 'Time Period' },
+  },
+  {
+    id: 'bre_na::bre_na_nbi_governance',
+    slug: 'nbi-governance',
+    label: 'NBI Governance',
+    description: 'NA NBI Governance',
+    region: 'NA',
+  },
+  {
+    id: 'bre_na::bre_na_nbi_emr_metrics',
+    slug: 'nbi-emr-metrics',
+    label: 'NBI EMR Metrics',
+    description: 'NA NBI EMR Metrics',
+    region: 'NA',
+  },
+]
 
 export const CA_DASHBOARDS: DashboardDefinition[] = [
   {
@@ -71,6 +184,7 @@ export const EU_DASHBOARDS: DashboardDefinition[] = [
 ]
 
 export const REGION_DASHBOARDS: Record<Region, DashboardDefinition[]> = {
+  NA: NA_DASHBOARDS,
   CA: CA_DASHBOARDS,
   EU: EU_DASHBOARDS,
 }

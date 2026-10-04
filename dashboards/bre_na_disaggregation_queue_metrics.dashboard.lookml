@@ -367,4 +367,4 @@
       display: popover
   layout: newspaper
   preferred_viewer: dashboards-next
-  title: BRE NA — 3b — Queue Metrics Disaggregation
+  title: BRE NA — Queue Metrics Disaggregation

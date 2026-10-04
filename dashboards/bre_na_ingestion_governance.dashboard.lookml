@@ -717,4 +717,4 @@
       display: popover
   layout: newspaper
   preferred_viewer: dashboards-next
-  title: BRE NA — 1a — Data Governance Ingestion
+  title: BRE NA — Data Governance Ingestion
