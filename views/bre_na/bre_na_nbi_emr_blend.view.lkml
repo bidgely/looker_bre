@@ -1,6 +1,9 @@
 include: "/views/bre_na/bre_na_nbi_fields.view.lkml"
 
 # Screenshot-confirmed SRE_NBI_EMR_FAILURE_CORR_BLEND. Group each input before joining.
+# Period is determined by analysis_date, which is already an input grouping key.
+# Apply period bucketing in the outer LookML dimension, keeping this reusable SQL
+# independent of a parameter that is unavailable in the scatter Explore.
 # Preserve repeated daily metrics across EMR groups; no extra deduplication after the join.
 view: bre_na_nbi_emr_blend {
   extends: [bre_na_nbi_fields]
@@ -104,10 +107,7 @@ ON
 generation_input AS (
 SELECT DISTINCT q.analysis_date, q.nbi_error_pct,
         q.total_users_with_200_errorcode + q.total_users_with_300_errorcode AS failure_count,
-        {% if period._parameter_value == "'Weekly'" %}
-          date_add('day', -1, date_trunc('week', date_add('day', 1, q.analysis_date)))
-        {% elsif period._parameter_value == "'Monthly'" %} date_trunc('month', q.analysis_date)
-        {% else %} q.analysis_date {% endif %} AS period_date, q.pilot_id_name, CAST(q.pilot_id AS VARCHAR) AS pilot_id, q.pilot_name
+        q.pilot_id_name, CAST(q.pilot_id AS VARCHAR) AS pilot_id, q.pilot_name
       FROM generation_source q
       WHERE {% condition date_range %} q.analysis_date {% endcondition %}
           AND {% condition pilot_id %} CAST(q.pilot_id AS VARCHAR) {% endcondition %}
@@ -115,11 +115,7 @@ SELECT DISTINCT q.analysis_date, q.nbi_error_pct,
 ),
 emr_input AS (
 SELECT q.analysis_date, q.cluster_id, q.module_name, q.cluster_type,
-        q.metric_name, q.metric_value, {% if period._parameter_value == "'Weekly'" %}
-          date_add('day', -1, date_trunc('week', date_add('day', 1, q.analysis_date)))
-        {% elsif period._parameter_value == "'Monthly'" %} date_trunc('month', q.analysis_date)
-        {% else %} q.analysis_date {% endif %} AS period_date,
-        q.pilot_id_name, CAST(q.pilot_id AS VARCHAR) AS pilot_id, q.pilot_name,
+        q.metric_name, q.metric_value, q.pilot_id_name, CAST(q.pilot_id AS VARCHAR) AS pilot_id, q.pilot_name,
         AVG(q.duration_seconds) AS duration_seconds,
         1 - COUNT(DISTINCT q.cluster_type) AS failed_job_cnt,
         CAST(100 AS DOUBLE) * COUNT(CASE WHEN q.metric_value IN
@@ -129,23 +125,19 @@ SELECT q.analysis_date, q.cluster_id, q.module_name, q.cluster_type,
       WHERE {% condition date_range %} q.analysis_date {% endcondition %}
           AND {% condition pilot_id %} CAST(q.pilot_id AS VARCHAR) {% endcondition %}
           AND {% condition pilot_name %} q.pilot_name {% endcondition %}
-      GROUP BY 1,2,3,4,5,6,7,8,9,10
+      GROUP BY 1,2,3,4,5,6,7,8,9
 ),
 failed_jobs_input AS (
 SELECT q.analysis_date, CAST(q.pilot_id AS VARCHAR) AS pilot_id,
-        q.has_failed_stage, q.stages_present, {% if period._parameter_value == "'Weekly'" %}
-          date_add('day', -1, date_trunc('week', date_add('day', 1, q.analysis_date)))
-        {% elsif period._parameter_value == "'Monthly'" %} date_trunc('month', q.analysis_date)
-        {% else %} q.analysis_date {% endif %} AS period_date,
-        q.pilot_id_name, q.pilot_name, SUM(q.is_failed) AS is_failed
+        q.has_failed_stage, q.stages_present, q.pilot_id_name, q.pilot_name, SUM(q.is_failed) AS is_failed
       FROM failed_jobs_source q
       WHERE {% condition date_range %} q.analysis_date {% endcondition %}
           AND {% condition pilot_id %} CAST(q.pilot_id AS VARCHAR) {% endcondition %}
           AND {% condition pilot_name %} q.pilot_name {% endcondition %}
-      GROUP BY 1,2,3,4,5,6,7
+      GROUP BY 1,2,3,4,5,6
 )
 SELECT ROW_NUMBER() OVER () AS row_id,
-  g.analysis_date, g.period_date, g.pilot_id, g.pilot_name, g.pilot_id_name,
+  g.analysis_date, g.pilot_id, g.pilot_name, g.pilot_id_name,
   g.nbi_error_pct, g.failure_count,
   e.cluster_id, e.module_name, e.cluster_type, e.metric_name, e.metric_value,
   e.duration_seconds, e.failed_job_cnt, e.failure_rate_perc,

@@ -83,6 +83,20 @@ def run(output):
         raw=REF.sub(ref,raw)
         if f['kind']=='measures' and f['type'] in ['sum','average','max','min']:raw={'sum':'SUM','average':'AVG','max':'MAX','min':'MIN'}[f['type']]+'('+raw+')'
         return raw
+    # SQL_TABLE_NAME embeds SQL in another Explore. The renderer must not mask
+    # missing parameter scope by supplying a universal period variable.
+    def assert_parameter_scope(view,available,seen=None):
+        seen=set() if seen is None else seen
+        if view in seen:return
+        seen.add(view)
+        sql=views[view]['derived_table']['sql']
+        names=set(re.findall(r'(?<![\w.])(\w+)\._parameter_value',sql))
+        names.update(re.findall(r'{%\s*parameter\s+(\w+)\s*%}',sql))
+        missing=names-available
+        assert not missing,(view,'parameters unavailable in consuming Explore',sorted(missing))
+        for target in TABLE.findall(sql):assert_parameter_scope(target,available,seen)
+    for view in ['bre_na_nbi_emr_blend','bre_na_nbi_emr_scatter']:
+        assert_parameter_scope(view,set(resolve(view).get('parameters',{})))
     dashboards=[];cases=[]
     for suffix,count in [('nbi_governance',8),('nbi_emr_metrics',8)]:
         ident='bre_na_'+suffix;path='/dashboards/'+ident+'.dashboard.lookml'
@@ -242,8 +256,8 @@ def run(output):
         assert execute('SELECT COUNT(*) FROM ('+other+')')==[(0,)],input_name
     assert execute('SELECT COUNT(*) FROM ('+blend_fixture(conditions={'pilot_id':"{value} = '10038'"})+')')==[(0,)]
     assert execute('SELECT COUNT(*) FROM ('+blend_fixture(conditions={'date_range':"{value} = DATE '2026-09-29'"})+')')==[(0,)]
-    assert str(execute('SELECT DISTINCT period_date FROM ('+blend_fixture(period='Weekly')+')')[0][0])[:10]=='2026-09-27'
-    assert str(execute('SELECT DISTINCT period_date FROM ('+blend_fixture(period='Monthly')+')')[0][0])[:10]=='2026-09-01'
+    assert str(execute('SELECT DISTINCT '+expr(blend,'period_date',period='Weekly')+' FROM ('+blend_fixture(period='Weekly')+') q')[0][0])[:10]=='2026-09-27'
+    assert str(execute('SELECT DISTINCT '+expr(blend,'period_date',period='Monthly')+' FROM ('+blend_fixture(period='Monthly')+') q')[0][0])[:10]=='2026-09-01'
     point=blend_fixture(scatter)
     assert execute('SELECT failed_jobs,total_runs,nbi_error_pct FROM ('+point+')')==[(6,6,10)]
     # Every input SQL copy remains identical to the independently source-contracted view.
@@ -255,7 +269,7 @@ def run(output):
     t7=next(t for t in dashboards[1]['elements'] if t['name']=='na_8b_t07')
     assert t7['hidden_fields']==[scatter+'.analysis_date'] and t7['size_by_field']==scatter+'.nbi_error_pct_value'
     assert not t7['plot_size_by_field'] and t7['fields'][1]==scatter+'.failed_jobs'
-    report=dict(result='PASS',tiles=16,rendered_query_variants=len(cases),semantic_fixtures=44,source_contract_checks=7,native_looker_validation='NOT RUN: no connected Looker tools',queries=cases)
+    report=dict(result='PASS',tiles=16,rendered_query_variants=len(cases),semantic_fixtures=44,source_contract_checks=7,liquid_scope_checks=2,native_looker_validation='NOT RUN: no connected Looker tools',queries=cases)
     (output/'validation.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({k:v for k,v in report.items() if k!='queries'},indent=2))
 

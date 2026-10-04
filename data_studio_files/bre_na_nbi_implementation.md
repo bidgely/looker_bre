@@ -12,7 +12,7 @@ Status, 2026-10-04: **all 16 tiles implemented as two separate draft dashboards*
 
 SRC-41 generation, SRC-20 generic-tag users, SRC-32 EMR metrics, and SRC-18 failed-stage counts preserve the supplied SQL and pilot-directory joins. Changes are NA catalog qualification, exposing the already joined pilot name, and adding query-local row identifiers. No source deduplication or extra NBI module predicate is introduced. Filters apply after source processing; SRC-18 retains its per-pilot/day grouping before filters. All tables remain query-time derived tables.
 
-Both dashboards default to PSEG / pilot 10037 and the last seven completed days. Governance trends group Daily, Sunday-start Weekly, or Monthly. Governance scorecards aggregate the selected range independently of Period; Active Users uses its existing latest-snapshot/reporting-date behavior. EMR Period controls T05's time buckets. T06 retains daily analysis dates as specified; its input period is functionally dependent on those dates. T07 is explicitly one point per analysis date, so Period does not rebucket it. Scorecards and Details aggregate the selected range without date bucketing.
+Both dashboards default to PSEG / pilot 10037 and the last seven completed days. Governance trends group Daily, Sunday-start Weekly, or Monthly. Governance scorecards aggregate the selected range independently of Period; Active Users uses its existing latest-snapshot/reporting-date behavior. EMR Period controls T05's time buckets. T06 retains daily analysis dates as specified. The source-box Period values are determined by those dates, so the SQL groups by analysis_date and computes Period only in the outer chart dimension. T07 is explicitly one point per analysis date, so Period does not rebucket it. Scorecards and Details aggregate the selected range without date bucketing.
 
 ## Governance tiles
 
@@ -56,7 +56,7 @@ The shared blend is `SRE_NBI_EMR_FAILURE_CORR_BLEND`. Both inner joins use `pilo
 | SRC-32 EMR | analysis_date, cluster_id, module_name, cluster_type, metric_name, metric_value, period, pilot_id_name, pilot_id | AVG(duration_seconds); Auto failed_job_cnt = 1 - COUNT(DISTINCT cluster_type); Auto failure_rate_perc using its documented count ratio. |
 | SRC-18 failed jobs | analysis_date, pilot_id, has_failed_stage, stages_present, period, pilot_id_name | SUM(is_failed). |
 
-Pilot name is also exposed from each source for dashboard filtering; it is already determined by the pilot ID/name dimensions, so it does not add grouping detail. Source grouping is performed before the inner joins. Original source SQL copies are checked against the independently validated source views.
+Pilot name is also exposed from each source for dashboard filtering; it is already determined by the pilot ID/name dimensions, so it does not add grouping detail. Source grouping is performed before the inner joins. The redundant Period expression is omitted from the source SQL because analysis_date already determines it. This preserves input groups while avoiding a Liquid parameter dependency in the consuming scatter Explore. Original source SQL copies are checked against the independently validated source views.
 
 Daily generation counts and failed-job indicators can repeat across matching EMR cluster/status groups. These repetitions are preserved to match the screenshot and the chart SUMs, rather than applying distinct sums or extra deduplication. For example, historical PSEG days with two NBI failures and three EMR stage groups display six blended failures and nine summed stages. A single-source KPI and a blended count can therefore differ by design.
 
@@ -74,3 +74,13 @@ T07 aggregates the filtered blend once per analysis date in a separate query-tim
 - The seven new blend query variants pass Starburst planning. All three new tiles execute for both the empty default range and the populated historical range. Historical scatter results contain three daily points at (0 failed jobs, 9 summed stages) with 0% NBI error; duration trends contain nine stage/day groups.
 - Blend fixtures verify source-group deduplication/aggregation, AVG of input averages rather than raw-row weighting, inner-join exclusions, pilot-name key mismatches, filter placement, period buckets, and scatter coordinates.
 - [Evidence](bre_na_nbi_validation.json) retains query IDs, sample outputs, and the confirmed blend keys. Run `uv run scripts/validate_bre_na_nbi.py` to regenerate local checks and planning SQL. The renderer is a simulator, not Looker's compiler.
+
+## Web UI validation correction — 2026-10-04
+
+The user reported `Variable not found "period"` when Looker compiled the blend SQL through the scatter Explore. The blend referenced an unqualified Liquid parameter that the scatter Explore does not expose. The earlier local renderer supplied Period globally, so it missed this native validation error.
+
+The correction removes Period from the derived-table input projections/grouping. Every input still groups by full analysis_date, which already determines day/week/month, so join rows and metrics are unchanged. The outer period_date dimension retains Daily/Weekly/Monthly grouping for T05; T07 remains daily. No extra parameter or join is added to the scatter Explore.
+
+The validator now checks parameter availability through SQL_TABLE_NAME dependencies before rendering. Both the blend and scatter scopes pass, along with all 27 rendered queries, 44 calculation fixtures, and seven source-contract checks. Native Looker validation must be rerun in the web UI after pulling the fix. See the official [Liquid error guidance](https://docs.cloud.google.com/looker/docs/best-practices/flows/liquid-troubleshooting) for the Explore accessibility requirement.
+
+All seven affected SQL variants pass Starburst planning after the correction. Historical T05–T07 results match the prior results exactly, ignoring row order. The new scope checker rejects the previously committed blend when tested against it. Query IDs and comparison evidence are recorded in the validation JSON.
