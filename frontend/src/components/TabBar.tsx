@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Region, DashboardDefinition, REGION_DASHBOARDS, REGIONS } from '../types'
+import { Region, DashboardDefinition, REGION_DASHBOARDS, REGIONS, NA_DASHBOARD_GROUPS } from '../types'
 
 interface TabBarProps {
   currentRegion: Region
@@ -51,6 +51,10 @@ const SubNavRow = styled.div`
   overflow-x: auto;
 `
 
+const DetailNavRow = styled(SubNavRow)`
+  border-top: 1px solid #f1f3f4;
+`
+
 const DashboardSubTab = styled.button<{ $active: boolean }>`
   background: ${(props) => (props.$active ? '#e8f0fe' : 'transparent')};
   border: 1px solid ${(props) => (props.$active ? '#d2e3fc' : 'transparent')};
@@ -77,6 +81,9 @@ export const TabBar: React.FC<TabBarProps> = ({
 }) => {
   const dashboards: DashboardDefinition[] = REGION_DASHBOARDS[currentRegion]
 
+  const activeGroup = dashboards.find((dash) => dash.id === currentDashboardId)?.group
+  const groupDashboards = dashboards.filter((dash) => dash.group === activeGroup)
+
   const handleRegionClick = (region: Region) => {
     if (region !== currentRegion) {
       onSelectRegion(region)
@@ -100,20 +107,56 @@ export const TabBar: React.FC<TabBarProps> = ({
         ))}
       </RegionRow>
 
-      {/* Tier 2: Dashboard Sub-tabs */}
-      <SubNavRow role="group" aria-label="Dashboards">
-        {dashboards.map((dash) => (
-          <DashboardSubTab
-            key={dash.id}
-            $active={currentDashboardId === dash.id}
-            aria-pressed={currentDashboardId === dash.id}
-            onClick={() => onSelectDashboard(dash.id)}
-            title={dash.description}
-          >
-            {dash.label}
-          </DashboardSubTab>
-        ))}
-      </SubNavRow>
+      {currentRegion === 'NA' ? (
+        <>
+          <SubNavRow role="group" aria-label="Dashboard categories">
+            {NA_DASHBOARD_GROUPS.map((group) => (
+              <DashboardSubTab
+                key={group.id}
+                $active={activeGroup === group.id}
+                aria-pressed={activeGroup === group.id}
+                onClick={() => {
+                  if (activeGroup !== group.id) {
+                    const firstDashboard = dashboards.find((dash) => dash.group === group.id)
+                    if (firstDashboard) onSelectDashboard(firstDashboard.id)
+                  }
+                }}
+              >
+                {group.label}
+              </DashboardSubTab>
+            ))}
+          </SubNavRow>
+          {groupDashboards.length > 1 && (
+            <DetailNavRow role="group" aria-label="Dashboards">
+              {groupDashboards.map((dash) => (
+                <DashboardSubTab
+                  key={dash.id}
+                  $active={currentDashboardId === dash.id}
+                  aria-pressed={currentDashboardId === dash.id}
+                  onClick={() => onSelectDashboard(dash.id)}
+                  title={dash.description}
+                >
+                  {dash.subTabLabel}
+                </DashboardSubTab>
+              ))}
+            </DetailNavRow>
+          )}
+        </>
+      ) : (
+        <SubNavRow role="group" aria-label="Dashboards">
+          {dashboards.map((dash) => (
+            <DashboardSubTab
+              key={dash.id}
+              $active={currentDashboardId === dash.id}
+              aria-pressed={currentDashboardId === dash.id}
+              onClick={() => onSelectDashboard(dash.id)}
+              title={dash.description}
+            >
+              {dash.label}
+            </DashboardSubTab>
+          ))}
+        </SubNavRow>
+      )}
     </NavigationContainer>
   )
 }

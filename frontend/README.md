@@ -4,16 +4,21 @@ The `bre::bre_portal` Looker extension embeds the dashboards registered in
 `src/types.ts`. Regions appear in this order: North America (NA), Canada (CA),
 Europe (EU). A new session opens NA Ingestion Governance with PSEG (10037).
 
-NA contains 13 separate tabs, in source-document order:
+NA contains eight main tabs, in source-document order. Five have two dashboard
+sub-tabs, for 13 dashboards in total:
 
-- Ingestion Governance and Ingestion Queue Metrics
+- Ingestion: Governance / Queue Metrics
 - Aggregation
-- Disaggregation Governance and Disaggregation Queue Metrics
+- Disaggregation: Governance / Queue Metrics
 - TOU
 - Rate Comparison
-- Email Governance and Email Queue Metrics
-- HER Governance and HER Queue Metrics
-- NBI Governance and NBI EMR Metrics
+- Email: Governance / Queue Metrics
+- HER: Governance / Queue Metrics
+- NBI: Governance / EMR Metrics
+
+Aggregation, TOU, and Rate Comparison open directly without a sub-tab row.
+Selecting a different main tab opens its first dashboard; clicking the active
+main tab preserves the selected sub-tab.
 
 The portal labels and embedded dashboard titles omit source-document numbering
 such as 1a/1b. CA retains five dashboards and EU retains three. The dashboard tab
@@ -52,3 +57,7 @@ filter names. Checks covered NA-first startup, region resets, date/pilot
 handoffs, the queue date alias, ignored events from removed iframes, and tab
 access at 1440, 1024, and 390 pixels. No browser errors were recorded. Authenticated
 Looker embeds and native LookML validation still require the web UI check above.
+
+The grouped navigation check also verified exactly eight NA main tabs, two
+sub-tabs for each paired group, no sub-tab row for the three single dashboards,
+and preservation of the current sub-tab when its main tab is clicked again.
