@@ -38,8 +38,8 @@ view: itron_enrollment_files {
         select * from meter_status
         where {%condition active_meter%} is_active_meter {%endcondition%}
           and {%condition itron_enrollment_files.pilot_id%} pilot_id {%endcondition%}
-          and start_timestamp <= to_unixtime(CAST({% date_end date_series.continous_date %} AS timestamp))
-          and (end_timestamp is null or end_timestamp >= to_unixtime(CAST({% date_start date_series.continous_date %} AS timestamp)))
+          and start_timestamp <= to_unixtime(COALESCE(CAST({% date_end date_series.continous_date %} AS timestamp), current_timestamp))
+          and (end_timestamp is null or end_timestamp >= to_unixtime(COALESCE(CAST({% date_start date_series.continous_date %} AS timestamp), TIMESTAMP '1970-01-01')))
       ;;
   }
 

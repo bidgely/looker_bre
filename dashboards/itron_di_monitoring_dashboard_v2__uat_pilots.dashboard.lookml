@@ -1384,9 +1384,7 @@
     fields: [itron_solar_uat_data.date_hour_time, itron_solar_uat_data.status, itron_solar_uat_data.distinct_uuid_count]
     pivots: [itron_solar_uat_data.status]
     filters:
-      itron_solar_uat_data.date: 30 day ago for 30 day
-      itron_solar_uat_data.pilot_id: ''
-      itron_solar_uat_data.pilot_name: SMUD,PECAN
+      date_series.continous_date: 30 day ago for 30 day
       itron_solar_uat_data.status: present,missing
     sorts: [itron_solar_uat_data.date_hour_time, itron_solar_uat_data.status]
     limit: 500
@@ -1435,8 +1433,9 @@
     defaults_version: 1
     listen:
       Active Meter (Yes / No): itron_enrollment_files.active_meter
-      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_solar_uat_data.pilot_id
-      Primary Time Filter (UAT): itron_solar_uat_data.date
+      'Pilot [10014 : SMUD,  10015 : CNP,  10117 : SCE,  10118 : Pecan ST,  10126: Hydro One]': itron_enrollment_files.pilot_id
+      Primary Time Filter (UAT): date_series.continous_date
+      Date Granularity: date_series.timestamp_parameter
     row: 70
     col: 0
     width: 24

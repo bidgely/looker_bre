@@ -1401,9 +1401,7 @@
     pivots: [itron_solar_uat_data.status]
     filters:
       itron_enrollment_files.active_meter: ''
-      itron_solar_uat_data.date: 30 days
-      itron_solar_uat_data.pilot_id: ''
-      itron_solar_uat_data.pilot_name: ''
+      date_series.continous_date: 30 days
       itron_solar_uat_data.status: missing,present
     sorts: [itron_solar_uat_data.date_hour_time desc, itron_solar_uat_data.status]
     limit: 500
@@ -1514,10 +1512,10 @@
       shows the percentage of active meters that received zero data during each corresponding
       time period
     listen:
-      Primary Time Filter (Prod): itron_solar_uat_data.date
+      Primary Time Filter (Prod): date_series.continous_date
       Active Meter (Yes / No): itron_enrollment_files.active_meter
       Date Granularity: date_series.timestamp_parameter
-      'Pilot ID [10112 : TECO, 10118 : Pecan ST, 10223: LUMA, 10224: CNP]': itron_solar_uat_data.pilot_id
+      'Pilot ID [10112 : TECO, 10118 : Pecan ST, 10223: LUMA, 10224: CNP]': itron_enrollment_files.pilot_id
     row: 69
     col: 0
     width: 24
